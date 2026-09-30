@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import GalleryCard from '../components/GalleryCard.astro';
-import { tileSize } from '../lib/gallery';
 import { getPosts, type Post } from '../lib/posts';
 
 const posts = await getPosts();
@@ -20,7 +19,7 @@ for (const p of posts) {
       {[...groups].map(([month, list]) => (
         <section class="era" aria-label={month}>
           <h2 class="month" data-reveal><span class="dot" aria-hidden="true"></span>{month}<span class="n">{list.length}</span></h2>
-          <div class="gallery">{list.map((p, i) => <GalleryCard post={p} size={tileSize(i, false)} />)}</div>
+          <div class="gallery">{list.map((p) => <GalleryCard post={p} />)}</div>
         </section>
       ))}
     </div>

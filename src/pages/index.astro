@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import GalleryCard from '../components/GalleryCard.astro';
-import { tileSize } from '../lib/gallery';
 import HeroScene from '../components/HeroScene.astro';
 import KpiCard from '../components/charts/KpiCard.astro';
 import Heatmap from '../components/charts/Heatmap.astro';
@@ -101,7 +100,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
       <p class="empty">아직 기록이 없어요.</p>
     ) : (
       <div class="gallery" data-grid>
-        {ordered.map((post, i) => <GalleryCard post={post} size={i < PAGE ? tileSize(i) : ''} eager={i < 3} hidden={i >= PAGE} />)}
+        {ordered.map((post, i) => <GalleryCard post={post} eager={i < 3} hidden={i >= PAGE} />)}
       </div>
     )}
     <p class="empty" data-empty hidden>이 분류의 기록은 아직 없어요.</p>
@@ -131,7 +130,6 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 <script>
   import { animate, onScroll, splitText, stagger, steps } from 'animejs';
   import { reduced, cardsIn } from '../scripts/fx';
-  import { relayout } from '../lib/gallery';
   import { wireBookmarks } from '../scripts/bookmarks';
   import { markReadCards } from '../scripts/read';
 
@@ -192,7 +190,6 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     shown.forEach((c) => (c.hidden = false));
     if (more) more.hidden = matched.length <= limit;
     if (empty) empty.hidden = matched.length > 0;
-    relayout(shown);
     cardsIn(animateAll ? shown : shown.filter((c) => !before.has(c)));
   }
 

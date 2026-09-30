@@ -21,7 +21,7 @@ const minutes = readingMinutes(post.body);
   hidden={hidden}
 >
   <a class="media" href={postUrl(post)} tabindex="-1" aria-hidden="true">
-    <Thumbnail post={post} eager={eager} duration sizes="(min-width: 1400px) 400px, (min-width: 1024px) 30vw, (min-width: 640px) 48vw, 100vw" />
+    <Thumbnail post={post} eager={eager} sizes="(min-width: 1280px) 30vw, (min-width: 640px) 48vw, 100vw" />
     {(pinned || draft) && (
       <span class:list={['flag', { draft }]}>{draft ? '초안 · 로컬 전용' : <><span class="msr fill">push_pin</span>고정</>}</span>
     )}
@@ -47,8 +47,8 @@ const minutes = readingMinutes(post.body);
     box-shadow: 0 0 0 1px var(--border);
     transition: box-shadow 300ms var(--ease-out), translate 300ms var(--ease-out);
   }
-  .vcard:hover .media { translate: 0 -3px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 60%, transparent), 0 16px 32px -14px rgb(0 0 0 / 0.6), 0 0 24px -8px var(--glow); }
-  .vcard:hover .media :global(img) { transform: scale(1.04); }
+  .vcard:hover .media, .vcard:focus-within .media { translate: 0 -2px; box-shadow: 0 0 0 1px var(--brand), 0 12px 28px -16px rgb(0 0 0 / 0.4); }
+  .vcard:hover .media :global(img) { transform: scale(1.025); }
 
   .flag {
     position: absolute;
@@ -89,7 +89,7 @@ const minutes = readingMinutes(post.body);
   .vcard:hover .bm,
   .bm:focus-visible,
   .bm[aria-pressed='true'] { opacity: 1; }
-  .bm[aria-pressed='true'] { color: #ffd45a; }
+  .bm[aria-pressed='true'] { color: #8fd4c1; }
   .bm:hover { background: rgb(0 0 0 / 0.8); }
   @media (hover: none) { .bm { opacity: 1; } }
 

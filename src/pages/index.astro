@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import VideoCard from '../components/VideoCard.astro';
-import Jiny from '../components/Jiny.astro';
+import { Image } from 'astro:assets';
+import lunarLab from '../assets/lunar-lab.png';
 import KpiCard from '../components/charts/KpiCard.astro';
 import Heatmap from '../components/charts/Heatmap.astro';
 import { getPosts, url } from '../lib/posts';
@@ -19,7 +20,9 @@ const pct = Math.round((t.xp / t.next) * 100);
 <BaseLayout active="home">
   <section class="hero">
     <div class="hero-text">
-      <h1 class="title" data-title>Dev<span class="log">Log</span></h1>
+      <p class="eyebrow">GAME DEV / BUILD LOG</p>
+      <h1 class="title">플레이 뒤에 숨은<br /><span class="log">코드</span>를 기록하다.</h1>
+      <p class="intro">게임을 만드는 과정, 실험과 발견의 기록.</p>
       <div class="status" data-reveal>
         <span class="lv">Lv. {t.level}</span>
         <span class="xp" data-xp data-pct={pct} role="progressbar" aria-valuemin="0" aria-valuemax={t.next} aria-valuenow={t.xp} aria-label="경험치">
@@ -30,13 +33,14 @@ const pct = Math.round((t.xp / t.next) * 100);
         <span class="streak"><span class="flame" aria-hidden="true">🔥</span>{t.streak}일 연속 기록</span>
       </div>
     </div>
-    <div class="hero-art">
-      <Jiny id="hero" />
-      <p class="hint" aria-hidden="true">JINY를 눌러 보세요</p>
+    <div class="hero-art" aria-hidden="true">
+      <Image src={lunarLab} alt="" widths={[720, 1080, 1776]} sizes="(min-width: 1024px) 75vw, 100vw" loading="eager" fetchpriority="high" format="webp" />
+      <div class="stars">{Array.from({length: 9}, (_, i) => <i style={`--x:${42 + (i * 17) % 55}%;--y:${8 + (i * 23) % 64}%;--delay:${i * .7}s`} />)}</div>
     </div>
   </section>
 
-  <section class="activity" aria-labelledby="activity-title">
+  <details class="activity">
+    <summary><span class="activity-label"><span class="msr" aria-hidden="true">insights</span>나의 개발 기록</span><span class="activity-summary">{t.posts}개의 기록 · Lv. {t.level}<span class="msr" aria-hidden="true">expand_more</span></span></summary>
     <div class="sec-head">
       <h2 class="section-title" id="activity-title"><span class="msr">insights</span>활동</h2>
       <a class="btn btn-ghost btn-sm" href={url('stats/')}>통계 자세히<span class="msr">arrow_forward</span></a>
@@ -53,7 +57,7 @@ const pct = Math.round((t.xp / t.next) * 100);
       </header>
       <Heatmap cols={heatmap(posts, 26)} />
     </div>
-  </section>
+  </details>
 
   <section class="feed" aria-labelledby="feed-title">
     <div class="toolbar">
@@ -65,7 +69,7 @@ const pct = Math.round((t.xp / t.next) * 100);
         <span class="tab-indicator" data-indicator></span>
       </div>
       <div class="tools">
-        <button class="search-box" type="button" data-open-search>
+        <button class="search-box" type="button" data-open-search aria-label="기록 검색">
           <span class="msr">search</span><span class="ph">기록 검색…</span><kbd class="kbd">Ctrl K</kbd>
         </button>
         <span class="vsep wide-only" aria-hidden="true"></span>
@@ -97,22 +101,9 @@ const pct = Math.round((t.xp / t.next) * 100);
 </BaseLayout>
 
 <script>
-  import { animate, random, splitText } from 'animejs';
-  import { reduced, xpBar, cardsIn, moveIndicator } from '../scripts/fx';
+  import { xpBar, cardsIn, moveIndicator } from '../scripts/fx';
   import { wireBookmarks } from '../scripts/bookmarks';
 
-  // DevLog: 글자가 하나씩 튀어 올라 자리 잡고, 마우스를 올리면 통통 튄다
-  const title = document.querySelector<HTMLElement>('[data-title]');
-  if (title && !reduced()) {
-    const { chars } = splitText(title, { chars: { class: 'char' } });
-    title.style.opacity = '1';
-    chars.forEach((c: HTMLElement, i: number) =>
-      animate(c, { translateY: ['60%', '0%'], scale: [0.6, 1], opacity: [0, 1], rotate: [random(-15, 15), 0], duration: 1000, delay: 150 + i * 70, ease: 'outElastic(1, .55)' }),
-    );
-    chars.forEach((c: HTMLElement) =>
-      c.addEventListener('pointerenter', () => animate(c, { translateY: [0, -18, 0], rotate: [0, -8, 0], duration: 600, ease: 'outElastic(1, .4)' })),
-    );
-  }
   xpBar(document.querySelector('[data-xp]'));
   wireBookmarks();
 
@@ -183,83 +174,87 @@ const pct = Math.round((t.xp / t.next) * 100);
   /* ── Hero ── */
   .hero {
     position: relative;
-    display: grid;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 24px 16px 8px;
+    min-height: 340px;
+    padding: 48px 36px;
+    overflow: hidden;
     isolation: isolate;
+    border-bottom: 1px solid var(--border);
+    background: #111522;
+    color: #e7ebf5;
   }
-  /* shadcn 랜딩처럼 옅은 점 격자 + 보라 빛 */
   .hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(circle at 72% 45%, var(--hero-glow), transparent 55%),
-      radial-gradient(color-mix(in srgb, var(--foreground) 10%, transparent) 1px, transparent 1.4px) 0 0 / 22px 22px;
-    -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
-    mask-image: linear-gradient(180deg, #000 60%, transparent);
-  }
-  @media (min-width: 900px) {
-    .hero { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; padding: 32px 40px 16px; }
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(90deg, #111522 2%, #111522f2 25%, #11152299 49%, transparent 75%);
   }
 
-  /* Size the wordmark against its actual column, including the sidebar breakpoint. */
-  .hero-text { min-width: 0; container-type: inline-size; }
+  .hero-text { position: relative; z-index: 2; min-width: 0; width: min(62%, 640px); animation: settle 850ms var(--ease-out) both; }
+  .eyebrow { margin: 0 0 22px; color: #c9bff1; font: 500 10px/1.5 var(--font-mono); letter-spacing: .26em; }
   .title {
-    margin: 0 0 22px;
-    font-size: clamp(40px, 26cqw, 136px);
-    font-weight: 900;
-    line-height: 1.2;
-    letter-spacing: -0.055em;
-    white-space: nowrap;
-    cursor: default;
+    margin: 0;
+    font-size: clamp(28px, 3.2vw, 52px);
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -0.045em;
   }
-  /* ⚠️ splitText 가 글자를 단어 span 으로 한 번 더 감싸서 background: inherit 로는 그라디언트가 안 내려온다.
-     쪼개기 전(.log)과 후(.char) 양쪽에 직접 칠한다. */
-  .title .log,
-  .title .log :global(.char) {
-    background: linear-gradient(120deg, var(--chart-1), var(--chart-2) 60%, var(--chart-3));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .title .log:has(:global(.char)) { background: none; }
+  .title .log { color: #a99be8; }
+  .intro { margin: 18px 0 24px; color: #bec5d8; font-size: 14px; }
 
-  .status { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; font-size: 14px; }
+  .status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; font-size: 11px; }
   .lv { font-weight: 800; }
-  .xp { position: relative; width: 140px; height: 7px; border-radius: 99px; background: color-mix(in srgb, var(--foreground) 12%, transparent); overflow: hidden; }
+  .xp { position: relative; width: 80px; height: 4px; border-radius: 99px; background: #ffffff20; overflow: hidden; }
   .xp-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: linear-gradient(90deg, var(--chart-2), var(--chart-1)); box-shadow: 0 0 10px var(--glow); }
-  .xp-text { color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+  .xp-text { color: #bec5d8; font-variant-numeric: tabular-nums; }
   .vsep { width: 1px; height: 18px; background: var(--border); }
-  .streak { display: inline-flex; align-items: center; gap: 6px; color: var(--amber); font-weight: 700; }
+  .streak { display: inline-flex; align-items: center; gap: 6px; color: #8fd4c1; font-weight: 500; }
   .flame { display: inline-block; animation: flicker 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
   @keyframes flicker { 30% { scale: 1.12 0.94; rotate: -4deg; } 60% { scale: 0.95 1.08; rotate: 3deg; } }
 
-  .hero-art { position: relative; width: min(100%, 420px); justify-self: center; }
-  .hint { margin: -4px 0 0; text-align: center; font-size: 12px; color: var(--muted-foreground); }
-  @media (max-width: 899px) {
-    .hero { text-align: center; }
-    .hero-art { order: -1; width: min(78%, 320px); }
-    .status { justify-content: center; }
+  .hero-art { position: absolute; inset: 0; z-index: 0; }
+  .hero-art :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: right 54%; animation: arrive 1.2s ease-out both; }
+  .stars { position: absolute; inset: 0; pointer-events: none; }
+  .stars i { position: absolute; left: var(--x); top: var(--y); width: 3px; height: 3px; border-radius: 50%; background: #e7ebf5; box-shadow: 0 0 9px #a99be8; animation: twinkle 5s ease-in-out var(--delay) infinite; }
+  @keyframes twinkle { 0%, 100% { opacity: .15; transform: scale(.7); } 50% { opacity: .85; transform: scale(1.2); } }
+  @keyframes settle { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
+  @media (max-width: 699px) {
+    .hero { padding: 180px 20px 28px; min-height: 410px; align-items: flex-end; }
+    .hero-text { width: 100%; }
+    .hero::before { background: linear-gradient(0deg, #111522 3%, #111522e8 48%, #11152220 100%); }
+    .hero-art :global(img) { object-position: 88% top; }
+    .eyebrow { margin-bottom: 12px; }
+    .intro { margin: 12px 0 18px; }
   }
 
   /* ── Activity ── */
-  .activity { padding: 28px 16px 8px; }
-  @media (min-width: 1024px) { .activity { padding: 28px 40px 8px; } }
+  .activity { margin: 0 32px; border-bottom: 1px solid var(--border); }
+  .activity summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 0; cursor: pointer; list-style: none; color: var(--muted-foreground); font-size: 12px; }
+  .activity summary::-webkit-details-marker { display: none; }
+  .activity-label, .activity-summary { display: inline-flex; align-items: center; gap: 8px; }
+  .activity summary .msr { font-size: 16px; color: var(--brand); }
+  .activity[open] summary { margin-bottom: 12px; }
+  .activity[open] .activity-summary .msr { rotate: 180deg; }
+  .activity[open] { padding-bottom: 20px; }
   .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .sec-head .btn .msr { font-size: 16px; }
   .kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 12px; }
 
   /* ── Feed ── */
-  .feed { padding: 40px 16px 56px; }
-  @media (min-width: 1024px) { .feed { padding: 44px 40px 72px; } }
+  .feed { padding: 20px 32px 56px; }
+  @media (max-width: 699px) { .feed { padding: 18px 16px 36px; } .activity { margin-inline: 16px; } }
 
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
   .feed-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 19px; font-weight: 700; height: 44px; }
   .count { display: inline-grid; place-items: center; min-width: 32px; height: 26px; padding: 0 8px; border-radius: var(--radius-sm); background: var(--secondary); color: var(--secondary-foreground); font-size: 14px; font-variant-numeric: tabular-nums; }
-  .tabs-line { flex: 1; min-width: 0; margin-bottom: -1px; }
+  .tabs-line { flex: 1; min-width: 0; margin-bottom: -1px; gap: 8px; padding-block: 5px; }
+  .tabs-line .tab { height: 34px; border: 1px solid var(--input); border-radius: 999px; padding-inline: 16px; font-size: 12px; }
+  .tabs-line .tab[aria-selected='true'] { color: var(--primary-foreground); background: var(--primary); border-color: var(--primary); }
+  .tab-indicator { display: none; }
   .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; max-width: 100%; padding-bottom: 6px; }
 
   .search-box { display: flex; align-items: center; gap: 10px; width: 250px; height: 40px; padding: 0 8px 0 12px; border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--card); color: var(--muted-foreground); font: 400 14px/1 var(--font-sans); cursor: text; transition: border-color var(--dur); }
@@ -284,8 +279,8 @@ const pct = Math.round((t.xp / t.next) * 100);
     .search-box .ph, .search-box .kbd { display: none; }
   }
 
-  .grid { display: grid; gap: 34px 22px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
-  @media (min-width: 1400px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .grid { display: grid; gap: 28px 22px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (min-width: 1280px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 639px) { .grid { grid-template-columns: 1fr; } }
   .empty { margin: 32px 0; text-align: center; color: var(--muted-foreground); }
   .more { display: flex; justify-content: center; margin-top: 36px; }

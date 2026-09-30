@@ -130,7 +130,7 @@ const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, h
   });
   document.querySelectorAll('[data-open-search]').forEach((b) => b.addEventListener('click', () => open()));
   document.addEventListener('keydown', (e) => {
-    const typing = (e.target as HTMLElement).closest('input, textarea, select') && e.target !== input;
+    const typing = (e.target as Element).closest?.('input, textarea, select') && e.target !== input;
     if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing && !dialog.open)) {
       e.preventDefault();
       open();

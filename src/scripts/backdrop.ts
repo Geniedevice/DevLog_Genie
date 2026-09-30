@@ -3,9 +3,9 @@ import { reduced } from './fx';
 // 페이지 전체 배경: 깊이 3단 별 + 성운 두 덩이. 스크롤하면 먼 층일수록 느리게 흘러 입체감이 난다.
 // 한 번 그린 별 타일을 스크롤 오프셋만큼 밀어 붙이는 방식이라 가볍다(매 프레임 별을 다시 계산하지 않음).
 const TIERS = [
-  { count: 90, size: [0.4, 0.9], speed: 0.06, alpha: 0.35 },
-  { count: 50, size: [0.7, 1.3], speed: 0.14, alpha: 0.55 },
-  { count: 22, size: [1.1, 1.9], speed: 0.28, alpha: 0.8 },
+  { count: 90, size: [0.4, 0.9], speed: 0.12, alpha: 0.35 },
+  { count: 50, size: [0.7, 1.3], speed: 0.32, alpha: 0.55 },
+  { count: 22, size: [1.1, 1.9], speed: 0.62, alpha: 0.8 },
 ];
 const TILE = 900; // 세로 반복 단위(px)
 
@@ -39,8 +39,8 @@ export function startBackdrop(canvas: HTMLCanvasElement) {
 
     // 성운: 가장 느리게 움직이는 큰 빛덩이
     const blobs = [
-      { x: 0.78, y: 0.25, r: 0.5, c: isDark ? '169,155,232' : '122,104,214', a: isDark ? 0.09 : 0.06, speed: 0.03 },
-      { x: 0.25, y: 0.85, r: 0.45, c: isDark ? '143,212,193' : '47,157,132', a: isDark ? 0.06 : 0.045, speed: 0.05 },
+      { x: 0.78, y: 0.25, r: 0.5, c: isDark ? '169,155,232' : '122,104,214', a: isDark ? 0.09 : 0.06, speed: 0.08 },
+      { x: 0.25, y: 0.85, r: 0.45, c: isDark ? '143,212,193' : '47,157,132', a: isDark ? 0.06 : 0.045, speed: 0.16 },
     ];
     for (const b of blobs) {
       const cy = ((b.y * h - sy * b.speed) % (h * 1.6) + h * 1.6) % (h * 1.6) - h * 0.3;

@@ -71,7 +71,7 @@ export function layerMoon() {
 export function layerFar() {
   return svg(
     'layer-far',
-    `<path d="M0 262 L70 214 L130 240 L210 186 L290 236 L360 204 L450 246 L540 196 L620 232 L700 200 L780 240 L860 212 L960 250 V330 H0Z" fill="${P.far}" opacity=".85"/>
+    `<path d="M-160 250 L-80 222 L0 262 L70 214 L130 240 L210 186 L290 236 L360 204 L450 246 L540 196 L620 232 L700 200 L780 240 L860 212 L960 250 V440 H-160Z" fill="${P.far}" opacity=".85"/>
     <path d="M0 262 L70 214 L130 240 L210 186 L290 236 L360 204 L450 246 L540 196 L620 232 L700 200 L780 240" fill="none" stroke="${P.lav}" stroke-width="1" opacity=".25"/>`,
   );
 }
@@ -83,10 +83,10 @@ export function layerNear() {
     .join('');
   return svg(
     'layer-near',
-    `<path d="M0 270 Q140 238 240 262 T440 250 T640 264 T800 244 V340 H0Z" fill="${P.ground}"/>
+    `<path d="M-160 262 Q-40 250 0 270 Q140 238 240 262 T440 250 T640 264 T800 244 T960 250 V460 H-160Z" fill="${P.ground}"/>
     ${towers}
     <path d="M380 262 a26 20 0 0 1 52 0z" fill="#20263e"/><rect class="base-light" x="402" y="252" width="6" height="3" fill="${P.lav}"/>
-    <path d="M0 298 Q180 276 320 292 T600 286 T800 280 V340 H0Z" fill="${P.ground2}"/>`,
+    <path d="M-160 300 Q0 286 0 298 Q180 276 320 292 T600 286 T800 280 T960 284 V460 H-160Z" fill="${P.ground2}"/>`,
   );
 }
 

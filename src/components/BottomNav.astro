@@ -1,10 +1,11 @@
 ---
 import Icon from './Icon.astro';
-import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
+import { NAV, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
 interface Props { active?: NavKey }
 const { active } = Astro.props;
-const items = [NAV[0], NAV[1], BOOKMARKS, NAV[4]];
+// 좁은 화면 하단은 4칸: 일지 · 프로젝트 · 통계 · 소개 (북마크·태그는 검색 팔레트에서)
+const items = [NAV[0], NAV[1], NAV[2], NAV[5]];
 ---
 <nav class="bottom-nav" aria-label="주 메뉴">
   {items.map((n) => (

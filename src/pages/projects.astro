@@ -1,0 +1,222 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Thumbnail from '../components/Thumbnail.astro';
+import { getGames } from '../lib/games';
+import { postUrl, readingMinutes } from '../lib/posts';
+
+// 게임 선택 화면처럼: 아래 카트리지를 고르면 위 미리보기·능력치가 바뀐다.
+// JS 가 없으면 스테이지 셋이 그냥 차례로 다 보인다(선택 UI 는 스크립트가 켤 때만).
+const games = await getGames();
+const MAX_TEAM = 6;
+const bars = (g: (typeof games)[number]) => [
+  { label: 'TEAM', value: g.data.game.team, max: MAX_TEAM, text: g.data.game.team === 1 ? '1명 (개인)' : `${g.data.game.team}명` },
+  { label: 'TECH', value: g.data.game.stack.length + 1, max: 6, text: `${g.data.game.stack.length + 1}종` },
+  { label: 'LOG', value: Math.min(10, readingMinutes(g.body)), max: 10, text: `${readingMinutes(g.body)}분 분량` },
+];
+---
+<BaseLayout title="프로젝트" active="projects" description="만든 게임 세 편 — Gears of Deceit, Crawlescape, DESTINATION">
+  <div class="page" data-stage-select>
+    <header class="head">
+      <p class="eyebrow pixel-font"><span class="blink">▶</span> STAGE SELECT</p>
+      <h1>게임 프로젝트</h1>
+      <p class="sub">직접 만든 게임 {games.length}편. 골라서 기록을 열어 보세요. <span class="keys"><kbd class="kbd">←</kbd><kbd class="kbd">→</kbd> 선택 <kbd class="kbd">Enter</kbd> 열기</span></p>
+    </header>
+
+    <!-- 미리보기: 선택된 스테이지 하나만 보인다 -->
+    <div class="stages">
+      {games.map((g, i) => {
+        const d = g.data.game;
+        return (
+          <section class="stage" data-stage={i} aria-labelledby={`stage-${i}`}>
+            <div class="screen" data-tilt>
+              <Thumbnail post={g} text={false} eager={i === 0} sizes="(min-width: 1200px) 720px, 100vw" />
+              <span class="scan" aria-hidden="true"></span>
+              <span class="stage-no pixel-font">STAGE {String(i + 1).padStart(2, '0')}</span>
+              <a class="press pixel-font" href={postUrl(g)}>▶ PRESS ENTER</a>
+            </div>
+            <div class="info">
+              <p class="genre">{d.genre}</p>
+              <h2 id={`stage-${i}`}>{d.title}</h2>
+              <p class="tagline">{d.tagline}</p>
+              <dl class="facts">
+                <div><dt>기간</dt><dd>{d.period}</dd></div>
+                <div><dt>담당</dt><dd>{d.role}</dd></div>
+                <div><dt>엔진</dt><dd>{d.engine}</dd></div>
+              </dl>
+              <div class="stats">
+                {bars(g).map((b) => (
+                  <div class="stat">
+                    <span class="stat-label pixel-font">{b.label}</span>
+                    <span class="segs" data-segs={b.value}>{Array.from({ length: b.max }, (_, k) => <i class:list={{ on: k < b.value }}></i>)}</span>
+                    <span class="stat-text">{b.text}</span>
+                  </div>
+                ))}
+              </div>
+              <ul class="stack">{d.stack.map((s) => <li class="badge badge-outline">{s}</li>)}</ul>
+              <div class="actions">
+                <a class="btn btn-default" href={postUrl(g)}><Icon name="book-open" size={17} />기록 읽기</a>
+                <a class="btn btn-outline" href={d.portfolio} target="_blank" rel="noopener"><Icon name="briefcase" size={17} />포트폴리오</a>
+                {d.video && <a class="btn btn-ghost" href={d.video} target="_blank" rel="noopener"><Icon name="play" size={17} />영상</a>}
+                {d.repo && <a class="btn btn-ghost" href={d.repo} target="_blank" rel="noopener"><Icon name="code" size={17} />GitHub</a>}
+              </div>
+            </div>
+          </section>
+        );
+      })}
+    </div>
+
+    <!-- 카트리지 선택 줄 -->
+    <div class="carts" role="tablist" aria-label="게임 선택">
+      {games.map((g, i) => (
+        <button class="cart" type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-pick={i}>
+          <span class="cursor pixel-font" aria-hidden="true">▼</span>
+          <span class="cart-art"><Thumbnail post={g} text={false} sizes="240px" /></span>
+          <span class="cart-label">
+            <span class="pixel-font no">0{i + 1}</span>
+            <span class="name">{g.data.game.title}</span>
+            <span class="meta">{g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team}P`} · {g.data.game.period.split(' ')[0]}</span>
+          </span>
+        </button>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { animate, random, stagger, steps } from 'animejs';
+  import { reduced } from '../scripts/fx';
+  import { sfx } from '../scripts/sfx';
+
+  const root = document.querySelector<HTMLElement>('[data-stage-select]');
+  if (root) {
+    const stages = [...root.querySelectorAll<HTMLElement>('[data-stage]')];
+    const carts = [...root.querySelectorAll<HTMLButtonElement>('[data-pick]')];
+    root.classList.add('enhanced');
+    let current = -1;
+
+    const fillBars = (stage: HTMLElement) => {
+      if (reduced()) return;
+      stage.querySelectorAll<HTMLElement>('.segs').forEach((s, row) =>
+        animate(s.querySelectorAll('i.on'), { opacity: [0, 1], scaleY: [0.2, 1], duration: 90, delay: stagger(70, { start: 250 + row * 120 }), ease: steps(2) }),
+      );
+    };
+
+    function select(i: number, withSound = true) {
+      i = (i + stages.length) % stages.length;
+      if (i === current) return;
+      current = i;
+      carts.forEach((c, k) => c.setAttribute('aria-selected', String(k === i)));
+      stages.forEach((s, k) => (s.hidden = k !== i));
+      if (withSound) sfx('select');
+      history.replaceState(null, '', `?stage=${i + 1}`);
+      if (reduced()) return;
+      const next = stages[i];
+      // 화면 전환: 게임 스테이지가 바뀌듯 가로 줄무늬로 쓸고 들어온다
+      animate(next.querySelector('.screen')!, { clipPath: ['inset(0 0 100% 0)', 'inset(0 0 0% 0)'], duration: 520, ease: 'outExpo' });
+      animate(next.querySelectorAll('.info > *'), { opacity: [0, 1], translateX: [24, 0], duration: 500, delay: stagger(45), ease: 'outExpo' });
+      animate(carts[i], { scale: [1, 1.06, 1], duration: 420, ease: 'outBack(3)' });
+      fillBars(next);
+    }
+
+    carts.forEach((c, i) => {
+      c.addEventListener('click', () => select(i));
+      c.addEventListener('dblclick', () => stages[i].querySelector<HTMLAnchorElement>('.press')?.click());
+    });
+    addEventListener('keydown', (e) => {
+      if ((e.target as Element).closest?.('input, textarea, select, dialog[open]')) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); select(current + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); select(current - 1); }
+      else if (e.key === 'Enter' && !(e.target as Element).closest?.('a, button')) { sfx('jump'); stages[current].querySelector<HTMLAnchorElement>('.press')?.click(); }
+    });
+
+    const want = Number(new URLSearchParams(location.search).get('stage')) - 1;
+    select(want >= 0 && want < stages.length ? want : 0, false);
+
+    if (!reduced()) {
+      // 입장: 카트리지가 아래에서 차례로 꽂히고, 선택 커서가 통통 튄다
+      carts.forEach((c, k) => animate(c, { opacity: [0, 1], translateY: [60, 0], rotate: [random(-6, 6), 0], duration: 800, delay: 200 + k * 110, ease: 'outBack(1.6)' }));
+      animate(root.querySelectorAll('.cursor'), { translateY: [0, -6], duration: 420, loop: true, alternate: true, ease: steps(2) });
+      animate(root.querySelectorAll('.blink'), { opacity: [1, 0], duration: 500, loop: true, alternate: true, ease: steps(1) });
+      animate(root.querySelectorAll('.press'), { opacity: [1, 0.35], duration: 600, loop: true, alternate: true, ease: steps(1) });
+      animate(root.querySelectorAll('.scan'), { backgroundPositionY: ['0px', '8px'], duration: 600, loop: true, ease: 'linear' });
+    }
+  }
+</script>
+
+<style>
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 16px 72px; }
+  @media (min-width: 1024px) { .page { padding: 40px 40px 80px; } }
+  .head { margin-bottom: 26px; }
+  .eyebrow { margin: 0 0 12px; font-size: 12px; letter-spacing: 0.34em; color: var(--mint); }
+  h1 { margin: 0; font-size: clamp(30px, 4vw, 44px); font-weight: 900; letter-spacing: -0.04em; }
+  .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 8px 0 0; color: var(--muted-foreground); }
+  .keys { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+
+  /* ── 미리보기 ── */
+  .stages { display: grid; gap: 40px; }
+  .stage { display: grid; gap: 28px; align-items: start; }
+  @media (min-width: 1000px) { .stage { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+  :global(.enhanced) .stages { min-height: 440px; }
+
+  .screen {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 2px solid color-mix(in srgb, var(--brand) 55%, var(--border));
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--card) 80%, transparent), 0 0 40px -8px var(--glow), var(--shadow-lg);
+    transform-style: preserve-3d;
+  }
+  .screen::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.14), transparent 55%); opacity: var(--glare, 0); transition: opacity 250ms; }
+  /* CRT 주사선 + 가장자리 어둡게 */
+  .scan { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.16) 0 2px, transparent 2px 4px), radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.45)); mix-blend-mode: multiply; }
+  .stage-no { position: absolute; left: 14px; top: 14px; z-index: 3; padding: 5px 9px; border-radius: 5px; background: rgb(10 12 22 / 0.8); color: var(--mint); font-size: 11px; letter-spacing: 0.18em; }
+  .press { position: absolute; left: 50%; bottom: 18px; z-index: 3; translate: -50% 0; padding: 8px 14px; border-radius: 6px; background: rgb(10 12 22 / 0.78); color: #f2cf7a; font-size: 12px; letter-spacing: 0.22em; white-space: nowrap; }
+
+  .info > * { margin: 0; }
+  .genre { font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--brand); }
+  .info h2 { margin-top: 8px; font-size: clamp(28px, 3.4vw, 40px); font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; }
+  .tagline { margin-top: 10px; font-size: 16px; color: var(--muted-foreground); }
+  .facts { display: grid; gap: 8px; margin-top: 22px; }
+  .facts div { display: grid; grid-template-columns: 44px 1fr; gap: 12px; font-size: 14px; }
+  .facts dt { color: var(--muted-foreground); }
+  .facts dd { margin: 0; font-weight: 600; }
+
+  .stats { display: grid; gap: 10px; margin-top: 22px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+  .stat { display: grid; grid-template-columns: 46px auto 1fr; align-items: center; gap: 12px; }
+  .stat-label { font-size: 11px; letter-spacing: 0.16em; color: var(--muted-foreground); }
+  .segs { display: inline-flex; gap: 3px; padding: 2px; border: 1px solid var(--input); }
+  .segs i { width: 14px; height: 12px; background: var(--muted); }
+  .segs i.on { background: linear-gradient(var(--mint), color-mix(in srgb, var(--mint) 70%, #000)); box-shadow: 0 0 6px color-mix(in srgb, var(--mint) 60%, transparent); }
+  .stat-text { font-size: 13px; color: var(--muted-foreground); }
+  .stack { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; padding: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+
+  /* ── 카트리지 ── */
+  .carts { display: none; gap: 16px; margin-top: 40px; }
+  :global(.enhanced) .carts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  :global(.enhanced) .stage[hidden] { display: none; }
+  .cart {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 12px;
+    border: 2px solid var(--border);
+    border-radius: 14px 14px 8px 8px;
+    background: linear-gradient(180deg, var(--card), color-mix(in srgb, var(--card) 70%, #000));
+    color: var(--foreground);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 200ms, box-shadow 250ms, filter 250ms, translate 300ms var(--ease-out);
+    filter: saturate(0.55) brightness(0.8);
+  }
+  .cart:hover { filter: saturate(0.9) brightness(0.95); border-color: color-mix(in srgb, var(--brand) 50%, var(--border)); }
+  .cart[aria-selected='true'] { translate: 0 -8px; filter: none; border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft), 0 0 30px -6px var(--glow); }
+  .cart-art { display: block; border-radius: 6px; overflow: hidden; }
+  .cart-label { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+  .no { font-size: 11px; letter-spacing: 0.2em; color: var(--mint); }
+  .name { font-weight: 800; font-size: 16px; }
+  .meta { font-size: 12px; color: var(--muted-foreground); }
+  .cursor { position: absolute; left: 50%; top: -24px; translate: -50% 0; color: #f2cf7a; font-size: 14px; opacity: 0; }
+  .cart[aria-selected='true'] .cursor { opacity: 1; }
+</style>

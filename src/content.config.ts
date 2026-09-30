@@ -21,6 +21,23 @@ const posts = defineCollection({
       tags: z.array(z.string()).default([]),
       series: z.string().optional(),
       pinned: z.boolean().default(false),
+      // 게임 프로젝트 소개 글이면 채운다 → /projects/ 스테이지 선택 화면에 뜬다
+      game: z
+        .object({
+          title: z.string(),
+          tagline: z.string(),
+          genre: z.string(),
+          period: z.string(),
+          team: z.number(), // 팀 인원(개인 = 1)
+          role: z.string(),
+          engine: z.string(),
+          stack: z.array(z.string()),
+          order: z.number(), // 선택 화면 순서(시간순)
+          portfolio: z.string().url(),
+          repo: z.string().url().optional(),
+          video: z.string().url().optional(),
+        })
+        .optional(),
       draft: z.boolean().default(false),
     }),
 });

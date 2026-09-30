@@ -148,3 +148,6 @@
 .prose summary { cursor: pointer; font-weight: 700; }
 .prose summary::marker { color: var(--brand); }
 .prose details[open] summary { margin-bottom: 12px; }
+
+/* 유튜브 임베드: 16:9 */
+.prose iframe.video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; margin: 28px 0; border: 0; border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--border), var(--shadow-md); background: #000; }

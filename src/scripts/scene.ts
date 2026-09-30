@@ -18,7 +18,7 @@ export function animateScene(root: HTMLElement) {
     animate(layer, {
       translateY: [0, k * root.offsetHeight],
       ease: 'linear',
-      autoplay: onScroll({ target: hero, enter: 'start start', leave: 'start end', sync: 0.25 }),
+      autoplay: onScroll({ target: hero, enter: 'start start', leave: 'start end', sync: 0.18 }),
     });
   });
 

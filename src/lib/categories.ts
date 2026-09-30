@@ -1,6 +1,7 @@
 // 카테고리마다 아이콘(lucide 이름)·색을 고정한다. 커버 없는 글의 썸네일 배경에 쓰인다.
 const ICONS: Record<string, string> = {
   Devlog: 'notebook-pen',
+  Project: 'gamepad-2',
   Unreal: 'swords',
   'C++': 'terminal',
   GAS: 'wand-sparkles',

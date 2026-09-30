@@ -30,3 +30,15 @@ export function tagCounts(posts: Post[]): [string, number][] {
   for (const p of posts) for (const t of p.data.tags) map.set(t, (map.get(t) ?? 0) + 1);
   return [...map].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
+
+// 태그가 겹칠수록, 같은 카테고리일수록 가깝다. 하나도 안 겹치면 싣지 않는다.
+export function relatedTo(post: Post, all: Post[], limit = 3): Post[] {
+  const tags = new Set(post.data.tags);
+  return all
+    .filter((p) => p.id !== post.id)
+    .map((p) => ({ p, score: p.data.tags.filter((t) => tags.has(t)).length * 2 + (p.data.category === post.data.category ? 1 : 0) }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || b.p.data.date.valueOf() - a.p.data.date.valueOf())
+    .slice(0, limit)
+    .map((x) => x.p);
+}

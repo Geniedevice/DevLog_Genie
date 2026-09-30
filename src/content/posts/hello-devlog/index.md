@@ -2,6 +2,8 @@
 title: 데브로그를 시작합니다
 description: 무엇을 만들었는지보다 왜 그렇게 만들었는지를 남기는 곳. 이 블로그에서 다룰 이야기와 기록 방식을 정리합니다.
 date: 2026-09-30
+cover: ./cover.png
+coverAlt: Material 3 셰이프로 꾸민 데브로그 로고
 category: Devlog
 tags: [devlog, 회고]
 pinned: true

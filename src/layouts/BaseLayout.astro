@@ -15,8 +15,11 @@ interface Props {
   description?: string;
   active?: NavKey;
   type?: 'website' | 'article';
+  /** 링크 미리보기 이미지. 사이트 기준 경로 또는 절대 URL */
+  image?: string;
 }
-const { title, description = SITE.description, active, type = 'website' } = Astro.props;
+const { title, description = SITE.description, active, type = 'website', image } = Astro.props;
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -38,7 +41,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.title} />
     <meta property="og:locale" content="ko_KR" />
-    <meta name="twitter:card" content="summary" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
     <meta name="theme-color" content="#fef7ff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#141218" media="(prefers-color-scheme: dark)" />
 

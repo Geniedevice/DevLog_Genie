@@ -2,6 +2,8 @@
 title: 글쓰기 가이드 — 이 블로그에서 쓸 수 있는 마크다운
 description: 콜아웃, 코드 블록, 표, 접기 등 이 블로그가 지원하는 서식을 한 번에 확인하는 견본 글입니다.
 date: 2026-09-29
+cover: ./cover.png
+coverAlt: 코드 에디터를 단순화한 일러스트
 category: Devlog
 tags: [guide, markdown]
 draft: true
@@ -83,4 +85,4 @@ LogOutputDevice: Error: Ensure condition failed: IsValid(Target)
 
 ## 이미지
 
-`public/images/` 에 넣고 `![설명](/DevLog_Genie/images/파일.png)` 로 참조합니다.
+글 폴더에 넣고 `![설명](./파일.png)` 로 참조합니다. 바로 아랫줄에 `*캡션*` 을 쓰면 캡션이 됩니다.

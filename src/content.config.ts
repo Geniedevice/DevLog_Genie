@@ -1,19 +1,24 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+// 글 하나 = 폴더 하나(`posts/<slug>/index.md` + 이미지). 단일 `<slug>.md` 도 허용.
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
-    category: z.string().default('Devlog'),
-    tags: z.array(z.string()).default([]),
-    series: z.string().optional(),
-    pinned: z.boolean().default(false),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+      // 글 폴더 기준 상대 경로(`./cover.png`). 빌드 때 WebP·여러 크기로 최적화된다.
+      cover: image().optional(),
+      coverAlt: z.string().optional(),
+      category: z.string().default('Devlog'),
+      tags: z.array(z.string()).default([]),
+      series: z.string().optional(),
+      pinned: z.boolean().default(false),
+      draft: z.boolean().default(false),
+    }),
 });
 
 export const collections = { posts };

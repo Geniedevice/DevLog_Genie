@@ -38,8 +38,19 @@
 
 .prose img {
   display: block;
-  margin: 28px auto;
+  margin: 32px auto;
   border-radius: var(--md-shape-lg);
+  box-shadow: 0 0 0 1px var(--md-outline-variant);
+  cursor: zoom-in;
+}
+/* 이미지 바로 아래 *기울임* 한 줄은 캡션으로 */
+.prose p:has(> img) + p > em:only-child {
+  display: block;
+  margin-top: -20px;
+  text-align: center;
+  font-size: 14px;
+  font-style: normal;
+  color: var(--md-on-surface-variant);
 }
 
 .prose blockquote {

@@ -5,12 +5,12 @@ export const SITE = {
   lang: 'ko',
   github: 'https://github.com/Geniedevice',
   portfolio: 'https://geniedevice.github.io/Game-Project-Technical-Introduction/',
-  postsPerPage: 12,
-  // giscus 댓글. https://giscus.app 에서 값을 받아 채우면 켜진다. repoId 가 비어 있으면 꺼진 상태.
+  // giscus 댓글(GitHub Discussions). repoId 를 비우면 꺼진다.
+  // Announcements 형식이라 방문자가 임의로 스레드를 만들 수 없고, 글마다 giscus 가 하나씩 연다.
   giscus: {
     repo: 'Geniedevice/DevLog_Genie',
-    repoId: '',
-    category: 'Comments',
-    categoryId: '',
+    repoId: 'R_kgDOU0iL5w',
+    category: 'Announcements',
+    categoryId: 'DIC_kwDOU0iL584DGuHe',
   },
 };

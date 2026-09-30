@@ -43,13 +43,13 @@ http://localhost:4321/DevLog_Genie/ 에서 확인. 초안도 보입니다.
 - 소개 페이지: `src/pages/about.astro`
 - 색 토큰: `src/styles/tokens.css` — [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) 에서 내보낸 값으로 교체 가능
 
-### 댓글 (선택)
+### 댓글
 
-[giscus](https://giscus.app) 로 GitHub Discussions 기반 댓글을 켤 수 있습니다.
+[giscus](https://giscus.app) — 글마다 GitHub Discussions 의 **Announcements** 카테고리에 스레드가 하나씩 생깁니다(경로 기준 매핑).
+방문자는 GitHub 로그인 후 댓글을 달 수 있고, 스레드 관리는 레포의 Discussions 탭에서 합니다.
 
-1. 레포 Settings → Features → Discussions 켜기, `Comments` 카테고리 생성
-2. https://github.com/apps/giscus 설치
-3. giscus.app 에서 받은 `repoId`, `categoryId` 를 `src/site.config.ts` 의 `giscus` 에 입력
+- 설정값: `src/site.config.ts` 의 `giscus` (`repoId` 를 비우면 꺼짐)
+- ⚠️ 동작하려면 [giscus 앱](https://github.com/apps/giscus)이 이 레포에 설치돼 있어야 합니다.
 
 ## 최초 배포 설정
 

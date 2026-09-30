@@ -1,15 +1,35 @@
 ---
 import Jiny from './Jiny.astro';
-import { sceneBack, sceneFront, SCENE } from '../lib/scene.mjs';
+import { layerMoon, layerFar, layerNear, layerRoom, sceneFront, SCENE, WINDOW } from '../lib/scene.mjs';
+
+// 깊이: 0 = 가장 먼 하늘, 1 = JINY. 스크롤 시차량(scroll)과 마우스 시차량(mouse)을 레이어마다 다르게 준다.
+// 양수 scroll = 스크롤할 때 화면보다 느리게(= 멀리 있는 것처럼) 아래로 처진다.
+// ⚠️ 방(벽) 레이어는 움직이지 않는다: 스크롤하면 벽 위쪽에 틈이 생기고, 마우스로 밀면 창틀이 창 잘림선과 어긋난다.
 const j = SCENE.jiny;
 const pct = (v: number, of: number) => `${(v / of) * 100}%`;
+const W = WINDOW;
+// 창 모양으로 자르는 틀(레이어가 움직여도 창 테두리는 고정)
+const windowClip = `inset(${pct(W.y, SCENE.h)} ${pct(SCENE.w - W.x - W.w, SCENE.w)} ${pct(SCENE.h - W.y - W.h, SCENE.h)} ${pct(W.x, SCENE.w)} round ${(W.r / SCENE.w) * 100}cqw)`;
+// 별을 뿌릴 창 영역(0~1). 아래쪽 18%는 지면이 가리므로 뺀다
+const skyRect = [W.x / SCENE.w, (W.x + W.w) / SCENE.w, W.y / SCENE.h, (W.y + W.h * 0.82) / SCENE.h].map((n) => n.toFixed(4)).join(',');
+const outside = [
+  { cls: 'moon', html: layerMoon(), scroll: 0.34, mouse: -6 },
+  { cls: 'far', html: layerFar(), scroll: 0.24, mouse: -12 },
+  { cls: 'near', html: layerNear(), scroll: 0.14, mouse: -20 },
+];
 ---
 <div class="scene" data-scene>
-  <Fragment set:html={sceneBack()} />
-  <div class="jiny-slot" style={`left:${pct(j.x, SCENE.w)};top:${pct(j.y, SCENE.h)};width:${pct(j.size, SCENE.w)}`}>
-    <Jiny id="hero" desk={false} />
+  <div class="window" style={`clip-path:${windowClip}`}>
+    <div class="L" data-scroll="0.42"><div class="M" data-mouse="-3"><canvas class="sky" data-sky data-window={skyRect} aria-hidden="true"></canvas></div></div>
+    {outside.map((l) => (
+      <div class:list={['L', l.cls]} data-scroll={l.scroll}><div class="M" data-mouse={l.mouse}><Fragment set:html={l.html} /></div></div>
+    ))}
   </div>
-  <Fragment set:html={sceneFront()} />
+  <div class="L room" data-scroll="0"><div class="M"><Fragment set:html={layerRoom()} /></div></div>
+  <div class="L jiny-layer" data-scroll="0"><div class="M" data-mouse="3">
+    <div class="jiny-slot" style={`left:${pct(j.x, SCENE.w)};top:${pct(j.y, SCENE.h)};width:${pct(j.size, SCENE.w)}`}><Jiny id="hero" desk={false} /></div>
+  </div></div>
+  <div class="L front" data-scroll="-0.08"><div class="M" data-mouse="8"><Fragment set:html={sceneFront()} /></div></div>
 </div>
 
 <script>
@@ -19,11 +39,19 @@ const pct = (v: number, of: number) => `${(v / of) * 100}%`;
 </script>
 
 <style>
-  .scene { position: relative; width: 100%; aspect-ratio: 1200 / 520; overflow: hidden; }
-  .scene :global(svg.scene-back), .scene :global(svg.scene-front) { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .scene :global(svg.scene-front) { pointer-events: none; z-index: 2; }
-  .jiny-slot { position: absolute; z-index: 1; }
+  .scene { position: relative; width: 100%; aspect-ratio: 1200 / 520; overflow: hidden; container-type: inline-size; }
+  .L, .M { position: absolute; inset: 0; will-change: transform; }
+  .L :global(svg.scene-layer) { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  /* 창밖: 하늘 그라디언트 위에 캔버스 별, 달, 먼 산, 가까운 지면 */
+  .window { position: absolute; inset: 0; background: linear-gradient(#0b0f1f, #171d38 58%); }
+  /* ⚠️ 창밖 레이어는 창보다 좌우로 넓게, 지면은 창 아래까지 그려 두었다(scene.mjs).
+     그래서 스크롤로는 아래로만, 마우스로는 조금만 움직여야 가장자리에 빈틈이 안 생긴다. */
+  .sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .room { z-index: 1; }
+  .jiny-layer { z-index: 2; pointer-events: none; }
+  .jiny-slot { position: absolute; pointer-events: auto; }
+  .front { z-index: 3; pointer-events: none; }
   /* 움직이는 SVG 부위의 축 */
-  .scene :global(.star), .scene :global(.led), .scene :global(.base-light), .scene :global(.fpaw), .scene :global(.mini-hero) { transform-box: fill-box; transform-origin: center; }
+  .scene :global(.led), .scene :global(.base-light), .scene :global(.fpaw), .scene :global(.mini-hero), .scene :global(.moon-halo), .scene :global(.planet) { transform-box: fill-box; transform-origin: center; }
   .scene :global(.steam) { transform-box: fill-box; transform-origin: bottom; }
 </style>

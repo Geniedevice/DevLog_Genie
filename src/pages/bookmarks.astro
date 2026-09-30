@@ -25,6 +25,7 @@ const posts = await getPosts();
 <script>
   import { getBookmarks, wireBookmarks } from '../scripts/bookmarks';
   import { cardsIn } from '../scripts/fx';
+  import { markReadCards } from '../scripts/read';
 
   const cards = [...document.querySelectorAll<HTMLElement>('[data-card]')];
   const empty = document.querySelector<HTMLElement>('[data-empty]')!;
@@ -38,6 +39,7 @@ const posts = await getPosts();
   }
 
   wireBookmarks();
+  markReadCards();
   cardsIn(render());
   // 여기서 북마크를 해제하면 바로 목록에서 빠지게
   document.addEventListener('bookmarks:change', render);

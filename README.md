@@ -9,7 +9,10 @@ Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github
 | 영역 | 구성 |
 | --- | --- |
 | 팔레트 | Background `#111522` · Surface `#1C2335` · Lavender `#A99BE8` · Mint `#8FD4C1` · Text `#E7EBF5` — shadcn 식 토큰으로 `src/styles/tokens.css` |
-| 히어로 장면 | `src/lib/scene.mjs` (뒤·앞 두 겹 SVG) + 가운데 JINY. 움직임 `src/scripts/scene.ts`: 별똥별, 반짝이는 별, 흐르는 코드, 미니 게임 모니터, 머그 김, 타자, 마우스 시차 |
+| 히어로 장면 | `src/lib/scene.mjs` 를 깊이 7겹으로: ① 캔버스 밤하늘(`src/scripts/sky.ts`, 커서 별자리·별똥별) ② 달 ③ 먼 산맥 ④ 지면·기지 ⑤ 방 ⑥ JINY ⑦ 책상. 레이어마다 스크롤(anime.js `onScroll` 동기화)·마우스 시차가 다르다 |
+| 배경 | 페이지 전체에 깊이 3단 별 + 성운 캔버스(`src/scripts/backdrop.ts`) — 먼 층일수록 느리게 흐른다 |
+| 마이크로 인터랙션 | `src/scripts/micro.ts`: 자석 버튼, 누른 자리 물결, 카드 3D 기울기 + 빛 반사. 글 끝의 "다 읽었어요" 체크박스(체크 그리기·+XP) |
+| 카운터·진행률 | 히어로 카운터, 글 읽기 진행률 링(% · 남은 분), 사이드바 탐험률(다 읽은 글 비율) |
 | 캐릭터 | `src/lib/jiny.mjs`(벡터 JINY) · `src/lib/pixel-jiny.mjs`(16×18 픽셀 스프라이트). 클릭하면 점프 + 색종이 + 말풍선 |
 | 게임 요소 | 첫 방문 로딩 화면(세션당 1회), 픽셀 HUD(레벨·XP 칸·연속 기록), 업적 알림, 8비트 효과음(`src/scripts/sfx.ts`, Web Audio 합성, **기본 꺼짐**) |
 | 컴포넌트 | shadcn 구조(Button, Badge, Card, Chip, Breadcrumb, Kbd, Command 팔레트, Data Table)를 순수 CSS/TS 로. 아이콘은 **lucide**(shadcn 기본 세트) — `<Icon name="…" />` |

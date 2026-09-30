@@ -13,13 +13,14 @@ const { title, date, category, pinned, draft } = post.data;
 const md = date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' }).replace(/\s/g, '').replace(/\.$/, '');
 const minutes = readingMinutes(post.body);
 ---
-<article class="vcard" data-card data-category={category} data-date={date.valueOf()} data-minutes={minutes} hidden={hidden}>
-  <a class="media" href={postUrl(post)} tabindex="-1" aria-hidden="true">
+<article class="vcard" data-card data-id={post.id} data-category={category} data-date={date.valueOf()} data-minutes={minutes} hidden={hidden}>
+  <a class="media" href={postUrl(post)} tabindex="-1" aria-hidden="true" data-tilt>
     <Thumbnail post={post} eager={eager} duration sizes="(min-width: 1400px) 420px, (min-width: 1024px) 30vw, (min-width: 640px) 48vw, 100vw" />
     {(pinned || draft) && (
       <span class:list={['flag', { draft }]}>{draft ? 'DRAFT' : <><Icon name="pin" size={11} />PINNED</>}</span>
     )}
     <span class="press pixel-font" aria-hidden="true">▶ PRESS START</span>
+    <span class="readmark pixel-font" aria-hidden="true"><Icon name="check" size={12} stroke={3} />CLEAR</span>
   </a>
   <button class="bm" type="button" data-bookmark={post.id} aria-label="북마크" aria-pressed="false"><Icon name="bookmark" size={17} /></button>
   <h3 class="title"><a href={postUrl(post)}>{title}</a></h3>
@@ -31,7 +32,7 @@ const minutes = readingMinutes(post.body);
 </article>
 
 <style>
-  .vcard { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .vcard { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; perspective: 900px; }
   .media {
     position: relative;
     display: block;
@@ -39,7 +40,14 @@ const minutes = readingMinutes(post.body);
     overflow: hidden;
     border: 1px solid var(--border);
     transition: border-color 250ms, box-shadow 300ms var(--ease-out), translate 300ms var(--ease-out);
+    transform-style: preserve-3d;
   }
+  /* 기울일 때 커서를 따라오는 빛 반사 */
+  .media::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.16), transparent 55%); opacity: var(--glare, 0); transition: opacity 250ms; }
+  /* 다 읽은 글: 게임 스테이지 클리어 표시 */
+  .readmark { position: absolute; left: 10px; top: 38px; z-index: 3; display: none; align-items: center; gap: 4px; padding: 4px 7px; border-radius: 4px; background: var(--mint); color: #111522; font-size: 10px; letter-spacing: 0.12em; }
+  :global(.is-read) .readmark { display: inline-flex; }
+  :global(.is-read) .media :global(img) { filter: saturate(0.75); }
   .vcard:hover .media {
     translate: 0 -4px;
     border-color: color-mix(in srgb, var(--brand) 70%, transparent);

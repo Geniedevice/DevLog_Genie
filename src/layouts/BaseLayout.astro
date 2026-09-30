@@ -27,7 +27,8 @@ const { title, description = SITE.description, active, type = 'website', image }
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image ?? url('images/og.png'), Astro.site).href;
-const { level } = levelOf(await getPosts());
+const published = await getPosts();
+const { level } = levelOf(published);
 ---
 <!doctype html>
 <html lang={SITE.lang}>
@@ -69,9 +70,11 @@ const { level } = levelOf(await getPosts());
   </head>
   <body>
     <BootScreen />
+    <!-- 페이지 전체 배경: 깊이 3단 별 + 성운(스크롤 시차). 내용보다 뒤에 깔린다 -->
+    <canvas class="backdrop" data-backdrop aria-hidden="true"></canvas>
     <a class="skip sr-only" href="#main">본문으로 건너뛰기</a>
     <div class="shell">
-      <Sidebar active={active} level={level} />
+      <Sidebar active={active} level={level} ids={published.map((p) => p.id)} />
       <div class="pane">
         <MobileBar />
         <main id="main">
@@ -87,6 +90,12 @@ const { level } = levelOf(await getPosts());
       import { revealOnScroll, countUp } from '../scripts/fx';
       import { animateCharts } from '../scripts/charts';
       import { soundOn, setSound, wireUiSounds } from '../scripts/sfx';
+      import { startBackdrop } from '../scripts/backdrop';
+      import { wireMicro } from '../scripts/micro';
+
+      const backdrop = document.querySelector<HTMLCanvasElement>('[data-backdrop]');
+      if (backdrop) startBackdrop(backdrop);
+      wireMicro();
 
       wireUiSounds();
       document.querySelectorAll('[data-sound-toggle]').forEach((b) => b.addEventListener('click', () => setSound(!soundOn())));
@@ -116,13 +125,13 @@ const { level } = levelOf(await getPosts());
   .js-fx [data-reveal],
   .js-fx [data-reveal-group] > *,
   .js-fx [data-card],
-  .js-fx [data-headline],
-  .js-fx [data-scramble] { opacity: 0; }
+  .js-fx [data-headline] { opacity: 0; }
   .char { display: inline-block; }
 </style>
 
 <style>
-  .shell { display: flex; min-height: 100dvh; }
+  .backdrop { position: fixed; inset: 0; z-index: 0; width: 100vw; height: 100vh; pointer-events: none; }
+  .shell { position: relative; z-index: 1; display: flex; min-height: 100dvh; }
   .pane { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
   @media (min-width: 1024px) { .pane { padding-bottom: 0; } }
   main { flex: 1; }

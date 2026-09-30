@@ -1,0 +1,75 @@
+---
+interface Props { id: string; xp: number }
+const { id, xp } = Astro.props;
+---
+<div class="readcheck" data-readcheck data-id={id} data-xp={xp}>
+  <button class="rc-box" type="button" role="checkbox" aria-checked="false" aria-labelledby="rc-title">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="rc-mark" d="M5 12.5 10 17.5 19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <div class="rc-text">
+    <p class="rc-title" id="rc-title">다 읽었어요</p>
+    <p class="rc-sub" data-rc-sub>체크하면 <b>+{xp} XP</b> · 사이드바 탐험률에 반영돼요</p>
+  </div>
+  <span class="rc-float pixel-font" aria-hidden="true">+{xp} XP</span>
+</div>
+
+<script>
+  import { animate, createDrawable, set, random } from 'animejs';
+  import { achievement, reduced } from '../scripts/fx';
+  import { getRead, setRead } from '../scripts/read';
+  import { sfx } from '../scripts/sfx';
+
+  document.querySelectorAll<HTMLElement>('[data-readcheck]').forEach((root) => {
+    const id = root.dataset.id!;
+    const box = root.querySelector<HTMLButtonElement>('.rc-box')!;
+    const mark = createDrawable(root.querySelectorAll<SVGPathElement>('.rc-mark'));
+    const float = root.querySelector<HTMLElement>('.rc-float')!;
+    const sub = root.querySelector<HTMLElement>('[data-rc-sub]')!;
+    const subDefault = sub.innerHTML;
+
+    const paint = (on: boolean, instant = false) => {
+      box.setAttribute('aria-checked', String(on));
+      root.classList.toggle('done', on);
+      sub.innerHTML = on ? '완독! 탐험률이 올랐어요' : subDefault;
+      if (instant || reduced()) return set(mark, { draw: on ? '0 1' : '0 0' });
+      animate(mark, { draw: on ? ['0 0', '0 1'] : ['0 1', '0 0'], duration: on ? 380 : 200, ease: 'outQuad' });
+    };
+    paint(getRead().includes(id), true);
+
+    box.addEventListener('click', () => {
+      const on = box.getAttribute('aria-checked') !== 'true';
+      setRead(id, on);
+      paint(on);
+      if (!on) return;
+      sfx('coin');
+      achievement('first-read', '첫 기록 완독');
+      if (reduced()) return;
+      animate(box, { scale: [1, 1.25, 1], rotate: [0, -8, 0], duration: 450, ease: 'outBack(3)' });
+      animate(float, { translateY: [0, -38], opacity: [0, 1, 0], scale: [0.8, 1.1, 1], duration: 1100, ease: 'outQuad' });
+      // 작은 색종이
+      for (let i = 0; i < 12; i++) {
+        const p = document.createElement('i');
+        p.className = 'rc-bit';
+        p.style.background = ['#a99be8', '#8fd4c1', '#f2cf7a', '#f29cc8'][i % 4];
+        box.append(p);
+        const a = random(0, Math.PI * 2, 3), d = random(26, 52);
+        animate(p, { translateX: [0, Math.cos(a) * d], translateY: [0, Math.sin(a) * d], scale: [1, 0], duration: random(500, 800), ease: 'outCubic', onComplete: () => p.remove() });
+      }
+    });
+  });
+</script>
+
+<style>
+  .readcheck { position: relative; display: flex; align-items: center; gap: 16px; margin-top: 44px; padding: 18px 20px; border: 1px dashed var(--input); border-radius: var(--radius-xl); background: var(--card); transition: border-color 300ms, background 300ms; }
+  .readcheck.done { border-style: solid; border-color: color-mix(in srgb, var(--mint) 60%, var(--border)); background: color-mix(in srgb, var(--mint) 7%, var(--card)); }
+  .rc-box { position: relative; display: grid; place-items: center; width: 34px; height: 34px; flex: none; border: 2px solid var(--input); border-radius: 9px; background: var(--background); color: #111522; cursor: pointer; transition: background 200ms, border-color 200ms, box-shadow 200ms; }
+  .rc-box:hover { border-color: var(--mint); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 18%, transparent); }
+  .rc-box[aria-checked='true'] { background: var(--mint); border-color: var(--mint); }
+  .rc-box svg { width: 22px; height: 22px; overflow: visible; }
+  .rc-box :global(.rc-bit) { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 2px; pointer-events: none; }
+  .rc-text p { margin: 0; }
+  .rc-title { font-weight: 800; font-size: 16px; }
+  .rc-sub { font-size: 13px; color: var(--muted-foreground); }
+  .rc-sub :global(b) { color: var(--mint); }
+  .rc-float { position: absolute; left: 22px; top: 6px; color: var(--mint); font-size: 13px; opacity: 0; pointer-events: none; }
+</style>

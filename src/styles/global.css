@@ -250,3 +250,14 @@ a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
 .toast.achv { padding: 10px 16px 10px 10px; border-color: color-mix(in srgb, var(--amber) 50%, var(--border)); }
 .toast.achv .badge-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); }
 .toast.achv small { display: block; font: 700 10px/1.2 var(--font-pixel); letter-spacing: 0.14em; color: var(--amber); }
+
+/* ─── 마이크로 인터랙션 ─── */
+/* 누른 자리에서 퍼지는 물결(src/scripts/micro.ts) */
+.ripple { position: absolute; border-radius: 50%; background: currentColor; pointer-events: none; transform: scale(0); }
+/* 메뉴 아이콘이 올렸을 때 살짝 까딱 */
+@media (hover: hover) {
+  .sidebar .item:hover .icon, .bottom-nav .item:hover .icon { animation: wiggle 420ms var(--ease-out); }
+}
+@keyframes wiggle { 30% { rotate: -12deg; scale: 1.12; } 65% { rotate: 8deg; } }
+/* 입력칸 포커스 빛 */
+input:focus-visible, select:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-soft); }

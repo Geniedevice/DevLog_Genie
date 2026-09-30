@@ -31,6 +31,20 @@ export function revealOnScroll(root: ParentNode = document) {
   );
 }
 
+/**
+ * 스크롤 트리거: 요소가 화면에 들어올 때 하나씩 떠오른다(본문 제목·이미지·코드·표 등).
+ * CSS 로 미리 숨기지 않고 스크립트가 시작 상태를 잡으므로, JS 가 없으면 그냥 다 보인다.
+ */
+export function revealEach(els: Iterable<Element>, from: 'up' | 'left' = 'up') {
+  if (reduced()) return;
+  const list = [...els];
+  const hidden = list.filter((el) => el.getBoundingClientRect().top > innerHeight * 0.92);
+  set(hidden, from === 'up' ? { opacity: 0, translateY: 22 } : { opacity: 0, translateX: -18 });
+  onVisible(hidden, (el) =>
+    animate(el, from === 'up' ? { opacity: [0, 1], translateY: [22, 0], duration: 800, ease: 'outExpo' } : { opacity: [0, 1], translateX: [-18, 0], duration: 700, ease: 'outExpo' }),
+  );
+}
+
 /** 제목: 글자가 아래 마스크에서 차례로 솟아오른다 */
 export function headline(el: HTMLElement | null, start = 150) {
   if (!el || reduced()) return;

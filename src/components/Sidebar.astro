@@ -5,8 +5,8 @@ import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
 import { SITE } from '../site.config';
 
-interface Props { active?: NavKey; level: number }
-const { active, level } = Astro.props;
+interface Props { active?: NavKey; level: number; ids: string[] }
+const { active, level, ids } = Astro.props;
 const cls = (key: NavKey) => ['item', { active: active === key }];
 const cur = (key: NavKey) => (active === key ? 'page' : undefined);
 ---
@@ -35,6 +35,12 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
     <PixelJiny />
     <p class="me-name pixel-font">JINY</p>
     <p class="me-role">Game Developer · Lv.{level}</p>
+  </div>
+
+  <!-- 탐험률: 이 브라우저에서 "다 읽었어요"를 누른 글의 비율 -->
+  <div class="explore" data-explore data-ids={JSON.stringify(ids)}>
+    <div class="ex-head pixel-font"><span>EXPLORED</span><span><b data-ex-count>0</b>/{ids.length}</span></div>
+    <div class="ex-bar"><i data-ex-fill></i></div>
   </div>
 
   <hr class="separator" />
@@ -103,6 +109,11 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   .me :global(.pj) { margin-bottom: 10px; }
   .me-name { margin: 0; font-size: 15px; letter-spacing: 0.24em; }
   .me-role { margin: 0; font-size: 13px; color: var(--muted-foreground); }
+  .explore { padding: 0 10px; }
+  .ex-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 10px; letter-spacing: 0.2em; color: var(--muted-foreground); }
+  .ex-head b { color: var(--mint); font-weight: 700; }
+  .ex-bar { height: 6px; border-radius: 99px; background: var(--sidebar-accent); overflow: hidden; }
+  .ex-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--brand)); box-shadow: 0 0 8px var(--glow); }
   .motto { margin: 0; padding: 0 10px; font-size: 10px; line-height: 1.9; letter-spacing: 0.3em; color: var(--muted-foreground); }
 
   .toggles { display: flex; gap: 2px; padding: 0 4px; }
@@ -112,3 +123,29 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   :global([data-sound='on']) .snd-off { display: none; }
   :global([data-sound='on']) .snd-on { display: inline-flex; }
 </style>
+
+<script>
+  import { animate } from 'animejs';
+  import { getRead } from '../scripts/read';
+  import { reduced } from '../scripts/fx';
+
+  // 탐험률 바와 숫자가 차오른다(다 읽음 체크가 바뀌면 다시)
+  const box = document.querySelector<HTMLElement>('[data-explore]');
+  if (box) {
+    const ids: string[] = JSON.parse(box.dataset.ids ?? '[]');
+    const fill = box.querySelector<HTMLElement>('[data-ex-fill]')!;
+    const count = box.querySelector<HTMLElement>('[data-ex-count]')!;
+    let shown = 0;
+    const update = () => {
+      const n = getRead().filter((id) => ids.includes(id)).length;
+      const pct = ids.length ? (n / ids.length) * 100 : 0;
+      if (reduced()) { fill.style.width = `${pct}%`; count.textContent = String(n); return; }
+      animate(fill, { width: `${pct}%`, duration: 900, ease: 'outExpo' });
+      const o = { v: shown };
+      animate(o, { v: n, duration: 900, ease: 'outExpo', onUpdate: () => (count.textContent = String(Math.round(o.v))) });
+      shown = n;
+    };
+    update();
+    document.addEventListener('read:change', update);
+  }
+</script>

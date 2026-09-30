@@ -42,11 +42,18 @@ const enabled = Boolean(g.repoId && g.categoryId);
     host.append(s);
 
     // 사이트 테마를 바꾸면 giscus iframe 도 따라가게 한다
-    new MutationObserver(() => {
+    const sync = () =>
       document
         .querySelector<HTMLIFrameElement>('iframe.giscus-frame')
         ?.contentWindow?.postMessage({ giscus: { setConfig: { theme: themeOf() } } }, 'https://giscus.app');
-    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    // ⚠️ 로딩 중에 보낸 setConfig 는 버려진다. giscus 가 첫 메시지를 보내면(준비 완료) 한 번 더 맞춘다.
+    const onReady = (e: MessageEvent) => {
+      if (e.origin !== 'https://giscus.app') return;
+      removeEventListener('message', onReady);
+      sync();
+    };
+    addEventListener('message', onReady);
   }
 </script>
 

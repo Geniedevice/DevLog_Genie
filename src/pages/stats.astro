@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import KpiCard from '../components/charts/KpiCard.astro';
@@ -26,10 +27,10 @@ const tags = topTags(posts, 8).map((d) => ({ ...d, href: tagUrl(d.name) }));
     <PageHeader eyebrow="Dashboard" title="통계" subtitle="모든 수치는 글에서 자동으로 계산돼요." />
 
     <div class="kpis" data-reveal-group>
-      <KpiCard label="전체 기록" value={t.posts} unit="개" icon="article" hint={`이번 달 ${thisMonth.count}개`} spark={months.map((m) => m.count)} color="var(--chart-1)" />
-      <KpiCard label="총 읽기 시간" value={t.minutes} unit="분" icon="schedule" hint={`글당 평균 ${t.avgMinutes}분`} spark={months.map((m) => m.minutes)} color="var(--chart-2)" />
-      <KpiCard label="태그" value={t.tags} unit="개" icon="sell" hint={`분류 ${t.categories}개`} color="var(--chart-3)" />
-      <KpiCard label="연속 기록" value={t.streak} unit="일" icon="local_fire_department" hint="마지막 글 기준" color="var(--chart-5)" />
+      <KpiCard label="전체 기록" value={t.posts} unit="개" icon="file-text" hint={`이번 달 ${thisMonth.count}개`} spark={months.map((m) => m.count)} color="var(--chart-1)" />
+      <KpiCard label="총 읽기 시간" value={t.minutes} unit="분" icon="clock" hint={`글당 평균 ${t.avgMinutes}분`} spark={months.map((m) => m.minutes)} color="var(--chart-2)" />
+      <KpiCard label="태그" value={t.tags} unit="개" icon="tag" hint={`분류 ${t.categories}개`} color="var(--chart-3)" />
+      <KpiCard label="연속 기록" value={t.streak} unit="일" icon="flame" hint="마지막 글 기준" color="var(--chart-5)" />
     </div>
 
     <div class="row two">
@@ -41,7 +42,7 @@ const tags = topTags(posts, 8).map((d) => ({ ...d, href: tagUrl(d.name) }));
         <header><div><h3>월별 기록</h3><p>최근 12개월</p></div></header>
         <AreaChart id="monthly" data={months.map((m) => ({ label: m.label, value: m.count }))} name="기록" unit="개" />
         <footer>
-          <span class="msr">{diff > 0 ? 'trending_up' : diff < 0 ? 'trending_down' : 'trending_flat'}</span>
+          <Icon name={diff > 0 ? 'trending-up' : diff < 0 ? 'trending-down' : 'minus'} size={16} />
           이번 달 {thisMonth.count}개 · 지난달보다 {diff === 0 ? '같음' : `${Math.abs(diff)}개 ${diff > 0 ? '많음' : '적음'}`}
         </footer>
       </section>

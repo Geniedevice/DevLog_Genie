@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+import PixelJiny from './PixelJiny.astro';
 import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
 import { SITE } from '../site.config';
@@ -10,39 +12,42 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
 ---
 <aside class="sidebar" aria-label="사이드바">
   <a class="brand" href={url()}>
-    <img class="logo" src={url('favicon.svg')} alt="" width="36" height="36" />
-    <span class="brand-text">
-      <span class="brand-name">{SITE.title}</span>
-      <span class="brand-sub">by JINY</span>
-    </span>
+    <Icon name="moon" size={30} fill class="logo" />
+    <span class="brand-name">{SITE.title}</span>
+    <span class="brand-sub pixel-font">GAME DEV BLOG<br />LUNAR LAB</span>
   </a>
 
   <nav aria-label="주 메뉴">
     <ul class="list">
       {NAV.map((n) => (
-        <li><a href={url(n.path)} class:list={cls(n.key)} aria-current={cur(n.key)}><span class="msr">{n.icon}</span>{n.label}</a></li>
+        <li><a href={url(n.path)} class:list={cls(n.key)} aria-current={cur(n.key)}><Icon name={n.icon} size={20} />{n.label}</a></li>
       ))}
-    </ul>
-    <hr class="separator" />
-    <ul class="list">
-      <li><a href={url(BOOKMARKS.path)} class:list={cls(BOOKMARKS.key)} aria-current={cur(BOOKMARKS.key)}><span class="msr">{BOOKMARKS.icon}</span>{BOOKMARKS.label}</a></li>
+      <li><a href={url(BOOKMARKS.path)} class:list={cls(BOOKMARKS.key)} aria-current={cur(BOOKMARKS.key)}><Icon name={BOOKMARKS.icon} size={20} />{BOOKMARKS.label}</a></li>
       <li>
         <button class="item" type="button" data-open-search>
-          <span class="msr">search</span>검색<span class="kbds"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
+          <Icon name="search" size={20} />검색<span class="kbds"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
         </button>
       </li>
     </ul>
   </nav>
 
-  <div class="profile">
-    <img class="avatar" src={url('images/jiny-avatar.webp')} alt="" width="40" height="40" />
-    <div class="who">
-      <p class="name">{SITE.author}</p>
-      <p class="role">Lv. {level} · Unreal Client Developer</p>
-    </div>
-    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-theme-toggle aria-label="낮·밤 전환">
-      <span class="msr theme-night">dark_mode</span><span class="msr theme-day">light_mode</span>
+  <div class="me">
+    <PixelJiny />
+    <p class="me-name pixel-font">JINY</p>
+    <p class="me-role">Game Developer · Lv.{level}</p>
+  </div>
+
+  <hr class="separator" />
+  <p class="motto pixel-font">SMALL LOGS<br />MAKE<br />A BRIGHTER<br />TOMORROW.</p>
+
+  <div class="toggles">
+    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-theme-toggle aria-label="낮·밤 전환" title="낮·밤 전환">
+      <span class="theme-night"><Icon name="moon" size={17} /></span><span class="theme-day"><Icon name="sun" size={17} /></span>
     </button>
+    <button class="btn btn-ghost btn-icon btn-sm" type="button" data-sound-toggle aria-label="효과음 켜기·끄기" title="효과음">
+      <span class="snd-off"><Icon name="volume-x" size={17} /></span><span class="snd-on"><Icon name="volume-2" size={17} /></span>
+    </button>
+    <a class="btn btn-ghost btn-icon btn-sm" href={SITE.github} target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg></a>
   </div>
 </aside>
 
@@ -55,54 +60,55 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
     flex: none;
     display: none;
     flex-direction: column;
-    gap: 18px;
-    padding: 24px 16px 16px;
+    gap: 22px;
+    padding: 30px 18px 16px;
     background: var(--sidebar);
     color: var(--sidebar-foreground);
     border-right: 1px solid var(--sidebar-border);
+    overflow-y: auto;
+    scrollbar-width: none;
   }
   @media (min-width: 1024px) { .sidebar { display: flex; } }
 
-  .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 8px; }
-  .logo { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--glow)); transition: rotate 500ms var(--ease-out); }
-  .brand:hover .logo { rotate: -10deg; }
-  .brand-text { display: flex; flex-direction: column; gap: 3px; }
-  .brand-name { font-size: 21px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
-  .brand-sub { font: 500 11px/1 var(--font-mono); letter-spacing: 0.2em; color: var(--brand); }
+  .brand { display: flex; flex-direction: column; gap: 6px; padding: 0 10px; }
+  .brand :global(.logo) { color: var(--brand); filter: drop-shadow(0 0 10px var(--glow)); margin-bottom: 6px; transition: rotate 600ms var(--ease-out); }
+  .brand:hover :global(.logo) { rotate: -25deg; }
+  .brand-name { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .brand-sub { font-size: 10px; line-height: 1.7; letter-spacing: 0.32em; color: var(--muted-foreground); }
 
-  nav { display: flex; flex-direction: column; gap: 12px; }
-  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
   .item {
-    position: relative;
     display: flex;
     align-items: center;
     gap: 14px;
     width: 100%;
-    height: 44px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: var(--radius-md);
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
     background: transparent;
-    color: color-mix(in srgb, var(--sidebar-foreground) 78%, transparent);
+    color: color-mix(in srgb, var(--sidebar-foreground) 80%, transparent);
     font: 500 15px/1 var(--font-sans);
     text-align: left;
     cursor: pointer;
-    transition: background var(--dur), color var(--dur);
+    transition: background var(--dur), color var(--dur), border-color var(--dur), translate var(--dur);
   }
-  .item .msr { font-size: 22px; }
-  .item:hover { background: var(--sidebar-accent); color: var(--sidebar-foreground); }
-  .item.active { background: var(--sidebar-accent); color: var(--sidebar-primary); font-weight: 700; }
-  .item.active::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--sidebar-primary); box-shadow: 0 0 10px var(--glow); }
+  .item:hover { background: var(--sidebar-accent); color: var(--sidebar-foreground); translate: 2px 0; }
+  /* 레퍼런스: 선택된 메뉴는 라벤더로 꽉 찬 알약 */
+  .item.active { background: var(--sidebar-primary); color: var(--sidebar-primary-foreground); font-weight: 700; box-shadow: 0 0 22px -6px var(--glow), inset 0 1px 0 rgb(255 255 255 / 0.25); }
+  .item.active:hover { translate: none; }
   .kbds { display: flex; gap: 2px; margin-left: auto; }
 
-  .profile { display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 14px 6px 0; border-top: 1px solid var(--sidebar-border); }
-  .avatar { width: 40px; height: 40px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px var(--brand), 0 0 12px var(--glow); }
-  .who { flex: 1; min-width: 0; }
-  .who p { margin: 0; }
-  .name { font-size: 14px; font-weight: 700; }
-  .role { font-size: 11.5px; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .me { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: auto; padding-top: 12px; text-align: center; }
+  .me :global(.pj) { margin-bottom: 10px; }
+  .me-name { margin: 0; font-size: 15px; letter-spacing: 0.24em; }
+  .me-role { margin: 0; font-size: 13px; color: var(--muted-foreground); }
+  .motto { margin: 0; padding: 0 10px; font-size: 10px; line-height: 1.9; letter-spacing: 0.3em; color: var(--muted-foreground); }
 
-  .theme-day { display: none; }
+  .toggles { display: flex; gap: 2px; padding: 0 4px; }
+  .theme-day, .snd-on { display: none; }
   :global([data-theme='dark']) .theme-night { display: none; }
-  :global([data-theme='dark']) .theme-day { display: inline-block; }
+  :global([data-theme='dark']) .theme-day { display: inline-flex; }
+  :global([data-sound='on']) .snd-off { display: none; }
+  :global([data-sound='on']) .snd-on { display: inline-flex; }
 </style>

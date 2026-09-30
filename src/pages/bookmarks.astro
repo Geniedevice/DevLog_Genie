@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import VideoCard from '../components/VideoCard.astro';
@@ -14,7 +15,7 @@ const posts = await getPosts();
       {posts.map((p) => <VideoCard post={p} hidden />)}
     </div>
     <div class="empty" data-empty hidden>
-      <span class="msr">bookmark_add</span>
+      <Icon name="bookmark-plus" />
       <p>아직 저장한 기록이 없어요.<br />카드에 마우스를 올리고 북마크 버튼을 눌러 보세요.</p>
       <a class="btn btn-outline" href={url()}>기록 둘러보기</a>
     </div>
@@ -47,6 +48,6 @@ const posts = await getPosts();
   @media (min-width: 1024px) { .page { padding: 0 40px 72px; } }
   .grid { display: grid; gap: 34px 22px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
   .empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 64px 16px; border: 1px dashed var(--border); border-radius: var(--radius-xl); text-align: center; color: var(--muted-foreground); }
-  .empty .msr { font-size: 40px; color: var(--brand); }
+  .empty .icon { width: 40px; height: 40px; color: var(--brand); }
   .empty p { margin: 0; line-height: 1.7; }
 </style>

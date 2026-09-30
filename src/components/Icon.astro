@@ -1,0 +1,12 @@
+---
+// <Icon name="book-open" /> — lucide 아이콘 이름(kebab-case). 없는 이름이면 빌드가 실패해서 오타가 바로 드러난다.
+import * as lucide from 'lucide-static';
+import { iconSvg } from '../lib/icon';
+
+interface Props { name: string; size?: number; class?: string; stroke?: number; fill?: boolean }
+const { name, size, class: cls, stroke, fill } = Astro.props;
+const key = name.replace(/(^|-)(\w)/g, (_, __, c: string) => c.toUpperCase());
+const raw = (lucide as unknown as Record<string, string>)[key];
+if (typeof raw !== 'string') throw new Error(`[Icon] lucide 에 "${name}" 아이콘이 없습니다`);
+---
+<Fragment set:html={iconSvg(raw, { size, class: cls, stroke, fill })} />

@@ -2,16 +2,20 @@
 
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
-대표 캐릭터 **JINY**(보라 헤드폰을 쓴 흰 토끼)가 주인공인 Astro 정적 사이트. 글 목록은 유튜브식 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성,
-**통계** 페이지에는 차트와 데이터 표가 있습니다. `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
+**LUNAR LAB** 콘셉트(달 기지 작업실)의 게임 개발 블로그. 대표 캐릭터 **JINY**(보라 헤드폰을 쓴 흰 토끼)가 주인공인 Astro 정적 사이트입니다.
+글 목록은 유튜브식 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성, **통계** 페이지에는 차트와 데이터 표가 있습니다.
+`main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
 
 | 영역 | 구성 |
 | --- | --- |
-| 캐릭터 | `src/lib/jiny.mjs` 한 벌의 SVG 로 히어로·파비콘·OG 이미지를 모두 만든다. 움직임은 `src/scripts/jiny.ts` (깜빡임·귀·헤드폰 빛·타자·눈동자 추적, 클릭하면 점프 + 색종이 + 말풍선) |
-| 디자인 토큰 | [shadcn/ui](https://ui.shadcn.com) 식 시맨틱 쌍 + 차트 팔레트 `--chart-1…5` — `src/styles/tokens.css`. 밤(다크)·낮(라이트) |
-| 컴포넌트 | shadcn 구조(Button, Badge, Card, Tabs, Breadcrumb, Kbd, Command 팔레트, **Data Table**)를 순수 CSS/TS 로 |
+| 팔레트 | Background `#111522` · Surface `#1C2335` · Lavender `#A99BE8` · Mint `#8FD4C1` · Text `#E7EBF5` — shadcn 식 토큰으로 `src/styles/tokens.css` |
+| 히어로 장면 | `src/lib/scene.mjs` (뒤·앞 두 겹 SVG) + 가운데 JINY. 움직임 `src/scripts/scene.ts`: 별똥별, 반짝이는 별, 흐르는 코드, 미니 게임 모니터, 머그 김, 타자, 마우스 시차 |
+| 캐릭터 | `src/lib/jiny.mjs`(벡터 JINY) · `src/lib/pixel-jiny.mjs`(16×18 픽셀 스프라이트). 클릭하면 점프 + 색종이 + 말풍선 |
+| 게임 요소 | 첫 방문 로딩 화면(세션당 1회), 픽셀 HUD(레벨·XP 칸·연속 기록), 업적 알림, 8비트 효과음(`src/scripts/sfx.ts`, Web Audio 합성, **기본 꺼짐**) |
+| 컴포넌트 | shadcn 구조(Button, Badge, Card, Chip, Breadcrumb, Kbd, Command 팔레트, Data Table)를 순수 CSS/TS 로. 아이콘은 **lucide**(shadcn 기본 세트) — `<Icon name="…" />` |
 | 차트 | `src/components/charts/` — KPI(스파크라인), 영역·막대·도넛·가로막대, 레벨 게이지, 기록 잔디. 수치는 `src/lib/stats.ts` 가 빌드 때 계산 |
-| 애니메이션 | [anime.js](https://animejs.com) v4 — `src/scripts/fx.ts`, `charts.ts`, `jiny.ts`. `prefers-reduced-motion` 이면 전부 끔 |
+| 애니메이션 | [anime.js](https://animejs.com) v4. `prefers-reduced-motion` 이면 전부 끔 |
+| 폰트 | 전부 npm 으로 받아 자체 호스팅(외부 CDN 없음): Pretendard(본문), JetBrains Mono(코드), Galmuri11(픽셀 HUD — 영문만 남겨 2.6KB, `scripts/subset-pixel-font.mjs`) |
 | 북마크 | 방문자 브라우저(localStorage)에만 저장 — `src/scripts/bookmarks.ts` |
 
 ⚠️ 기록 잔디는 **빌드한 날**을 기준으로 그린다. 글을 안 올려도 재배포하면 한 칸씩 밀린다.
@@ -49,7 +53,7 @@ src/content/posts/my-post-slug/
 | `date` | ✅ | 작성일 `YYYY-MM-DD` |
 | `cover` | | 썸네일 `./cover.png`. 없으면 분류 색 배경 + 제목. 링크 미리보기(OG)에도 쓰임 |
 | `coverAlt` | | 썸네일 대체 텍스트 |
-| `thumbText` | | 썸네일 위 큰 문구(유튜브식). `"상태 관리의\n경계"` — 둘째 줄은 강조색 |
+| `thumbText` | | 썸네일 위 큰 문구(유튜브식). `"타격감의 *비밀*"` — `*별표*` 부분은 라벤더 강조, 줄바꿈은 `\n` |
 | `pixelArt` | | 픽셀아트 커버면 `true` (확대해도 흐려지지 않게). 사진에는 쓰지 말 것 |
 | `updated` | | 수정일 |
 | `category` | | 기본 `Devlog`. 카테고리별 아이콘·색은 `src/lib/categories.ts` |

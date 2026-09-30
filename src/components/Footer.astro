@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import { SITE } from '../site.config';
 import { url } from '../lib/posts';
 const year = new Date().getFullYear();
@@ -8,9 +9,9 @@ const year = new Date().getFullYear();
   <div class="inner">
     <p>© {year} {SITE.author} · Developer Journal</p>
     <nav class="links">
-      <a class="btn btn-ghost btn-sm" href={url('rss.xml')}><span class="msr">rss_feed</span>RSS</a>
-      <a class="btn btn-ghost btn-sm" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
-      <a class="btn btn-ghost btn-sm" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
+      <a class="btn btn-ghost btn-sm" href={url('rss.xml')}><Icon name="rss" />RSS</a>
+      <a class="btn btn-ghost btn-sm" href={SITE.portfolio} target="_blank" rel="noopener"><Icon name="briefcase" />포트폴리오</a>
+      <a class="btn btn-ghost btn-sm" href={SITE.github} target="_blank" rel="noopener"><Icon name="code" />GitHub</a>
     </nav>
   </div>
 </footer>

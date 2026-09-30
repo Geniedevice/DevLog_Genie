@@ -1,16 +1,17 @@
 ---
+import Icon from './Icon.astro';
 import { SITE } from '../site.config';
 import { url } from '../lib/posts';
 ---
 <header class="mbar" data-top-bar>
   <a class="brand" href={url()}>
-    <img class="logo" src={url('favicon.svg')} alt="" width="26" height="26" />
+    <Icon name="moon" size={22} fill class="logo" />
     <span>{SITE.title}</span>
   </a>
   <div class="actions">
-    <button class="btn btn-ghost btn-icon" type="button" data-open-search aria-label="검색"><span class="msr">search</span></button>
+    <button class="btn btn-ghost btn-icon" type="button" data-open-search aria-label="검색"><Icon name="search" /></button>
     <button class="btn btn-ghost btn-icon" type="button" data-theme-toggle aria-label="낮·밤 전환">
-      <span class="msr theme-night">dark_mode</span><span class="msr theme-day">light_mode</span>
+      <span class="theme-night"><Icon name="moon" /></span><span class="theme-day"><Icon name="sun" /></span>
     </button>
   </div>
 </header>
@@ -33,9 +34,9 @@ import { url } from '../lib/posts';
   .mbar.scrolled { border-bottom-color: var(--border); }
   @media (min-width: 1024px) { .mbar { display: none; } }
   .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -0.03em; font-size: 18px; }
-  .logo { width: 26px; height: 26px; }
+  .brand :global(.logo) { color: var(--brand); }
   .actions { display: flex; gap: 2px; }
   .theme-day { display: none; }
   :global([data-theme='dark']) .theme-night { display: none; }
-  :global([data-theme='dark']) .theme-day { display: inline-block; }
+  :global([data-theme='dark']) .theme-day { display: inline-flex; }
 </style>

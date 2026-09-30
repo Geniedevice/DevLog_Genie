@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
 import { getPosts, url } from '../lib/posts';
@@ -8,9 +9,9 @@ import { levelOf, streakOf } from '../lib/quest';
 const posts = await getPosts();
 const lv = levelOf(posts);
 const topics = [
-  { icon: 'sports_esports', title: 'Unreal Engine', body: '게임플레이 프레임워크, GAS, 네트워크 복제처럼 엔진이 실제로 어떻게 돌아가는지.' },
-  { icon: 'bug_report', title: '트러블슈팅', body: '크래시·버그를 추적한 과정과, 원인이 왜 거기 숨어 있었는지.' },
-  { icon: 'account_tree', title: '설계 결정', body: '여러 선택지 중 무엇을 골랐고 왜 그렇게 갈렸는지.' },
+  { icon: 'gamepad-2', title: 'Unreal Engine', body: '게임플레이 프레임워크, GAS, 네트워크 복제처럼 엔진이 실제로 어떻게 돌아가는지.' },
+  { icon: 'bug', title: '트러블슈팅', body: '크래시·버그를 추적한 과정과, 원인이 왜 거기 숨어 있었는지.' },
+  { icon: 'git-branch', title: '설계 결정', body: '여러 선택지 중 무엇을 골랐고 왜 그렇게 갈렸는지.' },
   { icon: 'history', title: '회고', body: '프로젝트를 마치며 남기는 기록과 다음엔 다르게 할 것들.' },
 ];
 const projects = [
@@ -30,8 +31,8 @@ const projects = [
           <p class="role">Unreal Engine 게임 클라이언트 개발자</p>
         </div>
         <div class="links">
-          <a class="btn btn-default" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
-          <a class="btn btn-outline" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
+          <a class="btn btn-default" href={SITE.portfolio} target="_blank" rel="noopener"><Icon name="briefcase" />포트폴리오</a>
+          <a class="btn btn-outline" href={SITE.github} target="_blank" rel="noopener"><Icon name="code" />GitHub</a>
         </div>
       </div>
       <p class="motto">구현을 넘어 동작 원리를 집요하게 파고듭니다. 무엇을 했는지보다 <strong>왜 그렇게 갈렸는지</strong>를 기록합니다.</p>
@@ -43,21 +44,21 @@ const projects = [
       </dl>
     </section>
 
-    <h2 class="section-title"><span class="msr">explore</span>다루는 주제</h2>
+    <h2 class="section-title"><Icon name="compass" />다루는 주제</h2>
     <div class="grid" data-reveal-group>
       {topics.map((t) => (
         <div class="card topic">
-          <span class="msr">{t.icon}</span>
+          <Icon name={t.icon} size={26} />
           <h3 class="card-title">{t.title}</h3>
           <p class="card-description">{t.body}</p>
         </div>
       ))}
     </div>
 
-    <h2 class="section-title"><span class="msr">folder</span>프로젝트</h2>
+    <h2 class="section-title"><Icon name="folder-open" />프로젝트</h2>
     <ul class="projects" data-reveal-group>
       {projects.map((p) => (
-        <li class="card"><span class="msr">deployed_code</span><span class="p-name">{p.name}</span><span class="p-meta">{p.meta}</span></li>
+        <li class="card"><Icon name="box" /><span class="p-name">{p.name}</span><span class="p-meta">{p.meta}</span></li>
       ))}
     </ul>
   </div>
@@ -90,10 +91,10 @@ const projects = [
   .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-bottom: 48px; }
   .topic { padding: 20px; display: flex; flex-direction: column; gap: 6px; transition: border-color var(--dur), translate var(--dur); }
   .topic:hover { border-color: var(--brand); translate: 0 -3px; }
-  .topic > .msr { font-size: 26px; color: var(--brand); margin-bottom: 6px; }
+  .topic > .icon { color: var(--brand); margin-bottom: 6px; }
   .projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .projects li { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
-  .projects .msr { color: var(--brand); }
+  .projects .icon { color: var(--brand); }
   .p-name { font-weight: 700; }
   .p-meta { margin-left: auto; font-size: 13px; color: var(--muted-foreground); }
 </style>

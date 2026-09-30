@@ -1,4 +1,5 @@
 ---
+import Icon from '../../components/Icon.astro';
 import { render } from 'astro:content';
 import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -40,7 +41,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
       <nav aria-label="현재 위치" class="crumbs">
         <ol class="breadcrumb">
           <li><a href={url()}>개발 일지</a></li>
-          <li class="sep msr" aria-hidden="true">chevron_right</li>
+          <li class="sep" aria-hidden="true"><Icon name="chevron-right" size={14} /></li>
           <li><a href={url(`?category=${encodeURIComponent(category)}`)}>{category}</a></li>
         </ol>
       </nav>
@@ -60,8 +61,8 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
           </span>
         </a>
         <div class="actions">
-          <button class="pill" type="button" data-bookmark={post.id} aria-pressed="false"><span class="msr">bookmark</span><span data-bm-label>북마크</span></button>
-          <button class="pill" type="button" data-share><span class="msr">share</span>공유</button>
+          <button class="pill" type="button" data-bookmark={post.id} aria-pressed="false"><Icon name="bookmark" /><span data-bm-label>북마크</span></button>
+          <button class="pill" type="button" data-share><Icon name="share-2" />공유</button>
         </div>
       </div>
 
@@ -78,7 +79,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
 
       {series.length > 1 && (
         <nav class="series" aria-label="연재">
-          <p class="series-title"><span class="msr">playlist_play</span>{post.data.series}<span class="count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
+          <p class="series-title"><Icon name="list-video" />{post.data.series}<span class="count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
           <ol>
             {series.map((s, i) => (
               <li class:list={{ current: s.id === post.id }}>
@@ -92,7 +93,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
 
       {toc.length > 0 && (
         <details class="toc-inline">
-          <summary><span class="msr">toc</span>목차</summary>
+          <summary><Icon name="list-tree" />목차</summary>
           <ul>{toc.map((h) => <li class:list={[`d${h.depth}`]}><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul>
         </details>
       )}
@@ -105,13 +106,13 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
         <nav class="adjacent" aria-label="이전·다음 기록">
           {older ? (
             <a class="adj" href={postUrl(older)}>
-              <span class="dir"><span class="msr">arrow_back</span>이전 기록</span>
+              <span class="dir"><Icon name="arrow-left" />이전 기록</span>
               <span class="adj-title">{older.data.title}</span>
             </a>
           ) : <span />}
           {newer && (
             <a class="adj next" href={postUrl(newer)}>
-              <span class="dir">다음 기록<span class="msr">arrow_forward</span></span>
+              <span class="dir">다음 기록<Icon name="arrow-right" /></span>
               <span class="adj-title">{newer.data.title}</span>
             </a>
           )}
@@ -153,6 +154,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
 <script>
   import { headline, popIn, toast } from '../../scripts/fx';
   import { wireBookmarks } from '../../scripts/bookmarks';
+  import { icon } from '../../scripts/icons';
 
   headline(document.querySelector('[data-headline]'), 100);
   wireBookmarks();
@@ -196,7 +198,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
   box.addEventListener('click', () => box.close());
 
   // 코드 블록: 언어 라벨 + 복사
-  const COPY = '<span class="msr">content_copy</span>';
+  const COPY = icon('copy', 16);
   prose.querySelectorAll('pre').forEach((pre) => {
     const wrap = document.createElement('div');
     wrap.className = 'code-wrap';
@@ -213,7 +215,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
     btn.innerHTML = COPY;
     btn.addEventListener('click', async () => {
       await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? pre.innerText);
-      btn.innerHTML = '<span class="msr">check</span>';
+      btn.innerHTML = icon('check', 16);
       setTimeout(() => (btn.innerHTML = COPY), 1500);
     });
     head.append(btn);
@@ -244,7 +246,6 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
   .actions { display: flex; gap: 8px; }
   .pill { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--secondary); color: var(--secondary-foreground); font: 600 14px/1 var(--font-sans); cursor: pointer; transition: background var(--dur); }
   .pill:hover { background: var(--accent); }
-  .pill .msr { font-size: 19px; }
   .pill[aria-pressed='true'] { color: var(--brand); }
 
   .about-box { padding: 14px 16px; margin-bottom: 28px; border-radius: var(--radius-lg); background: var(--secondary); font-size: 14.5px; }
@@ -258,7 +259,7 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
 
   .series { margin-bottom: 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
   .series-title { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 16px; background: var(--secondary); font-weight: 700; }
-  .series-title .msr { color: var(--brand); }
+  .series-title .icon { color: var(--brand); }
   .count { margin-left: auto; font: 500 12px var(--font-mono); color: var(--muted-foreground); }
   .series ol { list-style: none; margin: 0; padding: 6px; font-size: 14px; }
   .series li { display: flex; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); }
@@ -278,7 +279,6 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
   .adj { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); transition: border-color var(--dur), background var(--dur); }
   .adj:hover { border-color: var(--brand); background: var(--accent); }
   .dir { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--muted-foreground); }
-  .dir .msr { font-size: 16px; }
   .adj-title { font-weight: 700; line-height: 1.4; }
   .adj.next { grid-column: 2; text-align: right; align-items: flex-end; }
   @media (max-width: 599px) {

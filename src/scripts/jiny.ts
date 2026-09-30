@@ -1,8 +1,9 @@
 import { animate, createTimeline, random, stagger } from 'animejs';
-import { reduced } from './fx';
+import { achievement, reduced } from './fx';
+import { sfx } from './sfx';
 
 // JINY 애니메이션(anime.js v4). 부위 class 는 src/lib/jiny.mjs 참고.
-const NEON = ['#5ad1ff', '#ff6fae', '#b6f36b', '#ffd84a', '#a594ff'];
+const NEON = ['#a99be8', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
 const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
 const KEY = '#3d3959';
 
@@ -84,6 +85,8 @@ export function animateJiny(root: HTMLElement) {
   poke?.addEventListener('click', () => {
     if (busy) return;
     busy = true;
+    sfx('jump');
+    achievement('poke-jiny', 'JINY와 첫 인사');
     const hop = createTimeline({ onComplete: () => (busy = false) });
     hop
       .add($('.bunny')!, { translateY: [0, -26], scaleY: [1, 1.04], duration: 220, ease: 'outQuad' })

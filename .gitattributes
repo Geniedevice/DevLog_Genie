@@ -1,0 +1,5 @@
+# 줄바꿈은 항상 LF (Windows 에서 CRLF 로 바뀌어 스크립트·diff 가 깨지는 것 방지)
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.woff2 binary

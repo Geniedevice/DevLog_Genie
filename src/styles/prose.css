@@ -84,7 +84,6 @@
 .prose .code-lang { font: 500 12px/1 var(--font-mono); color: #8fa596; }
 .prose .copy { display: grid; place-items: center; width: 30px; height: 30px; margin-left: auto; border: 0; border-radius: var(--radius-sm); background: transparent; color: #8fa596; cursor: pointer; }
 .prose .copy:hover { background: #1c2a21; color: #d7ecc9; }
-.prose .copy .msr { font-size: 17px; }
 .prose pre {
   margin: 0;
   padding: 18px 20px;
@@ -128,7 +127,7 @@
 }
 .prose .callout > :last-child { margin-bottom: 0; }
 .prose .callout-title { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--c); }
-.prose .callout-title .msr { font-size: 19px; }
+.prose .callout-title .icon { flex: none; }
 .prose .callout-note { --c: #5b9bd5; }
 .prose .callout-tip { --c: var(--brand); }
 .prose .callout-important { --c: #a78bfa; }

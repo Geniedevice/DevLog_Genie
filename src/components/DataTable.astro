@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import { postUrl, readingMinutes, type Post } from '../lib/posts';
 import { xpOf } from '../lib/quest';
 
@@ -26,17 +27,17 @@ const cols = [
 <div class="dt" data-table>
   <div class="toolbar">
     <label class="filter">
-      <span class="msr">filter_list</span>
+      <Icon name="list-filter" />
       <input type="text" placeholder="제목·태그로 거르기…" data-q aria-label="제목·태그로 거르기" />
     </label>
     <label class="facet">
-      <span class="msr">add_circle</span>
+      <Icon name="circle-plus" />
       <select data-cat aria-label="분류">
         <option value="">분류 전체</option>
         {categories.map((c) => <option value={c}>{c}</option>)}
       </select>
     </label>
-    <button class="btn btn-ghost btn-sm reset" type="button" data-reset hidden>초기화<span class="msr">close</span></button>
+    <button class="btn btn-ghost btn-sm reset" type="button" data-reset hidden>초기화<Icon name="x" /></button>
   </div>
 
   <div class="frame">
@@ -45,7 +46,7 @@ const cols = [
         <tr>
           {cols.map((c) => (
             <th class:list={{ num: c.num }} scope="col" aria-sort="none" data-col={c.key}>
-              <button type="button" data-sort={c.key}>{c.label}<span class="msr sort-icon">unfold_more</span></button>
+              <button type="button" data-sort={c.key}>{c.label}<span class="sort-icon"><Icon name="chevrons-up-down" size={14} /></span></button>
             </th>
           ))}
         </tr>
@@ -73,10 +74,10 @@ const cols = [
     </label>
     <span data-page-text>1 / 1</span>
     <div class="nav">
-      <button class="btn btn-outline btn-icon btn-sm" type="button" data-first aria-label="첫 페이지"><span class="msr">keyboard_double_arrow_left</span></button>
-      <button class="btn btn-outline btn-icon btn-sm" type="button" data-prev aria-label="이전 페이지"><span class="msr">chevron_left</span></button>
-      <button class="btn btn-outline btn-icon btn-sm" type="button" data-next aria-label="다음 페이지"><span class="msr">chevron_right</span></button>
-      <button class="btn btn-outline btn-icon btn-sm" type="button" data-last aria-label="마지막 페이지"><span class="msr">keyboard_double_arrow_right</span></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-first aria-label="첫 페이지"><Icon name="chevrons-left" /></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-prev aria-label="이전 페이지"><Icon name="chevron-left" /></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-next aria-label="다음 페이지"><Icon name="chevron-right" /></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-last aria-label="마지막 페이지"><Icon name="chevrons-right" /></button>
     </div>
   </div>
   <!-- ⚠️ 제목에 "</script>" 가 들어가도 태그가 닫히지 않게 < 를 이스케이프 -->
@@ -86,6 +87,7 @@ const cols = [
 <script>
   import { animate, stagger } from 'animejs';
   import { reduced } from '../scripts/fx';
+  import { icon } from '../scripts/icons';
 
   type Row = { title: string; url: string; category: string; tags: string[]; date: number; dateText: string; minutes: number; xp: number };
 
@@ -136,7 +138,7 @@ const cols = [
       root.querySelectorAll<HTMLElement>('th[data-col]').forEach((th) => {
         const on = th.dataset.col === sortKey;
         th.setAttribute('aria-sort', on ? (dir === 1 ? 'ascending' : 'descending') : 'none');
-        th.querySelector('.sort-icon')!.textContent = on ? (dir === 1 ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
+        th.querySelector('.sort-icon')!.innerHTML = icon(on ? (dir === 1 ? 'arrow-up' : 'arrow-down') : 'chevrons-up-down', 14);
       });
       if (animateRows && !reduced()) animate(body.children, { opacity: [0, 1], translateX: [-8, 0], duration: 360, delay: stagger(25), ease: 'outQuad' });
     }
@@ -166,12 +168,9 @@ const cols = [
   .filter { display: flex; align-items: center; gap: 8px; width: min(280px, 100%); height: 36px; padding: 0 10px; border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--card); color: var(--muted-foreground); }
   .filter:focus-within { border-color: var(--ring); }
   .filter input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--foreground); font: 400 14px var(--font-sans); outline: none; }
-  .filter .msr { font-size: 18px; }
   .facet { position: relative; display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border: 1px dashed var(--input); border-radius: var(--radius-md); color: var(--muted-foreground); }
-  .facet .msr { font-size: 17px; }
   .facet select, .per select { border: 0; background: transparent; color: var(--foreground); font: 600 13px var(--font-sans); cursor: pointer; outline: none; }
   .facet select option, .per select option { background: var(--popover); color: var(--popover-foreground); }
-  .reset .msr { font-size: 16px; }
 
   .frame { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -179,7 +178,7 @@ const cols = [
   th button { display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 8px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); font: 600 13px var(--font-sans); cursor: pointer; }
   th button:hover { background: var(--accent); color: var(--foreground); }
   th[aria-sort='ascending'] button, th[aria-sort='descending'] button { color: var(--foreground); }
-  th .msr { font-size: 15px; }
+  .sort-icon { display: inline-flex; }
   th.num { text-align: right; }
   tbody :global(tr) { border-bottom: 1px solid var(--border); transition: background var(--dur); }
   tbody :global(tr:last-child) { border-bottom: 0; }

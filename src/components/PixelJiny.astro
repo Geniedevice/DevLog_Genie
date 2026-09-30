@@ -1,0 +1,50 @@
+---
+import { pixelJinySvg } from '../lib/pixel-jiny.mjs';
+interface Props { class?: string; sparkles?: boolean }
+const { class: cls, sparkles = true } = Astro.props;
+---
+<div class:list={['pj', cls]} data-pixel-jiny>
+  {sparkles && (
+    <>
+      <span class="pj-spark s1" aria-hidden="true"></span><span class="pj-spark s2" aria-hidden="true"></span>
+      <span class="pj-spark s3" aria-hidden="true"></span><span class="pj-spark s4" aria-hidden="true"></span>
+    </>
+  )}
+  <Fragment set:html={pixelJinySvg()} />
+</div>
+
+<script>
+  import { animate, steps } from 'animejs';
+  import { reduced } from '../scripts/fx';
+
+  // 스프라이트답게 뚝뚝 끊기는 움직임(steps)으로
+  document.querySelectorAll<HTMLElement>('[data-pixel-jiny]').forEach((el) => {
+    if (reduced()) return;
+    const body = el.querySelector('.pj-body');
+    const open = el.querySelector('.pj-eyes-open');
+    const shut = el.querySelector('.pj-eyes-shut');
+    if (body) animate(body, { translateY: [0, -1], duration: 900, loop: true, alternate: true, ease: steps(1) });
+    animate(el.querySelectorAll('.pj-light'), { opacity: [1, 0.35], duration: 700, loop: true, alternate: true, ease: steps(2) });
+    animate(el.querySelectorAll('.pj-spark'), { scale: [0.4, 1], opacity: [0.2, 1], duration: 900, delay: (_: unknown, i: number) => i * 260, loop: true, alternate: true, ease: steps(3) });
+    const blink = () => {
+      open?.setAttribute('opacity', '0');
+      shut?.setAttribute('opacity', '1');
+      setTimeout(() => {
+        open?.setAttribute('opacity', '1');
+        shut?.setAttribute('opacity', '0');
+        setTimeout(blink, 2400 + Math.random() * 2600);
+      }, 140);
+    };
+    setTimeout(blink, 1500);
+  });
+</script>
+
+<style>
+  .pj { position: relative; width: 84px; aspect-ratio: 16 / 18; image-rendering: pixelated; }
+  .pj :global(.pixel-jiny) { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 0 12px var(--glow)); }
+  .pj-spark { position: absolute; width: 6px; height: 6px; background: var(--brand); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+  .s1 { left: -18px; top: 8px; }
+  .s2 { right: -16px; top: 30%; background: var(--mint); width: 5px; height: 5px; }
+  .s3 { left: -10px; bottom: 6px; background: var(--mint); }
+  .s4 { right: -8px; top: -6px; width: 4px; height: 4px; }
+</style>

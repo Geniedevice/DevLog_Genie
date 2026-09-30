@@ -1,0 +1,29 @@
+---
+import Jiny from './Jiny.astro';
+import { sceneBack, sceneFront, SCENE } from '../lib/scene.mjs';
+const j = SCENE.jiny;
+const pct = (v: number, of: number) => `${(v / of) * 100}%`;
+---
+<div class="scene" data-scene>
+  <Fragment set:html={sceneBack()} />
+  <div class="jiny-slot" style={`left:${pct(j.x, SCENE.w)};top:${pct(j.y, SCENE.h)};width:${pct(j.size, SCENE.w)}`}>
+    <Jiny id="hero" desk={false} />
+  </div>
+  <Fragment set:html={sceneFront()} />
+</div>
+
+<script>
+  import { animateScene } from '../scripts/scene';
+  const el = document.querySelector<HTMLElement>('[data-scene]');
+  if (el) animateScene(el);
+</script>
+
+<style>
+  .scene { position: relative; width: 100%; aspect-ratio: 1200 / 520; overflow: hidden; }
+  .scene :global(svg.scene-back), .scene :global(svg.scene-front) { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .scene :global(svg.scene-front) { pointer-events: none; z-index: 2; }
+  .jiny-slot { position: absolute; z-index: 1; }
+  /* 움직이는 SVG 부위의 축 */
+  .scene :global(.star), .scene :global(.led), .scene :global(.base-light), .scene :global(.fpaw), .scene :global(.mini-hero) { transform-box: fill-box; transform-origin: center; }
+  .scene :global(.steam) { transform-box: fill-box; transform-origin: bottom; }
+</style>

@@ -1,11 +1,12 @@
 ---
+import Icon from './Icon.astro';
 import { SITE } from '../site.config';
 const g = SITE.giscus;
 const enabled = Boolean(g.repoId && g.categoryId);
 ---
 {enabled && (
   <section class="comments" aria-label="댓글">
-    <h2 class="section-title"><span class="msr">forum</span>댓글</h2>
+    <h2 class="section-title"><Icon name="messages-square" />댓글</h2>
     <div data-giscus data-repo={g.repo} data-repo-id={g.repoId} data-category={g.category} data-category-id={g.categoryId}></div>
   </section>
 )}

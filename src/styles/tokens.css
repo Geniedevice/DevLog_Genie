@@ -1,127 +1,134 @@
 /*
- * shadcn/ui 식 시맨틱 토큰(표면 --x / 그 위 글자 --x-foreground) + 차트 팔레트(--chart-1…5).
- * 색은 대표 캐릭터 JINY 에서: 밤의 검정, 헤드폰의 보라 빛, 주변을 튀는 네온 반짝이.
+ * LUNAR LAB 팔레트 — shadcn/ui 식 시맨틱 토큰(표면 --x / 그 위 글자 --x-foreground) + 차트 --chart-1…5.
+ * 밤(기본 인상): Background #111522 · Surface #1C2335 · Lavender #A99BE8 · Mint #8FD4C1 · Text #E7EBF5
+ * 낮: 같은 색상을 달빛 종이 위로 옮긴 버전.
  */
 :root {
-  --background: #f7f6fb;
-  --foreground: #17152a;
+  --background: #f4f5fa;
+  --foreground: #151a2b;
   --card: #ffffff;
-  --card-foreground: #17152a;
+  --card-foreground: #151a2b;
   --popover: #ffffff;
-  --popover-foreground: #17152a;
-  --primary: #6d5ce7;
+  --popover-foreground: #151a2b;
+  --primary: #7a68d6;
   --primary-foreground: #ffffff;
-  --secondary: #efedf7;
-  --secondary-foreground: #221f3a;
-  --muted: #f0eef7;
-  --muted-foreground: #67627f;
-  --accent: #ece8ff;
-  --accent-foreground: #3b2f99;
-  --destructive: #d23b5f;
-  --border: #e4e1ef;
-  --input: #d9d5e8;
-  --ring: #7c6cf0;
+  --secondary: #eceef6;
+  --secondary-foreground: #1f2640;
+  --muted: #eef0f7;
+  --muted-foreground: #626a85;
+  --accent: #ebe7fb;
+  --accent-foreground: #3e3290;
+  --destructive: #d04a63;
+  --border: #e0e3ef;
+  --input: #d5d9e8;
+  --ring: #7a68d6;
   --radius: 0.75rem;
 
-  --sidebar: #f2f0f9;
-  --sidebar-foreground: #221f3a;
-  --sidebar-primary: #6d5ce7;
-  --sidebar-accent: #e6e1fb;
-  --sidebar-border: #e2def0;
+  --sidebar: #eceef6;
+  --sidebar-foreground: #1f2640;
+  --sidebar-primary: #7a68d6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e1e3ef;
+  --sidebar-border: #dde0ec;
 
-  --chart-1: #6d5ce7;
-  --chart-2: #1aa3d9;
-  --chart-3: #e0508f;
-  --chart-4: #4fa82a;
-  --chart-5: #d99a00;
+  --chart-1: #7a68d6;
+  --chart-2: #2f9d84;
+  --chart-3: #d0619b;
+  --chart-4: #3d86d6;
+  --chart-5: #c98a12;
 
-  --brand: #6d5ce7;
-  --brand-soft: rgb(109 92 231 / 0.1);
-  --amber: #d99a00;
-  --glow: rgb(109 92 231 / 0.3);
-  --hero-glow: rgb(165 148 255 / 0.25);
-  --code-bg: #14121d;
-  --heat-0: #ebe8f4;
+  --brand: #7a68d6;
+  --mint: #2f9d84;
+  --brand-soft: rgb(122 104 214 / 0.1);
+  --amber: #c98a12;
+  --glow: rgb(122 104 214 / 0.3);
+  --hero-fade: #f4f5fa;
+  --code-bg: #111522;
+  --heat-0: #e6e8f2;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --background: #0c0b12;
-    --foreground: #eceaf6;
-    --card: #14121d;
-    --card-foreground: #eceaf6;
-    --popover: #16141f;
-    --popover-foreground: #eceaf6;
-    --primary: #a594ff;
-    --primary-foreground: #120f24;
-    --secondary: #1c1a28;
-    --secondary-foreground: #eceaf6;
-    --muted: #191724;
-    --muted-foreground: #9d98b3;
-    --accent: #211d33;
-    --accent-foreground: #ddd6ff;
-    --destructive: #ff6f8e;
-    --border: #252233;
-    --input: #2e2a40;
-    --ring: #a594ff;
-    --sidebar: #0f0e17;
-    --sidebar-foreground: #dedbee;
-    --sidebar-primary: #b8aaff;
-    --sidebar-accent: #1e1b2e;
-    --sidebar-border: #1f1d2b;
-    --chart-1: #a594ff;
-    --chart-2: #5ad1ff;
-    --chart-3: #ff6fae;
-    --chart-4: #b6f36b;
-    --chart-5: #ffd84a;
-    --brand: #a594ff;
-    --brand-soft: rgb(165 148 255 / 0.13);
-    --amber: #ffd84a;
-    --glow: rgb(165 148 255 / 0.4);
-    --hero-glow: rgb(165 148 255 / 0.28);
-    --code-bg: #0a0910;
-    --heat-0: #1b1927;
+    --background: #111522;
+    --foreground: #e7ebf5;
+    --card: #1c2335;
+    --card-foreground: #e7ebf5;
+    --popover: #1c2335;
+    --popover-foreground: #e7ebf5;
+    --primary: #a99be8;
+    --primary-foreground: #111522;
+    --secondary: #232b40;
+    --secondary-foreground: #e7ebf5;
+    --muted: #1a2032;
+    --muted-foreground: #98a0b8;
+    --accent: #262d45;
+    --accent-foreground: #d9d2ff;
+    --destructive: #f07a8e;
+    --border: #283048;
+    --input: #323a55;
+    --ring: #a99be8;
+    --sidebar: #141a2a;
+    --sidebar-foreground: #dfe3ef;
+    --sidebar-primary: #a99be8;
+    --sidebar-primary-foreground: #111522;
+    --sidebar-accent: #1f2638;
+    --sidebar-border: #222a3e;
+    --chart-1: #a99be8;
+    --chart-2: #8fd4c1;
+    --chart-3: #f29cc8;
+    --chart-4: #7fb2f0;
+    --chart-5: #f2cf7a;
+    --brand: #a99be8;
+    --mint: #8fd4c1;
+    --brand-soft: rgb(169 155 232 / 0.14);
+    --amber: #f2cf7a;
+    --glow: rgb(169 155 232 / 0.4);
+    --hero-fade: #111522;
+    --code-bg: #0c0f19;
+    --heat-0: #1f2639;
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --background: #0c0b12;
-  --foreground: #eceaf6;
-  --card: #14121d;
-  --card-foreground: #eceaf6;
-  --popover: #16141f;
-  --popover-foreground: #eceaf6;
-  --primary: #a594ff;
-  --primary-foreground: #120f24;
-  --secondary: #1c1a28;
-  --secondary-foreground: #eceaf6;
-  --muted: #191724;
-  --muted-foreground: #9d98b3;
-  --accent: #211d33;
-  --accent-foreground: #ddd6ff;
-  --destructive: #ff6f8e;
-  --border: #252233;
-  --input: #2e2a40;
-  --ring: #a594ff;
-  --sidebar: #0f0e17;
-  --sidebar-foreground: #dedbee;
-  --sidebar-primary: #b8aaff;
-  --sidebar-accent: #1e1b2e;
-  --sidebar-border: #1f1d2b;
-  --chart-1: #a594ff;
-  --chart-2: #5ad1ff;
-  --chart-3: #ff6fae;
-  --chart-4: #b6f36b;
-  --chart-5: #ffd84a;
-  --brand: #a594ff;
-  --brand-soft: rgb(165 148 255 / 0.13);
-  --amber: #ffd84a;
-  --glow: rgb(165 148 255 / 0.4);
-  --hero-glow: rgb(165 148 255 / 0.28);
-  --code-bg: #0a0910;
-  --heat-0: #1b1927;
+  --background: #111522;
+  --foreground: #e7ebf5;
+  --card: #1c2335;
+  --card-foreground: #e7ebf5;
+  --popover: #1c2335;
+  --popover-foreground: #e7ebf5;
+  --primary: #a99be8;
+  --primary-foreground: #111522;
+  --secondary: #232b40;
+  --secondary-foreground: #e7ebf5;
+  --muted: #1a2032;
+  --muted-foreground: #98a0b8;
+  --accent: #262d45;
+  --accent-foreground: #d9d2ff;
+  --destructive: #f07a8e;
+  --border: #283048;
+  --input: #323a55;
+  --ring: #a99be8;
+  --sidebar: #141a2a;
+  --sidebar-foreground: #dfe3ef;
+  --sidebar-primary: #a99be8;
+  --sidebar-primary-foreground: #111522;
+  --sidebar-accent: #1f2638;
+  --sidebar-border: #222a3e;
+  --chart-1: #a99be8;
+  --chart-2: #8fd4c1;
+  --chart-3: #f29cc8;
+  --chart-4: #7fb2f0;
+  --chart-5: #f2cf7a;
+  --brand: #a99be8;
+  --mint: #8fd4c1;
+  --brand-soft: rgb(169 155 232 / 0.14);
+  --amber: #f2cf7a;
+  --glow: rgb(169 155 232 / 0.4);
+  --hero-fade: #111522;
+  --code-bg: #0c0f19;
+  --heat-0: #1f2639;
   color-scheme: dark;
 }
 
@@ -138,8 +145,10 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur: 180ms;
 
-  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+  /* 폰트는 전부 자체 호스팅(npm 으로 받아 번들). 픽셀 폰트는 영문 HUD 에만 */
+  --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-pixel: 'Galmuri11', 'JetBrains Mono', monospace;
 
-  --sidebar-width: 250px;
+  --sidebar-width: 240px;
 }

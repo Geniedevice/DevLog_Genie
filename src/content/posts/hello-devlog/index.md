@@ -4,7 +4,7 @@ description: 무엇을 만들었는지보다 왜 그렇게 만들었는지를 �
 date: 2026-09-30
 cover: ./cover.png
 coverAlt: 보라 헤드폰을 쓰고 키보드를 두드리는 흰 토끼 JINY
-thumbText: "개발 일지\n시작!"
+thumbText: "개발 일지 *시작*"
 category: Devlog
 tags: [devlog, 회고]
 pinned: true

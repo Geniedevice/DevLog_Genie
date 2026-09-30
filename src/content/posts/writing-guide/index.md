@@ -3,9 +3,8 @@ title: 글쓰기 가이드 — 이 블로그에서 쓸 수 있는 마크다운
 description: 콜아웃, 코드 블록, 표, 접기 등 이 블로그가 지원하는 서식을 한 번에 확인하는 견본 글입니다.
 date: 2026-09-29
 cover: ./cover.png
-coverAlt: 밤 창가 책상 위의 펼친 책과 노트북, 그리고 고양이
-thumbText: "글쓰기\n가이드"
-pixelArt: true
+coverAlt: 달 기지 작업실에서 코드를 치는 JINY
+thumbText: "글쓰기 *가이드*"
 category: Devlog
 tags: [guide, markdown]
 draft: true

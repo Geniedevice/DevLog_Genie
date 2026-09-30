@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import { url } from '../lib/posts';
 import { NAV, BOOKMARKS } from '../lib/nav';
 const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, href: url(n.path) }));
@@ -6,15 +7,15 @@ const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, h
 <dialog class="cmd" data-cmd data-index={url('search.json')} aria-label="기록 검색">
   <div class="panel" data-cmd-panel>
     <div class="input-row">
-      <span class="msr">search</span>
+      <Icon name="search" />
       <input type="text" placeholder="기록 검색… 제목·태그·내용" autocomplete="off" spellcheck="false" data-cmd-input role="combobox" aria-expanded="true" aria-controls="cmd-list" />
       <kbd class="kbd">Esc</kbd>
     </div>
     <div class="list" id="cmd-list" role="listbox" data-cmd-list>
       <div class="group" data-static>
         <p class="heading">이동</p>
-        {places.map((p) => <a class="cmd-item" role="option" href={p.href} data-item><span class="msr">{p.icon}</span>{p.label}</a>)}
-        <button class="cmd-item" type="button" role="option" data-item data-action="theme"><span class="msr">contrast</span>낮·밤 전환</button>
+        {places.map((p) => <a class="cmd-item" role="option" href={p.href} data-item><Icon name={p.icon} />{p.label}</a>)}
+        <button class="cmd-item" type="button" role="option" data-item data-action="theme"><Icon name="contrast" />낮·밤 전환</button>
       </div>
       <div class="group" data-results hidden>
         <p class="heading">기록</p>
@@ -32,6 +33,7 @@ const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, h
 
 <script>
   import { popIn } from '../scripts/fx';
+  import { icon } from '../scripts/icons';
 
   type Entry = { id: string; title: string; description: string; tags: string[]; category: string; date: string; minutes: number; url: string; thumb: string | null; text: string };
 
@@ -100,7 +102,7 @@ const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, h
     results.hidden = scored.length === 0;
     body.innerHTML = scored
       .map(({ e }) => `<a class="cmd-item result" role="option" href="${e.url}" data-item>
-          <span class="thumb">${e.thumb ? `<img src="${e.thumb}" alt="" loading="lazy" />` : '<span class="msr">article</span>'}</span>
+          <span class="thumb">${e.thumb ? `<img src="${e.thumb}" alt="" loading="lazy" />` : icon('file-text')}</span>
           <span class="r-body">
             <span class="r-title">${mark(e.title, terms)}</span>
             <span class="r-meta">${esc(e.category)} · ${esc(e.date)} · ${e.minutes}분 읽기</span>
@@ -143,16 +145,16 @@ const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, h
   .panel { display: flex; flex-direction: column; max-height: min(560px, 78vh); border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--popover); box-shadow: var(--shadow-lg); overflow: hidden; }
 
   .input-row { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 14px; border-bottom: 1px solid var(--border); flex: none; }
-  .input-row .msr { color: var(--muted-foreground); }
+  .input-row .icon { color: var(--muted-foreground); }
   input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; color: var(--foreground); font: 400 15px var(--font-sans); outline: none; }
   input::placeholder { color: var(--muted-foreground); }
 
   .list { overflow-y: auto; padding: 6px; }
   .heading { margin: 0; padding: 10px 10px 6px; font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
   .list :global(.cmd-item) { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; padding: 8px 10px; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--foreground); font: 500 14px/1.4 var(--font-sans); text-align: left; cursor: pointer; }
-  .list :global(.cmd-item > .msr) { font-size: 19px; color: var(--muted-foreground); }
+  .list :global(.cmd-item > .icon) { color: var(--muted-foreground); }
   .list :global(.cmd-item[aria-selected='true']) { background: var(--accent); color: var(--accent-foreground); }
-  .list :global(.cmd-item[aria-selected='true'] > .msr) { color: var(--brand); }
+  .list :global(.cmd-item[aria-selected='true'] > .icon) { color: var(--brand); }
   .list :global(.thumb) { display: grid; place-items: center; width: 72px; aspect-ratio: 16 / 9; flex: none; overflow: hidden; border-radius: var(--radius-sm); background: var(--muted); color: var(--muted-foreground); }
   .list :global(.thumb img) { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
   .list :global(.r-body) { display: flex; flex-direction: column; min-width: 0; }

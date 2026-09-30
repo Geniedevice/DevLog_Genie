@@ -1,0 +1,58 @@
+---
+import { pixelJinySvg } from '../lib/pixel-jiny.mjs';
+---
+<template id="boot-tpl">
+  <div class="boot" data-boot role="status" aria-label="불러오는 중">
+    <div class="boot-inner">
+      <div class="boot-jiny"><Fragment set:html={pixelJinySvg()} /></div>
+      <p class="boot-text pixel-font">NOW LOADING<span data-boot-dots>...</span></p>
+      <div class="boot-bar">{Array.from({ length: 12 }, () => <i></i>)}</div>
+      <p class="boot-skip pixel-font">PRESS ANY KEY</p>
+    </div>
+  </div>
+</template>
+
+<!-- ⚠️ 첫 페인트 전에 덮어야 내용이 번쩍 보였다 가려지지 않는다. 세션당 한 번, 모션 줄이기면 생략.
+     스크립트가 실패해도 3초 뒤엔 반드시 걷힌다. -->
+<script is:inline>
+  (() => {
+    try {
+      if (sessionStorage.getItem('devlog:booted') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      sessionStorage.setItem('devlog:booted', '1');
+    } catch { return; }
+    const tpl = document.getElementById('boot-tpl');
+    if (!tpl) return;
+    document.body.appendChild(tpl.content.cloneNode(true));
+    setTimeout(() => document.querySelector('[data-boot]')?.remove(), 3000);
+  })();
+</script>
+
+<script>
+  import { animate, stagger, steps } from 'animejs';
+  import { sfx } from '../scripts/sfx';
+
+  const boot = document.querySelector<HTMLElement>('[data-boot]');
+  if (boot) {
+    const done = () => {
+      if (!boot.isConnected) return;
+      animate(boot, { opacity: [1, 0], duration: 320, ease: 'outQuad', onComplete: () => boot.remove() });
+    };
+    animate(boot.querySelector('.boot-jiny')!, { translateY: [0, -10, 0], duration: 420, loop: true, ease: 'outQuad' });
+    animate(boot.querySelectorAll('.boot-bar i'), { opacity: [0.15, 1], duration: 60, delay: stagger(65), ease: steps(1), onComplete: () => { sfx('boot'); setTimeout(done, 180); } });
+    animate(boot.querySelector('[data-boot-dots]')!, { opacity: [1, 0], duration: 400, loop: true, alternate: true, ease: steps(1) });
+    animate(boot.querySelector('.boot-skip')!, { opacity: [0.2, 0.8], duration: 500, loop: true, alternate: true, ease: steps(1) });
+    boot.addEventListener('click', done);
+    addEventListener('keydown', done, { once: true });
+  }
+</script>
+
+<style is:global>
+  .boot { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: #111522; color: #e7ebf5; cursor: pointer; }
+  .boot-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .boot-jiny { width: 72px; image-rendering: pixelated; filter: drop-shadow(0 0 16px rgb(169 155 232 / 0.5)); }
+  .boot-jiny svg { width: 100%; height: auto; display: block; }
+  .boot-text { margin: 0; font-size: 14px; letter-spacing: 0.3em; color: #a99be8; }
+  .boot-bar { display: flex; gap: 4px; padding: 4px; border: 2px solid #a99be8; }
+  .boot-bar i { width: 12px; height: 14px; background: #8fd4c1; opacity: 0.15; }
+  .boot-skip { margin: 0; font-size: 10px; letter-spacing: 0.3em; color: #98a0b8; }
+</style>

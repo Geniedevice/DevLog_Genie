@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Jiny from '../components/Jiny.astro';
 import { url } from '../lib/posts';
@@ -10,8 +11,8 @@ import { url } from '../lib/posts';
     <h1>여긴 아무것도 없어요</h1>
     <p class="msg">JINY도 못 찾은 페이지예요. 주소가 바뀌었거나 사라졌을 수 있어요.</p>
     <div class="actions">
-      <a class="btn btn-default" href={url()}><span class="msr">home</span>개발 일지로</a>
-      <button class="btn btn-outline" type="button" data-open-search><span class="msr">search</span>검색</button>
+      <a class="btn btn-default" href={url()}><Icon name="house" />개발 일지로</a>
+      <button class="btn btn-outline" type="button" data-open-search><Icon name="search" />검색</button>
     </div>
   </div>
 </BaseLayout>

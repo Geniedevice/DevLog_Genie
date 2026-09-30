@@ -1,0 +1,99 @@
+---
+import { postUrl, formatDate, readingMinutes, type Post } from '../lib/posts';
+import { categoryStyle } from '../lib/categories';
+import shapes from '../lib/shapes.json';
+
+interface Props { post: Post; hidden?: boolean }
+const { post, hidden } = Astro.props;
+const { title, description, date, category, tags, pinned } = post.data;
+const style = categoryStyle(category);
+---
+<article class:list={['post-card card', `tone-${style.tone}`]} data-category={category} hidden={hidden}>
+  <a href={postUrl(post)} class="hit state" aria-label={title}></a>
+  <div class="media" aria-hidden="true">
+    <svg viewBox="0 0 48 48"><path d={shapes[style.shape]} /></svg>
+    <span class="msr">{style.icon}</span>
+    {post.data.draft ? (
+      <span class="pin label-m"><span class="msr">edit</span>초안 · 로컬 전용</span>
+    ) : pinned && (
+      <span class="pin label-m"><span class="msr fill">push_pin</span>고정</span>
+    )}
+  </div>
+  <div class="content">
+    <p class="label-m overline">{category}</p>
+    <h3 class="title-l">{title}</h3>
+    <p class="body-m desc">{description}</p>
+    <div class="meta body-s">
+      <time datetime={date.toISOString()}>{formatDate(date)}</time>
+      <span aria-hidden="true">·</span>
+      <span>{readingMinutes(post.body)}분</span>
+    </div>
+    {tags.length > 0 && (
+      <ul class="tags">
+        {tags.slice(0, 4).map((t) => <li class="label-s">#{t}</li>)}
+      </ul>
+    )}
+  </div>
+</article>
+
+<style>
+  .post-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    transition: box-shadow var(--md-dur-short) var(--md-ease-standard), border-color var(--md-dur-short);
+  }
+  .post-card:hover { box-shadow: var(--md-elev-2); border-color: transparent; }
+  .post-card:hover .media svg { transform: rotate(30deg) scale(1.06); }
+  .post-card[hidden] { display: none; }
+
+  /* 카드 전체를 하나의 링크로: 겹친 투명 앵커가 클릭·상태 레이어를 맡는다 */
+  .hit { position: absolute; inset: 0; z-index: 2; border-radius: inherit; color: var(--md-on-surface); }
+
+  .media { position: relative; height: 128px; display: grid; place-items: center; overflow: hidden; }
+  .media svg {
+    position: absolute;
+    width: 180px;
+    right: -24px;
+    top: -26px;
+    transition: transform var(--md-dur-medium) var(--md-ease-standard);
+  }
+  .media > .msr { position: relative; font-size: 44px; }
+  .tone-primary .media { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+  .tone-primary .media svg { fill: color-mix(in srgb, var(--md-primary) 22%, transparent); }
+  .tone-secondary .media { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+  .tone-secondary .media svg { fill: color-mix(in srgb, var(--md-secondary) 22%, transparent); }
+  .tone-tertiary .media { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+  .tone-tertiary .media svg { fill: color-mix(in srgb, var(--md-tertiary) 22%, transparent); }
+
+  .pin {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 10px 0 6px;
+    border-radius: var(--md-shape-sm);
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+  }
+  .pin .msr { font-size: 16px; }
+
+  .content { display: flex; flex-direction: column; gap: 8px; padding: 16px 16px 20px; flex: 1; }
+  .overline { margin: 0; color: var(--md-primary); text-transform: uppercase; }
+  h3 { margin: 0; color: var(--md-on-surface); }
+  .desc {
+    margin: 0;
+    color: var(--md-on-surface-variant);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .meta { display: flex; gap: 6px; color: var(--md-on-surface-variant); margin-top: auto; padding-top: 4px; }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--md-secondary); }
+</style>

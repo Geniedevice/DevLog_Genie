@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import PostListItem from '../components/PostListItem.astro';
+import { getPosts, type Post } from '../lib/posts';
+
+const posts = await getPosts();
+const byYear = new Map<number, Post[]>();
+for (const p of posts) {
+  const y = p.data.date.getFullYear();
+  byYear.set(y, [...(byYear.get(y) ?? []), p]);
+}
+---
+<BaseLayout title="아카이브" active="archive">
+  <div class="page">
+    <PageHeader title="아카이브" subtitle={`지금까지 ${posts.length}편`} icon="inventory_2" />
+    {[...byYear].map(([year, list]) => (
+      <section class="year" aria-labelledby={`y${year}`}>
+        <h2 class="title-l" id={`y${year}`}>{year}<span class="label-l count">{list.length}</span></h2>
+        <ul class="list">
+          {list.map((p) => <PostListItem post={p} />)}
+        </ul>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .page { max-width: 960px; margin: 0 auto; padding: 16px 16px 64px; }
+  @media (min-width: 840px) { .page { padding: 16px 28px 64px; } }
+  .year + .year { margin-top: 32px; }
+  h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 8px; position: sticky; top: 64px; z-index: 1; padding: 8px 0; background: var(--md-surface); }
+  .count { color: var(--md-on-surface-variant); }
+  .list { list-style: none; margin: 0 -16px; padding: 0; }
+</style>

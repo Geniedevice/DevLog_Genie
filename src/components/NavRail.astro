@@ -1,0 +1,74 @@
+---
+import { NAV, type NavKey } from '../lib/nav';
+import { url } from '../lib/posts';
+interface Props { active?: NavKey }
+const { active } = Astro.props;
+---
+<nav class="rail" aria-label="주 메뉴">
+  <a class="rail-logo" href={url()} aria-label="홈으로">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><use href="#logo-shape" /></svg>
+  </a>
+  <button class="fab state" type="button" data-open-search aria-label="검색">
+    <span class="msr">search</span>
+  </button>
+  <ul class="rail-items">
+    {NAV.map((n) => (
+      <li>
+        <a href={url(n.path)} class:list={['rail-item', { active: active === n.key }]} aria-current={active === n.key ? 'page' : undefined}>
+          <span class="indicator state"><span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span></span>
+          <span class="label-m">{n.label}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .rail {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    width: 88px;
+    flex: none;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  @media (min-width: 840px) { .rail { display: flex; } }
+
+  .rail-logo { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; }
+  .rail-logo svg { width: 40px; height: 40px; color: var(--md-primary); transition: transform var(--md-dur-medium) var(--md-ease-standard); }
+  .rail-logo:hover svg { transform: rotate(45deg); }
+
+  .fab {
+    width: 56px;
+    height: 56px;
+    border: 0;
+    border-radius: var(--md-shape-lg);
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    box-shadow: var(--md-elev-1);
+    display: grid;
+    place-items: center;
+    margin-bottom: 20px;
+    transition: box-shadow var(--md-dur-short);
+  }
+  .fab:hover { box-shadow: var(--md-elev-2); }
+
+  .rail-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .rail-item { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px; color: var(--md-on-surface-variant); }
+  .indicator {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 32px;
+    border-radius: var(--md-shape-full);
+    transition: background var(--md-dur-short) var(--md-ease-standard);
+  }
+  .rail-item:hover .indicator::after { opacity: 0.08; }
+  .rail-item.active { color: var(--md-on-surface); }
+  .rail-item.active .indicator { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+  .rail-item.active .label-m { font-weight: 700; }
+</style>

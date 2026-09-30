@@ -1,0 +1,23 @@
+---
+import { SITE } from '../site.config';
+import { url } from '../lib/posts';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <hr class="divider" />
+  <div class="inner">
+    <p class="body-m">© {year} {SITE.author}. Built with Astro · Material 3.</p>
+    <nav class="links label-l">
+      <a class="btn btn-text state" href={url('rss.xml')}><span class="msr">rss_feed</span>RSS</a>
+      <a class="btn btn-text state" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
+      <a class="btn btn-text state" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer { padding: 0 24px 24px; }
+  .inner { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 16px; color: var(--md-on-surface-variant); }
+  p { margin: 0; }
+  .links { display: flex; flex-wrap: wrap; margin-right: -12px; }
+</style>

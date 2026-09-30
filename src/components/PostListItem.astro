@@ -1,0 +1,31 @@
+---
+import { postUrl, formatDate, type Post } from '../lib/posts';
+import { categoryStyle } from '../lib/categories';
+interface Props { post: Post }
+const { post } = Astro.props;
+const style = categoryStyle(post.data.category);
+---
+<li>
+  <a class="item state" href={postUrl(post)}>
+    <span class:list={['avatar', `tone-${style.tone}`]} aria-hidden="true"><span class="msr">{style.icon}</span></span>
+    <span class="body">
+      <span class="title-m headline">{post.data.title}</span>
+      <span class="body-m support">{post.data.description}</span>
+    </span>
+    <time class="label-m trailing" datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+  </a>
+</li>
+
+<style>
+  /* M3 List: leading avatar + 2줄 + trailing supporting text */
+  .item { display: flex; align-items: center; gap: 16px; min-height: 72px; padding: 12px 16px; border-radius: var(--md-shape-md); color: var(--md-on-surface); }
+  .avatar { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: var(--md-shape-full); }
+  .avatar .msr { font-size: 20px; }
+  .tone-primary { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+  .tone-secondary { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+  .tone-tertiary { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+  .body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .support { color: var(--md-on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .trailing { flex: none; color: var(--md-on-surface-variant); }
+  @media (max-width: 599px) { .trailing { display: none; } }
+</style>

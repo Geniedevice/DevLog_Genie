@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, tagCounts } from '../lib/posts';
+import shapes from '../lib/shapes.json';
+import { SITE } from '../site.config';
+
+const PAGE = 12;
+const posts = await getPosts();
+const ordered = [...posts.filter((p) => p.data.pinned), ...posts.filter((p) => !p.data.pinned)];
+const categories = [...new Set(posts.map((p) => p.data.category))];
+const tagTotal = tagCounts(posts).length;
+---
+<BaseLayout active="home">
+  <section class="hero">
+    <div class="hero-card">
+      <svg class="deco deco-a" viewBox="0 0 48 48" aria-hidden="true"><path d={shapes.flower8} /></svg>
+      <svg class="deco deco-b" viewBox="0 0 48 48" aria-hidden="true"><path d={shapes.clover4} /></svg>
+      <svg class="deco deco-c" viewBox="0 0 48 48" aria-hidden="true"><path d={shapes.cookie12} /></svg>
+
+      <div class="hero-text">
+        <p class="label-l eyebrow">Unreal Engine · Game Client</p>
+        <h1 class="display-l">{SITE.title}</h1>
+        <p class="body-l lead">{SITE.description}</p>
+        <div class="hero-actions">
+          <a class="btn btn-filled state" href="#posts"><span class="msr">auto_stories</span>글 읽기</a>
+          <button class="btn btn-tonal state" type="button" data-open-search><span class="msr">search</span>검색</button>
+        </div>
+        <dl class="stats">
+          <div><dt class="label-m">글</dt><dd class="headline-s">{posts.length}</dd></div>
+          <div><dt class="label-m">카테고리</dt><dd class="headline-s">{categories.length}</dd></div>
+          <div><dt class="label-m">태그</dt><dd class="headline-s">{tagTotal}</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="posts" id="posts" aria-labelledby="posts-title">
+    <div class="section-head">
+      <h2 class="headline-s" id="posts-title">최근 글</h2>
+      <div class="filters" role="toolbar" aria-label="카테고리 필터">
+        <button class="chip state" type="button" data-filter="" aria-pressed="true"><span class="msr">done</span>전체</button>
+        {categories.map((c) => (
+          <button class="chip state" type="button" data-filter={c} aria-pressed="false">{c}</button>
+        ))}
+      </div>
+    </div>
+
+    {posts.length === 0 ? (
+      <p class="body-l empty">아직 글이 없습니다.</p>
+    ) : (
+      <div class="grid" data-grid>
+        {ordered.map((post, i) => <PostCard post={post} hidden={i >= PAGE} />)}
+      </div>
+    )}
+    <div class="more">
+      <button class="btn btn-outlined state" type="button" data-more hidden={ordered.length <= PAGE}>
+        <span class="msr">expand_more</span>더 보기
+      </button>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ PAGE }}>
+  const cards = [...document.querySelectorAll('[data-grid] .post-card')];
+  const chips = [...document.querySelectorAll('[data-filter]')];
+  const more = document.querySelector('[data-more]');
+  let filter = '';
+  let limit = PAGE;
+
+  function apply() {
+    const matched = cards.filter((c) => !filter || c.dataset.category === filter);
+    cards.forEach((c) => (c.hidden = true));
+    matched.slice(0, limit).forEach((c) => (c.hidden = false));
+    if (more) more.hidden = matched.length <= limit;
+  }
+
+  chips.forEach((chip) =>
+    chip.addEventListener('click', () => {
+      filter = chip.dataset.filter;
+      limit = PAGE;
+      chips.forEach((c) => {
+        const on = c === chip;
+        c.setAttribute('aria-pressed', String(on));
+        const icon = c.querySelector('.msr');
+        if (on && !icon) c.insertAdjacentHTML('afterbegin', '<span class="msr">done</span>');
+        if (!on && icon) icon.remove();
+      });
+      apply();
+    }),
+  );
+  more?.addEventListener('click', () => { limit += PAGE; apply(); });
+
+  // 글 상단의 카테고리 칩에서 ?category= 로 넘어온다
+  const initial = new URLSearchParams(location.search).get('category');
+  chips.find((c) => initial && c.dataset.filter === initial)?.click();
+</script>
+
+<style>
+  .hero { padding: 8px 16px 0; }
+  @media (min-width: 840px) { .hero { padding: 8px 28px 0; } }
+
+  .hero-card {
+    position: relative;
+    overflow: hidden;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 56px 24px 32px;
+    border-radius: var(--md-shape-xl);
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+  }
+  @media (min-width: 840px) { .hero-card { padding: 72px 56px 40px; } }
+
+  .deco { position: absolute; pointer-events: none; }
+  .deco-a { width: 340px; right: -60px; top: -90px; fill: color-mix(in srgb, var(--md-primary) 30%, transparent); animation: spin 60s linear infinite; }
+  .deco-b { width: 180px; right: 200px; bottom: -70px; fill: color-mix(in srgb, var(--md-tertiary) 35%, transparent); animation: spin 45s linear infinite reverse; }
+  .deco-c { width: 110px; right: 40px; bottom: 36px; fill: var(--md-tertiary-container); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 599px) {
+    .deco-a { width: 220px; right: -80px; top: -70px; }
+    .deco-b { right: -60px; bottom: -90px; }
+    .deco-c { display: none; }
+  }
+
+  .hero-text { position: relative; max-width: 620px; }
+  .eyebrow { margin: 0 0 8px; opacity: 0.85; }
+  h1 { margin: 0 0 16px; font-weight: 500; }
+  .lead { margin: 0 0 28px; max-width: 520px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+
+  .stats { display: flex; gap: 32px; margin: 0; }
+  .stats div { display: flex; flex-direction: column-reverse; }
+  .stats dt { opacity: 0.8; }
+  .stats dd { margin: 0; font-weight: 500; }
+
+  .posts { max-width: 1168px; margin: 0 auto; padding: 40px 16px 48px; }
+  @media (min-width: 840px) { .posts { padding: 48px 24px 64px; } }
+  .section-head { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+  .section-head h2 { margin: 0; }
+  .filters { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .empty { color: var(--md-on-surface-variant); }
+  .more { display: flex; justify-content: center; margin-top: 32px; }
+</style>

@@ -1,0 +1,50 @@
+---
+import { SITE } from '../site.config';
+const g = SITE.giscus;
+const enabled = Boolean(g.repoId && g.categoryId);
+---
+{enabled && (
+  <section class="comments" aria-label="댓글">
+    <h2 class="title-l">댓글</h2>
+    <div data-giscus data-repo={g.repo} data-repo-id={g.repoId} data-category={g.category} data-category-id={g.categoryId}></div>
+  </section>
+)}
+
+<script>
+  const host = document.querySelector<HTMLElement>('[data-giscus]');
+  const themeOf = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  if (host) {
+    const d = host.dataset;
+    const s = document.createElement('script');
+    const attrs: Record<string, string> = {
+      'data-repo': d.repo!,
+      'data-repo-id': d.repoId!,
+      'data-category': d.category!,
+      'data-category-id': d.categoryId!,
+      'data-mapping': 'pathname',
+      'data-strict': '1',
+      'data-reactions-enabled': '1',
+      'data-input-position': 'top',
+      'data-theme': themeOf(),
+      'data-lang': 'ko',
+      'data-loading': 'lazy',
+    };
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
+    s.src = 'https://giscus.app/client.js';
+    s.crossOrigin = 'anonymous';
+    s.async = true;
+    host.append(s);
+
+    // 사이트 테마를 바꾸면 giscus iframe 도 따라가게 한다
+    new MutationObserver(() => {
+      document
+        .querySelector<HTMLIFrameElement>('iframe.giscus-frame')
+        ?.contentWindow?.postMessage({ giscus: { setConfig: { theme: themeOf() } } }, 'https://giscus.app');
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+</script>
+
+<style>
+  .comments { margin-top: 56px; }
+  h2 { margin: 0 0 16px; }
+</style>

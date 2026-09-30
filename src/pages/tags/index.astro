@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getPosts, tagCounts, tagUrl } from '../../lib/posts';
+
+const tags = tagCounts(await getPosts());
+---
+<BaseLayout title="태그" active="tags">
+  <div class="page">
+    <PageHeader title="태그" subtitle={`${tags.length}개의 태그`} icon="sell" />
+    <ul class="cloud">
+      {tags.map(([t, n]) => (
+        <li><a class="chip state" href={tagUrl(t)}><span class="msr">tag</span>{t}<span class="count">{n}</span></a></li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .page { max-width: 960px; margin: 0 auto; padding: 16px 16px 64px; }
+  @media (min-width: 840px) { .page { padding: 16px 28px 64px; } }
+  .cloud { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+</style>

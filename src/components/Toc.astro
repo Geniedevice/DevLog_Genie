@@ -1,0 +1,44 @@
+---
+import type { MarkdownHeading } from 'astro';
+interface Props { headings: MarkdownHeading[] }
+const { headings } = Astro.props;
+---
+<nav class="toc" aria-label="목차">
+  <p class="title-s">목차</p>
+  <ul>
+    {headings.map((h) => (
+      <li class:list={[`d${h.depth}`]}><a class="body-m" href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a></li>
+    ))}
+  </ul>
+</nav>
+
+<script>
+  // 화면 상단 30% 선을 지난 마지막 제목을 "지금 읽는 섹션"으로 본다
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+  const targets = links.map((l) => document.getElementById(l.dataset.tocLink!)).filter((t): t is HTMLElement => !!t);
+  const update = () => {
+    const line = innerHeight * 0.3;
+    let current = targets[0];
+    for (const t of targets) if (t.getBoundingClientRect().top < line) current = t;
+    links.forEach((l) => l.classList.toggle('active', l.dataset.tocLink === current?.id));
+  };
+  addEventListener('scroll', update, { passive: true });
+  update();
+</script>
+
+<style>
+  .toc { position: sticky; top: 88px; max-height: calc(100dvh - 120px); overflow-y: auto; }
+  p { margin: 0 0 12px; padding-left: 16px; color: var(--md-on-surface-variant); }
+  ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--md-outline-variant); }
+  a {
+    display: block;
+    padding: 6px 12px 6px 16px;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--md-on-surface-variant);
+    transition: color var(--md-dur-short), border-color var(--md-dur-short);
+  }
+  .d3 a { padding-left: 28px; font-size: 13px; }
+  a:hover { color: var(--md-on-surface); }
+  a.active { color: var(--md-primary); border-left-color: var(--md-primary); font-weight: 500; }
+</style>

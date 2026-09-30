@@ -1,0 +1,174 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Toc from '../../components/Toc.astro';
+import Comments from '../../components/Comments.astro';
+import { getPosts, postUrl, tagUrl, url, formatDate, readingMinutes, type Post } from '../../lib/posts';
+import { categoryStyle } from '../../lib/categories';
+import shapes from '../../lib/shapes.json';
+import '../../styles/prose.css';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    // 목록이 최신순이라 배열상 뒤쪽이 "이전 글"
+    props: {
+      post,
+      newer: posts[i - 1],
+      older: posts[i + 1],
+      series: post.data.series ? posts.filter((p) => p.data.series === post.data.series).reverse() : [],
+    },
+  }));
+}
+
+interface Props { post: Post; newer?: Post; older?: Post; series: Post[] }
+const { post, newer, older, series } = Astro.props;
+const { Content, headings } = await render(post);
+const { title, description, date, updated, category, tags } = post.data;
+const style = categoryStyle(category);
+const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+<BaseLayout title={title} description={description} type="article">
+  <article class="post">
+    <header class:list={['post-header', `tone-${style.tone}`]}>
+      <svg class="deco" viewBox="0 0 48 48" aria-hidden="true"><path d={shapes[style.shape]} /></svg>
+      <div class="header-inner">
+        <a class="chip chip-assist state cat" href={url(`?category=${encodeURIComponent(category)}#posts`)}><span class="msr">{style.icon}</span>{category}</a>
+        <h1 class="display-s">{title}</h1>
+        <p class="body-l desc">{description}</p>
+        <div class="meta body-m">
+          <span><span class="msr">calendar_today</span><time datetime={date.toISOString()}>{formatDate(date)}</time></span>
+          {updated && <span><span class="msr">update</span>{formatDate(updated)} 수정</span>}
+          <span><span class="msr">schedule</span>{readingMinutes(post.body)}분 분량</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <div class="main-col">
+        {series.length > 1 && (
+          <nav class="series card card-filled" aria-label="시리즈">
+            <p class="title-s"><span class="msr">collections_bookmark</span>{post.data.series}<span class="label-m count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
+            <ol class="body-m">
+              {series.map((s) => (
+                <li class:list={{ current: s.id === post.id }}>
+                  {s.id === post.id ? <span>{s.data.title}</span> : <a href={postUrl(s)}>{s.data.title}</a>}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        {tags.length > 0 && (
+          <ul class="tag-list" aria-label="태그">
+            {tags.map((t) => <li><a class="chip state" href={tagUrl(t)}><span class="msr">tag</span>{t}</a></li>)}
+          </ul>
+        )}
+
+        <nav class="adjacent" aria-label="이전·다음 글">
+          {older ? (
+            <a class="card card-outlined state adj" href={postUrl(older)}>
+              <span class="label-m"><span class="msr">arrow_back</span>이전 글</span>
+              <span class="title-m">{older.data.title}</span>
+            </a>
+          ) : <span />}
+          {newer && (
+            <a class="card card-outlined state adj next" href={postUrl(newer)}>
+              <span class="label-m">다음 글<span class="msr">arrow_forward</span></span>
+              <span class="title-m">{newer.data.title}</span>
+            </a>
+          )}
+        </nav>
+
+        <Comments />
+      </div>
+
+      {toc.length > 0 && (
+        <aside class="side">
+          <Toc headings={toc} />
+        </aside>
+      )}
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  // 코드 블록마다 언어 라벨과 복사 버튼
+  const COPY = '<span class="msr">content_copy</span>';
+  document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.replaceWith(wrap);
+    wrap.append(pre);
+
+    const lang = pre.dataset.language;
+    if (lang && lang !== 'plaintext') {
+      const tag = document.createElement('span');
+      tag.className = 'code-lang label-s';
+      tag.textContent = lang;
+      wrap.prepend(tag);
+    }
+
+    const btn = document.createElement('button');
+    btn.className = 'copy icon-btn state';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.innerHTML = COPY;
+    btn.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? pre.innerText);
+      btn.innerHTML = '<span class="msr">check</span>';
+      setTimeout(() => (btn.innerHTML = COPY), 1500);
+    });
+    wrap.append(btn);
+  });
+</script>
+
+<style>
+  .post-header { position: relative; overflow: hidden; margin: 8px 16px 0; padding: 48px 24px 36px; border-radius: var(--md-shape-xl); }
+  @media (min-width: 840px) { .post-header { margin: 8px 28px 0; padding: 64px 56px 44px; } }
+  .tone-primary { background: var(--md-primary-container); color: var(--md-on-primary-container); --deco: var(--md-primary); }
+  .tone-secondary { background: var(--md-secondary-container); color: var(--md-on-secondary-container); --deco: var(--md-secondary); }
+  .tone-tertiary { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); --deco: var(--md-tertiary); }
+  .deco { position: absolute; width: 320px; right: -80px; top: -100px; fill: color-mix(in srgb, var(--deco) 25%, transparent); }
+
+  .header-inner { position: relative; max-width: 760px; }
+  .cat { color: inherit; border-color: color-mix(in srgb, currentColor 40%, transparent); margin-bottom: 20px; }
+  .cat .msr { margin-left: -4px; }
+  h1 { margin: 0 0 12px; font-weight: 500; }
+  .desc { margin: 0 0 24px; opacity: 0.9; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; opacity: 0.85; }
+  .meta > span { display: inline-flex; align-items: center; gap: 6px; }
+  .meta .msr { font-size: 18px; }
+
+  .layout { display: grid; max-width: 1120px; margin: 0 auto; padding: 40px 16px 56px; gap: 48px; }
+  @media (min-width: 1200px) { .layout { grid-template-columns: minmax(0, 1fr) 240px; padding: 48px 28px 64px; } }
+  .main-col { min-width: 0; max-width: 760px; width: 100%; margin: 0 auto; }
+  .side { display: none; }
+  @media (min-width: 1200px) { .side { display: block; } }
+
+  .series { padding: 16px 20px; margin-bottom: 32px; }
+  .series p { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+  .series .msr { font-size: 20px; color: var(--md-primary); }
+  .series .count { margin-left: auto; color: var(--md-on-surface-variant); }
+  .series ol { margin: 0; padding-left: 22px; color: var(--md-on-surface-variant); }
+  .series li { padding: 2px 0; }
+  .series li.current { color: var(--md-on-surface); font-weight: 700; }
+  .series a:hover { color: var(--md-primary); text-decoration: underline; }
+
+  .tag-list { list-style: none; margin: 48px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; }
+  .adj { display: flex; flex-direction: column; gap: 4px; padding: 16px 20px; color: var(--md-on-surface); }
+  .adj .label-m { display: inline-flex; align-items: center; gap: 4px; color: var(--md-on-surface-variant); }
+  .adj .msr { font-size: 16px; }
+  .adj.next { text-align: right; align-items: flex-end; grid-column: 2; }
+  @media (max-width: 599px) {
+    .adjacent { grid-template-columns: 1fr; }
+    .adj.next { grid-column: 1; }
+  }
+</style>

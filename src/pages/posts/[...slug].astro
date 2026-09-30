@@ -5,8 +5,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Toc from '../../components/Toc.astro';
 import Comments from '../../components/Comments.astro';
 import Thumbnail from '../../components/Thumbnail.astro';
-import PostCard from '../../components/PostCard.astro';
+import QuestPoster from '../../components/QuestPoster.astro';
 import { getPosts, postUrl, tagUrl, url, formatDate, readingMinutes, relatedTo, type Post } from '../../lib/posts';
+import { rankOf, expOf, questNo, RANK_LABEL } from '../../lib/quest';
 import { categoryStyle } from '../../lib/categories';
 import { SITE } from '../../site.config';
 import '../../styles/prose.css';
@@ -17,7 +18,8 @@ export async function getStaticPaths() {
     params: { slug: post.id },
     props: {
       post,
-      // 목록이 최신순이라 배열상 뒤쪽이 "이전 글"
+      all: posts,
+      // 목록이 최신순이라 배열상 뒤쪽이 "이전 의뢰"
       newer: posts[i - 1],
       older: posts[i + 1],
       series: post.data.series ? posts.filter((p) => p.data.series === post.data.series).reverse() : [],
@@ -26,11 +28,13 @@ export async function getStaticPaths() {
   }));
 }
 
-interface Props { post: Post; newer?: Post; older?: Post; series: Post[]; related: Post[] }
-const { post, newer, older, series, related } = Astro.props;
+interface Props { post: Post; all: Post[]; newer?: Post; older?: Post; series: Post[]; related: Post[] }
+const { post, all, newer, older, series, related } = Astro.props;
 const { Content, headings } = await render(post);
-const { title, description, date, updated, category, tags, cover } = post.data;
+const { title, description, date, updated, category, tags, cover, draft } = post.data;
 const style = categoryStyle(category);
+const rank = rankOf(post);
+const no = questNo(post, all);
 const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src : undefined;
 ---
@@ -39,32 +43,51 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
 
   <article class="post">
     <header class="post-header">
-      <a class="chip state cat" href={url(`?category=${encodeURIComponent(category)}#posts`)}><span class="msr">{style.icon}</span>{category}</a>
-      <h1 class="title">{title}</h1>
-      <p class="body-l desc">{description}</p>
-      <div class="byline">
-        <svg class="avatar" viewBox="0 0 48 48" aria-hidden="true"><use href="#logo-shape" /></svg>
-        <div>
-          <p class="title-s">{SITE.author}</p>
-          <p class="body-s meta">
+      <nav aria-label="현재 위치">
+        <ol class="breadcrumb">
+          <li><a href={url()}>길드 홀</a></li>
+          <li class="sep msr" aria-hidden="true">chevron_right</li>
+          <li><a href={url('#board')}>토벌 게시판</a></li>
+          <li class="sep msr" aria-hidden="true">chevron_right</li>
+          <li aria-current="page">No.{no}</li>
+        </ol>
+      </nav>
+
+      <div class="badges">
+        <span class:list={['rank-badge', `rank-${rank}`]}><span class="shield">{rank}</span>{RANK_LABEL[rank]} 등급</span>
+        <a class="badge badge-outline" href={url(`?category=${encodeURIComponent(category)}#board`)}><span class="msr">{style.icon}</span>{category}</a>
+      </div>
+
+      <h1 class="title" data-hero-title>{title}</h1>
+      <p class="desc" data-reveal>{description}</p>
+
+      <div class="byline" data-reveal>
+        <svg class="avatar" viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem" /></svg>
+        <div class="who">
+          <p class="name">{SITE.author}</p>
+          <p class="meta">
             <time datetime={date.toISOString()}>{formatDate(date)}</time>
-            {updated && <span> · {formatDate(updated)} 수정</span>}
-            <span> · {readingMinutes(post.body)}분 분량</span>
+            {updated && <> · {formatDate(updated)} 갱신</>}
+            · {readingMinutes(post.body)}분 · <span class="exp">{expOf(post).toLocaleString('ko-KR')} EXP</span>
           </p>
         </div>
       </div>
+
+      <span class:list={['stamp', { open: draft }]} data-post-stamp aria-hidden="true">{draft ? '모집 중' : '토벌 완료'}</span>
     </header>
 
-    <div class="cover">
-      <Thumbnail post={post} eager sizes="(min-width: 1136px) 1072px, 100vw" />
+    <div class="cover" data-reveal>
+      <div class="gold-frame">
+        <Thumbnail post={post} eager sizes="(min-width: 1180px) 1080px, 100vw" />
+      </div>
     </div>
 
     <div class="layout">
       <div class="main-col">
         {series.length > 1 && (
-          <nav class="series" aria-label="시리즈">
-            <p class="title-s"><span class="msr">collections_bookmark</span>{post.data.series}<span class="label-m count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
-            <ol class="body-m">
+          <nav class="series card" aria-label="연작 의뢰">
+            <p class="series-title"><span class="msr">collections_bookmark</span>{post.data.series}<span class="count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
+            <ol>
               {series.map((s) => (
                 <li class:list={{ current: s.id === post.id }}>
                   {s.id === post.id ? <span>{s.data.title}</span> : <a href={postUrl(s)}>{s.data.title}</a>}
@@ -74,44 +97,50 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
           </nav>
         )}
 
-        <div class="prose" data-prose>
-          <Content />
+        <div class="scroll">
+          <div class="prose" data-prose>
+            <Content />
+          </div>
         </div>
 
         {tags.length > 0 && (
-          <ul class="tag-list" aria-label="태그">
-            {tags.map((t) => <li><a class="chip state" href={tagUrl(t)}><span class="msr">tag</span>{t}</a></li>)}
-          </ul>
+          <div class="tag-row" data-reveal>
+            <span class="tag-label"><span class="msr">diamond</span>각인</span>
+            <ul class="tag-list">
+              {tags.map((t) => <li><a class="badge badge-outline" href={tagUrl(t)}>#{t}</a></li>)}
+            </ul>
+          </div>
         )}
 
-        <aside class="author">
-          <svg class="avatar-lg" viewBox="0 0 48 48" aria-hidden="true"><use href="#logo-shape" /></svg>
-          <div class="author-text">
-            <p class="title-m">{SITE.author}</p>
-            <p class="body-m">Unreal Engine 게임 클라이언트 개발자. 구현을 넘어 동작 원리를 파고듭니다.</p>
-            <div class="author-links">
-              <a class="btn btn-tonal state" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
-              <a class="btn btn-text state" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
+        <aside class="member card" data-reveal>
+          <svg class="member-emblem" viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem" /></svg>
+          <div class="member-body">
+            <p class="eyebrow">Guild Member</p>
+            <p class="member-name">{SITE.author}</p>
+            <p class="member-desc">Unreal Engine 게임 클라이언트 개발자. 구현을 넘어 동작 원리를 파고듭니다.</p>
+            <div class="member-links">
+              <a class="btn btn-default btn-sm" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
+              <a class="btn btn-outline btn-sm" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
             </div>
           </div>
         </aside>
 
         {(older || newer) && (
-          <nav class="adjacent" aria-label="이전·다음 글">
+          <nav class="adjacent" aria-label="이전·다음 의뢰" data-reveal-group>
             {older ? (
-              <a class="adj state" href={postUrl(older)}>
+              <a class="adj card" href={postUrl(older)}>
                 <Thumbnail post={older} sizes="120px" class="mini" />
                 <span class="adj-text">
-                  <span class="label-m dir"><span class="msr">arrow_back</span>이전 글</span>
-                  <span class="title-s">{older.data.title}</span>
+                  <span class="dir"><span class="msr">west</span>이전 의뢰</span>
+                  <span class="adj-title">{older.data.title}</span>
                 </span>
               </a>
             ) : <span />}
             {newer && (
-              <a class="adj next state" href={postUrl(newer)}>
+              <a class="adj card next" href={postUrl(newer)}>
                 <span class="adj-text">
-                  <span class="label-m dir">다음 글<span class="msr">arrow_forward</span></span>
-                  <span class="title-s">{newer.data.title}</span>
+                  <span class="dir">다음 의뢰<span class="msr">east</span></span>
+                  <span class="adj-title">{newer.data.title}</span>
                 </span>
                 <Thumbnail post={newer} sizes="120px" class="mini" />
               </a>
@@ -131,9 +160,9 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
 
     {related.length > 0 && (
       <section class="related" aria-labelledby="related-title">
-        <h2 class="headline-s" id="related-title">함께 읽으면 좋은 글</h2>
-        <div class="related-grid">
-          {related.map((p) => <PostCard post={p} />)}
+        <h2 class="section-title" id="related-title"><span class="msr">link</span>연관 의뢰</h2>
+        <div class="related-board wood" data-board>
+          {related.map((p) => <QuestPoster post={p} all={all} />)}
         </div>
       </section>
     )}
@@ -141,12 +170,18 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
 
   <dialog class="lightbox" data-lightbox aria-label="이미지 크게 보기">
     <img alt="" data-lightbox-img />
-    <button class="icon-btn state close" type="button" data-lightbox-close aria-label="닫기"><span class="msr">close</span></button>
+    <button class="btn btn-ghost btn-icon close" type="button" aria-label="닫기"><span class="msr">close</span></button>
   </dialog>
 </BaseLayout>
 
 <script>
-  // 읽기 진행률
+  import { titleIntro, stampIn, boardIntro, popIn } from '../../scripts/fx';
+
+  titleIntro(document.querySelector('[data-hero-title]'), 100);
+  stampIn(document.querySelector('[data-post-stamp]'), 900);
+  boardIntro(document.querySelector('[data-board]'));
+
+  // 읽기 진행률(HP 바처럼)
   const bar = document.querySelector<HTMLElement>('[data-progress]')!;
   const prose = document.querySelector<HTMLElement>('[data-prose]')!;
   const onScroll = () => {
@@ -165,6 +200,7 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
       big.src = img.currentSrc || img.src;
       big.alt = img.alt;
       box.showModal();
+      popIn(big);
     }),
   );
   box.addEventListener('click', () => box.close());
@@ -177,16 +213,12 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
     pre.replaceWith(wrap);
     wrap.append(pre);
 
+    const bar = document.createElement('div');
+    bar.className = 'code-bar';
     const lang = pre.dataset.language;
-    if (lang && lang !== 'plaintext') {
-      const tag = document.createElement('span');
-      tag.className = 'code-lang label-s';
-      tag.textContent = lang;
-      wrap.prepend(tag);
-    }
-
+    bar.innerHTML = `<span class="code-lang"><span class="msr">auto_stories</span>${lang && lang !== 'plaintext' ? lang : 'text'}</span>`;
     const btn = document.createElement('button');
-    btn.className = 'copy icon-btn state';
+    btn.className = 'copy btn btn-ghost btn-sm';
     btn.type = 'button';
     btn.setAttribute('aria-label', '코드 복사');
     btn.innerHTML = COPY;
@@ -195,82 +227,142 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
       btn.innerHTML = '<span class="msr">check</span>';
       setTimeout(() => (btn.innerHTML = COPY), 1500);
     });
-    wrap.append(btn);
+    bar.append(btn);
+    wrap.prepend(bar);
   });
 </script>
 
 <style>
-  /* M3 linear progress indicator */
-  .progress { position: fixed; inset: 0 0 auto 0; height: 4px; z-index: 30; pointer-events: none; }
-  .bar { height: 100%; background: var(--md-primary); transform: scaleX(0); transform-origin: left; border-radius: 0 2px 2px 0; }
+  .progress { position: fixed; inset: 0 0 auto 0; height: 4px; z-index: 30; pointer-events: none; background: rgb(0 0 0 / 0.15); }
+  .bar { height: 100%; background: linear-gradient(90deg, var(--seal), var(--gold-bright)); box-shadow: 0 0 10px var(--glow); transform: scaleX(0); transform-origin: left; }
 
   /* ── Header ── */
-  .post-header { max-width: 800px; margin: 0 auto; padding: 32px 16px 32px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-  @media (min-width: 840px) { .post-header { padding: 48px 32px 40px; } }
-  .cat { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; margin-bottom: 20px; }
-  .title { margin: 0 0 16px; font-size: clamp(30px, 4.6vw, 44px); line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; text-wrap: balance; }
-  .desc { margin: 0 0 28px; max-width: 640px; color: var(--md-on-surface-variant); text-wrap: pretty; }
+  .post-header { position: relative; max-width: 840px; margin: 0 auto; padding: 24px 16px 36px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  @media (min-width: 900px) { .post-header { padding: 32px 40px 44px; } }
+  .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 28px 0 18px; }
+  .rank-badge { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px 0 4px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); font: 700 12px/1 var(--font-serif); }
+  .shield { display: grid; place-items: center; width: 20px; height: 22px; font: 700 12px/1 var(--font-display); color: #fff; clip-path: polygon(50% 100%, 0 72%, 0 0, 100% 0, 100% 72%); }
+  .rank-S .shield { background: var(--rank-s); }
+  .rank-A .shield { background: var(--rank-a); }
+  .rank-B .shield { background: var(--rank-b); }
+  .rank-C .shield { background: var(--rank-c); }
+
+  .title { margin: 0 0 16px; font-size: clamp(30px, 4.8vw, 48px); line-height: 1.25; text-wrap: balance; }
+  .desc { margin: 0 0 28px; max-width: 640px; font-size: 17px; color: var(--muted-foreground); text-wrap: pretty; }
   .byline { display: flex; align-items: center; gap: 12px; text-align: left; }
   .byline p { margin: 0; }
-  .avatar { width: 40px; height: 40px; color: var(--md-primary); flex: none; }
-  .meta { color: var(--md-on-surface-variant); }
+  .avatar { width: 40px; height: 40px; flex: none; }
+  .name { font: 700 15px/1.3 var(--font-serif); }
+  .meta { font-size: 13px; color: var(--muted-foreground); }
+  .exp { color: var(--gold); font-weight: 700; }
 
-  .cover { max-width: 1136px; margin: 0 auto; padding: 0 16px; }
-  @media (min-width: 840px) { .cover { padding: 0 32px; } }
-  .cover :global(.thumb) { border-radius: var(--md-shape-xl); box-shadow: 0 0 0 1px var(--md-outline-variant); }
-  @media (max-width: 599px) { .cover :global(.thumb) { border-radius: var(--md-shape-lg); } }
+  .stamp {
+    position: absolute;
+    right: 8%;
+    bottom: 18px;
+    padding: 6px 14px;
+    border: 4px double var(--seal);
+    border-radius: 8px;
+    color: var(--seal);
+    font: 700 22px/1 var(--font-serif);
+    letter-spacing: 0.12em;
+    rotate: -12deg;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .stamp.open { color: #4a7fd0; border-color: #4a7fd0; }
+  @media (max-width: 699px) { .stamp { display: none; } }
+
+  .cover { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 900px) { .cover { padding: 0 40px; } }
 
   /* ── Body ── */
-  .layout { display: grid; max-width: 1136px; margin: 0 auto; padding: 48px 16px 40px; gap: 56px; }
-  @media (min-width: 840px) { .layout { padding: 56px 32px 48px; } }
-  @media (min-width: 1200px) { .layout { grid-template-columns: minmax(0, 1fr) 220px; } }
-  .main-col { min-width: 0; max-width: 720px; width: 100%; margin: 0 auto; }
+  .layout { display: grid; max-width: 1180px; margin: 0 auto; padding: 44px 16px 40px; gap: 48px; }
+  @media (min-width: 900px) { .layout { padding: 56px 40px 48px; } }
+  @media (min-width: 1240px) { .layout { grid-template-columns: minmax(0, 1fr) 230px; } }
+  .main-col { min-width: 0; max-width: 780px; width: 100%; margin: 0 auto; }
   .side { display: none; }
-  @media (min-width: 1200px) { .side { display: block; } }
+  @media (min-width: 1240px) { .side { display: block; } }
 
-  .series { padding: 16px 20px; margin-bottom: 40px; border-radius: var(--md-shape-lg); background: var(--md-surface-container); }
-  .series p { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
-  .series .msr { font-size: 20px; color: var(--md-primary); }
-  .series .count { margin-left: auto; color: var(--md-on-surface-variant); }
-  .series ol { margin: 0; padding-left: 22px; color: var(--md-on-surface-variant); }
+  /* 두루마리: 본문 판 */
+  .scroll {
+    position: relative;
+    padding: clamp(24px, 4vw, 48px) clamp(18px, 4vw, 52px);
+    border-radius: var(--radius-lg);
+    background: var(--scroll-bg);
+    color: var(--scroll-fg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md), inset 0 0 60px rgb(120 80 30 / 0.08);
+  }
+  .scroll::before,
+  .scroll::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
+  }
+  .scroll::before { top: -6px; }
+  .scroll::after { bottom: -6px; }
+
+  .series { padding: 16px 20px; margin-bottom: 32px; }
+  .series-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font: 700 15px/1.3 var(--font-serif); }
+  .series-title .msr { color: var(--gold); }
+  .count { margin-left: auto; font: 500 12px var(--font-mono); color: var(--muted-foreground); }
+  .series ol { margin: 0; padding-left: 22px; color: var(--muted-foreground); font-size: 14px; }
   .series li { padding: 2px 0; }
-  .series li.current { color: var(--md-on-surface); font-weight: 700; }
-  .series a:hover { color: var(--md-primary); text-decoration: underline; }
+  .series li.current { color: var(--foreground); font-weight: 700; }
+  .series a:hover { color: var(--gold); }
 
-  .tag-list { list-style: none; margin: 56px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 40px; }
+  .tag-label { display: inline-flex; align-items: center; gap: 4px; font: 700 13px var(--font-serif); color: var(--muted-foreground); }
+  .tag-label .msr { font-size: 16px; color: var(--gold); }
+  .tag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 
-  .author { display: flex; gap: 20px; margin-top: 40px; padding: 24px; border-radius: var(--md-shape-xl); background: var(--md-surface-container-low); }
-  .avatar-lg { width: 64px; height: 64px; flex: none; color: var(--md-primary); }
-  .author-text p { margin: 0 0 4px; }
-  .author-text .body-m { color: var(--md-on-surface-variant); }
-  .author-links { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 12px; }
-  @media (max-width: 599px) { .author { flex-direction: column; gap: 12px; } }
+  .member { display: flex; gap: 20px; margin-top: 32px; padding: 22px; background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 12%, var(--card)), var(--card)); border-color: color-mix(in srgb, var(--gold) 40%, var(--border)); }
+  .member-emblem { width: 64px; height: 64px; flex: none; filter: drop-shadow(0 6px 14px var(--glow)); }
+  .member-body p { margin: 0; }
+  .member-name { margin-top: 6px !important; font: 700 18px/1.3 var(--font-serif); }
+  .member-desc { margin-top: 4px !important; font-size: 14px; color: var(--muted-foreground); }
+  .member-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  @media (max-width: 599px) { .member { flex-direction: column; gap: 12px; } }
 
-  .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
-  .adj { display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: var(--md-shape-lg); border: 1px solid var(--md-outline-variant); color: var(--md-on-surface); }
-  .adj :global(.mini) { width: 104px; flex: none; border-radius: var(--md-shape-sm); }
+  .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+  .adj { display: flex; align-items: center; gap: 14px; padding: 12px; transition: border-color var(--dur), background var(--dur); }
+  .adj:hover { border-color: var(--gold); background: var(--accent); }
+  .adj :global(.mini) { width: 100px; flex: none; border-radius: var(--radius-sm); }
   .adj-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .adj .title-s { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .dir { display: inline-flex; align-items: center; gap: 4px; color: var(--md-on-surface-variant); }
+  .adj-title { font: 700 14px/1.4 var(--font-serif); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dir { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted-foreground); }
   .dir .msr { font-size: 16px; }
   .adj.next { grid-column: 2; justify-content: flex-end; text-align: right; }
   .adj.next .adj-text { align-items: flex-end; }
   @media (max-width: 599px) {
     .adjacent { grid-template-columns: 1fr; }
     .adj.next { grid-column: 1; }
-    .adj :global(.mini) { width: 88px; }
+    .adj :global(.mini) { width: 84px; }
   }
 
   /* ── Related ── */
-  .related { max-width: 1136px; margin: 0 auto; padding: 24px 16px 64px; }
-  @media (min-width: 840px) { .related { padding: 32px 32px 72px; } }
-  .related h2 { margin: 0 0 24px; font-weight: 500; }
-  .related-grid { display: grid; gap: 32px 24px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .related { max-width: 1180px; margin: 0 auto; padding: 16px 16px 72px; }
+  @media (min-width: 900px) { .related { padding: 24px 40px 80px; } }
+  .related .section-title { margin-bottom: 20px; }
+  .related-board {
+    display: grid;
+    gap: 28px 24px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    padding: clamp(20px, 3vw, 36px);
+    border: 8px solid var(--wood-dark);
+    border-radius: var(--radius-xl);
+    box-shadow: inset 0 0 40px rgb(0 0 0 / 0.5);
+  }
 
-  /* ── Lightbox ── */
   .lightbox { max-width: 100vw; max-height: 100dvh; width: 100vw; height: 100dvh; margin: 0; padding: 24px; border: 0; background: transparent; }
   .lightbox[open] { display: grid; place-items: center; }
-  .lightbox::backdrop { background: rgb(0 0 0 / 0.85); }
-  .lightbox img { max-width: 100%; max-height: calc(100dvh - 48px); border-radius: var(--md-shape-md); cursor: zoom-out; }
+  .lightbox::backdrop { background: rgb(8 6 14 / 0.88); }
+  .lightbox img { max-width: 100%; max-height: calc(100dvh - 48px); border-radius: var(--radius-md); box-shadow: 0 0 0 4px var(--gold), var(--shadow-lg); cursor: zoom-out; }
   .close { position: fixed; top: 16px; right: 16px; color: #fff; }
 </style>

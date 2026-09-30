@@ -3,7 +3,7 @@ title: 글쓰기 가이드 — 이 블로그에서 쓸 수 있는 마크다운
 description: 콜아웃, 코드 블록, 표, 접기 등 이 블로그가 지원하는 서식을 한 번에 확인하는 견본 글입니다.
 date: 2026-09-29
 cover: ./cover.png
-coverAlt: 코드 에디터를 단순화한 일러스트
+coverAlt: 마법진 위에 펼쳐진 마도서와 깃펜
 category: Devlog
 tags: [guide, markdown]
 draft: true

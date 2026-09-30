@@ -1,17 +1,17 @@
-// 카테고리마다 아이콘·톤을 고정해 카드 목록에서 한눈에 구분되게 한다. 없는 카테고리는 이름 해시로 톤을 고른다.
+// 카테고리 = 의뢰 분류. 아이콘과 문장(紋章) 색을 고정해 게시판에서 한눈에 구분되게 한다.
 const ICONS: Record<string, string> = {
-  Devlog: 'edit_note',
-  Unreal: 'sports_esports',
-  'C++': 'code',
-  GAS: 'bolt',
+  Devlog: 'history_edu',
+  Unreal: 'swords',
+  'C++': 'terminal',
+  GAS: 'auto_fix_high',
   Graphics: 'palette',
-  Troubleshooting: 'build',
-  TIL: 'school',
-  Algorithm: 'function',
-  Retrospect: 'history_edu',
+  Troubleshooting: 'bug_report',
+  TIL: 'menu_book',
+  Algorithm: 'extension',
+  Retrospect: 'hourglass_top',
 };
-const TONES = ['primary', 'secondary', 'tertiary'] as const;
-const SHAPES = ['cookie9', 'clover4', 'flower8', 'cookie12'] as const;
+const TONES = ['gold', 'arcane', 'ember', 'emerald'] as const;
+export type Tone = (typeof TONES)[number];
 
 function hash(s: string) {
   let h = 0;
@@ -19,7 +19,6 @@ function hash(s: string) {
   return Math.abs(h);
 }
 
-export function categoryStyle(name: string) {
-  const h = hash(name);
-  return { icon: ICONS[name] ?? 'article', tone: TONES[h % TONES.length], shape: SHAPES[h % SHAPES.length] };
+export function categoryStyle(name: string): { icon: string; tone: Tone } {
+  return { icon: ICONS[name] ?? 'flag', tone: TONES[hash(name) % TONES.length] };
 }

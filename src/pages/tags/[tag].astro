@@ -17,17 +17,17 @@ const { tag, posts } = Astro.props;
 ---
 <BaseLayout title={`#${tag}`} active="tags">
   <div class="page">
-    <a class="btn btn-text state back" href={url('tags/')}><span class="msr">arrow_back</span>모든 태그</a>
-    <PageHeader title={`#${tag}`} subtitle={`${posts.length}편의 글`} icon="tag" />
-    <ul class="list">
+    <a class="btn btn-ghost btn-sm back" href={url('tags/')}><span class="msr">west</span>모든 각인</a>
+    <PageHeader title={`#${tag}`} eyebrow="Rune" subtitle={`이 각인이 새겨진 의뢰 ${posts.length}건`} icon="diamond" />
+    <ul class="list" data-reveal-group>
       {posts.map((p) => <PostListItem post={p} />)}
     </ul>
   </div>
 </BaseLayout>
 
 <style>
-  .page { max-width: 960px; margin: 0 auto; padding: 16px 16px 64px; }
-  @media (min-width: 840px) { .page { padding: 16px 28px 64px; } }
-  .back { margin-left: -12px; }
-  .list { list-style: none; margin: 0 -16px; padding: 0; }
+  .page { max-width: 1000px; margin: 0 auto; padding: 8px 16px 72px; }
+  @media (min-width: 900px) { .page { padding: 8px 40px 72px; } }
+  .back { margin-left: -8px; }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 </style>

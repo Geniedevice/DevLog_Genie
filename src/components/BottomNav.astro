@@ -7,8 +7,8 @@ const { active } = Astro.props;
 <nav class="bottom-nav" aria-label="주 메뉴">
   {NAV.map((n) => (
     <a href={url(n.path)} class:list={['item', { active: active === n.key }]} aria-current={active === n.key ? 'page' : undefined}>
-      <span class="indicator state"><span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span></span>
-      <span class="label-m">{n.label}</span>
+      <span class="indicator"><span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span></span>
+      <span class="label">{n.label}</span>
     </a>
   ))}
 </nav>
@@ -19,16 +19,17 @@ const { active } = Astro.props;
     inset: auto 0 0 0;
     z-index: 20;
     display: flex;
-    height: calc(80px + env(safe-area-inset-bottom));
-    padding: 12px 8px calc(16px + env(safe-area-inset-bottom));
-    background: var(--md-surface-container);
-    box-shadow: 0 -1px 0 var(--md-outline-variant);
+    height: calc(72px + env(safe-area-inset-bottom));
+    padding: 10px 8px calc(12px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--sidebar) 94%, transparent);
+    backdrop-filter: blur(10px);
+    color: var(--sidebar-foreground);
+    border-top: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
   }
-  @media (min-width: 840px) { .bottom-nav { display: none; } }
-
-  .item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--md-on-surface-variant); }
-  .indicator { display: grid; place-items: center; width: 64px; height: 32px; border-radius: var(--md-shape-full); }
-  .item.active { color: var(--md-on-surface); }
-  .item.active .indicator { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-  .item.active .label-m { font-weight: 700; }
+  @media (min-width: 900px) { .bottom-nav { display: none; } }
+  .item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: color-mix(in srgb, var(--sidebar-foreground) 65%, transparent); }
+  .indicator { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-md); border: 1px solid transparent; }
+  .item.active { color: var(--sidebar-primary); }
+  .item.active .indicator { background: var(--sidebar-accent); border-color: color-mix(in srgb, var(--gold) 55%, transparent); }
+  .label { font: 600 11px/1 var(--font-serif); }
 </style>

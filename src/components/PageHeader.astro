@@ -1,19 +1,35 @@
 ---
-interface Props { title: string; subtitle?: string; icon: string }
-const { title, subtitle, icon } = Astro.props;
+interface Props { title: string; subtitle?: string; icon: string; eyebrow?: string }
+const { title, subtitle, icon, eyebrow } = Astro.props;
 ---
 <header class="page-header">
-  <span class="icon" aria-hidden="true"><span class="msr">{icon}</span></span>
+  <span class="crest" aria-hidden="true"><span class="msr">{icon}</span></span>
   <div>
-    <h1 class="headline-l">{title}</h1>
-    {subtitle && <p class="body-l">{subtitle}</p>}
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1 data-hero-title>{title}</h1>
+    {subtitle && <p class="sub" data-reveal>{subtitle}</p>}
   </div>
 </header>
 
+<script>
+  import { titleIntro } from '../scripts/fx';
+  titleIntro(document.querySelector('.page-header [data-hero-title]'), 50);
+</script>
+
 <style>
-  .page-header { display: flex; align-items: center; gap: 20px; padding: 24px 0 32px; }
-  .icon { display: grid; place-items: center; width: 64px; height: 64px; flex: none; border-radius: var(--md-shape-lg); background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
-  .icon .msr { font-size: 32px; }
-  h1 { margin: 0; }
-  p { margin: 4px 0 0; color: var(--md-on-surface-variant); }
+  .page-header { display: flex; align-items: center; gap: 20px; padding: 24px 0 36px; }
+  .crest {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 76px;
+    flex: none;
+    clip-path: polygon(50% 100%, 0 76%, 0 0, 100% 0, 100% 76%);
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold) 55%, color-mix(in srgb, var(--gold) 55%, #000));
+    color: var(--primary-foreground);
+    filter: drop-shadow(0 6px 14px var(--glow));
+  }
+  .crest .msr { font-size: 32px; margin-top: -8px; }
+  h1 { margin: 6px 0 0; font-size: clamp(30px, 4vw, 40px); line-height: 1.2; }
+  .sub { margin: 6px 0 0; color: var(--muted-foreground); }
 </style>

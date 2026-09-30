@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import type { Post } from '../lib/posts';
 import { categoryStyle } from '../lib/categories';
-import shapes from '../lib/shapes.json';
 
 interface Props {
   post: Post;
@@ -25,46 +24,31 @@ const style = categoryStyle(category);
       fetchpriority={eager ? 'high' : 'auto'}
     />
   ) : (
-    // 커버가 없는 글: 카테고리 톤으로 만든 셰이프 아트
+    // 커버가 없는 글: 분류 색의 밤하늘 위 문양
     <div class:list={['art', `tone-${style.tone}`]} role="img" aria-label={title}>
-      <svg class="s1" viewBox="0 0 48 48" aria-hidden="true"><path d={shapes[style.shape]} /></svg>
-      <svg class="s2" viewBox="0 0 48 48" aria-hidden="true"><path d={shapes.clover4} /></svg>
+      <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="44" />
+        <circle cx="50" cy="50" r="36" stroke-dasharray="2 3" />
+        <path d="M50 8 86 71H14Z" />
+        <path d="M50 92 14 29h72Z" />
+      </svg>
       <span class="msr" aria-hidden="true">{style.icon}</span>
     </div>
   )}
 </div>
 
 <style>
-  .thumb {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border-radius: var(--md-shape-lg);
-    background: var(--md-surface-container-high);
-    isolation: isolate;
-  }
-  .thumb :global(img) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform var(--md-dur-medium) var(--md-ease-standard);
-  }
+  .thumb { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--muted); container-type: inline-size; }
+  .thumb :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--ease-out); }
 
   .art { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
-  .art svg { position: absolute; transition: transform var(--md-dur-medium) var(--md-ease-standard); }
-  .s1 { width: 70%; right: -18%; top: -32%; }
-  .s2 { width: 42%; left: -10%; bottom: -24%; }
-  .art .msr { position: relative; font-size: clamp(36px, 9cqw, 72px); }
-  .thumb { container-type: inline-size; }
+  .sigil { position: absolute; width: 78%; fill: none; stroke-width: 0.8; opacity: 0.5; animation: turn 40s linear infinite; }
+  @keyframes turn { to { rotate: 360deg; } }
+  .art .msr { position: relative; font-size: clamp(32px, 14cqw, 80px); filter: drop-shadow(0 0 12px currentColor); }
 
-  .tone-primary { background: var(--md-primary-container); color: var(--md-on-primary-container); }
-  .tone-primary .s1 { fill: color-mix(in srgb, var(--md-primary) 24%, transparent); }
-  .tone-primary .s2 { fill: color-mix(in srgb, var(--md-tertiary) 22%, transparent); }
-  .tone-secondary { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-  .tone-secondary .s1 { fill: color-mix(in srgb, var(--md-secondary) 24%, transparent); }
-  .tone-secondary .s2 { fill: color-mix(in srgb, var(--md-primary) 20%, transparent); }
-  .tone-tertiary { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
-  .tone-tertiary .s1 { fill: color-mix(in srgb, var(--md-tertiary) 24%, transparent); }
-  .tone-tertiary .s2 { fill: color-mix(in srgb, var(--md-primary) 20%, transparent); }
+  .tone-gold { background: radial-gradient(circle at 50% 40%, #6b4a17, #1c1208 75%); color: #f4cf78; }
+  .tone-arcane { background: radial-gradient(circle at 50% 40%, #4a2f8c, #140c26 75%); color: #c9b3ff; }
+  .tone-ember { background: radial-gradient(circle at 50% 40%, #8c2f1e, #1f0a07 75%); color: #ffb08a; }
+  .tone-emerald { background: radial-gradient(circle at 50% 40%, #1f6b4c, #07170f 75%); color: #8ee6bb; }
+  .art .sigil { stroke: currentColor; }
 </style>

@@ -5,18 +5,18 @@ interface Props { active?: NavKey }
 const { active } = Astro.props;
 ---
 <nav class="rail" aria-label="주 메뉴">
-  <a class="rail-logo" href={url()} aria-label="홈으로">
-    <svg viewBox="0 0 48 48" aria-hidden="true"><use href="#logo-shape" /></svg>
+  <a class="rail-logo" href={url()} aria-label="길드 홀로">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem" /></svg>
   </a>
-  <button class="fab state" type="button" data-open-search aria-label="검색">
+  <button class="orb" type="button" data-open-search aria-label="수정구슬 검색">
     <span class="msr">search</span>
   </button>
-  <ul class="rail-items">
+  <ul class="items">
     {NAV.map((n) => (
       <li>
-        <a href={url(n.path)} class:list={['rail-item', { active: active === n.key }]} aria-current={active === n.key ? 'page' : undefined}>
-          <span class="indicator state"><span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span></span>
-          <span class="label-m">{n.label}</span>
+        <a href={url(n.path)} class:list={['item', { active: active === n.key }]} aria-current={active === n.key ? 'page' : undefined}>
+          <span class="indicator"><span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span></span>
+          <span class="label">{n.label}</span>
         </a>
       </li>
     ))}
@@ -28,47 +28,49 @@ const { active } = Astro.props;
     position: sticky;
     top: 0;
     height: 100dvh;
-    width: 88px;
+    width: 92px;
     flex: none;
     display: none;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     padding: 20px 0;
+    background:
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.015) 0 2px, transparent 2px 6px),
+      var(--sidebar);
+    color: var(--sidebar-foreground);
+    border-right: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+    box-shadow: inset -8px 0 20px -12px rgb(0 0 0 / 0.6);
   }
-  @media (min-width: 840px) { .rail { display: flex; } }
+  @media (min-width: 900px) { .rail { display: flex; } }
 
-  .rail-logo { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; }
-  .rail-logo svg { width: 40px; height: 40px; color: var(--md-primary); transition: transform var(--md-dur-medium) var(--md-ease-standard); }
-  .rail-logo:hover svg { transform: rotate(45deg); }
+  .rail-logo svg { width: 48px; height: 48px; filter: drop-shadow(0 4px 10px var(--glow)); transition: transform 400ms var(--ease-out); }
+  .rail-logo:hover svg { transform: rotate(-8deg) scale(1.08); }
 
-  .fab {
-    width: 56px;
-    height: 56px;
-    border: 0;
-    border-radius: var(--md-shape-lg);
-    background: var(--md-primary-container);
-    color: var(--md-on-primary-container);
-    box-shadow: var(--md-elev-1);
+  /* 수정구슬 */
+  .orb {
     display: grid;
     place-items: center;
-    margin-bottom: 20px;
-    transition: box-shadow var(--md-dur-short);
+    width: 52px;
+    height: 52px;
+    margin-bottom: 14px;
+    border: 1px solid color-mix(in srgb, var(--arcane) 60%, transparent);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff8 0 6%, transparent 18%), radial-gradient(circle at 50% 60%, var(--arcane), #2a1860 75%);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 18px -2px color-mix(in srgb, var(--arcane) 70%, transparent);
+    animation: orb 4s ease-in-out infinite;
   }
-  .fab:hover { box-shadow: var(--md-elev-2); }
+  .orb:hover { box-shadow: 0 0 28px 2px color-mix(in srgb, var(--arcane) 80%, transparent); }
+  @keyframes orb { 50% { box-shadow: 0 0 26px 2px color-mix(in srgb, var(--arcane) 60%, transparent); } }
 
-  .rail-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-  .rail-item { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px; color: var(--md-on-surface-variant); }
-  .indicator {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 32px;
-    border-radius: var(--md-shape-full);
-    transition: background var(--md-dur-short) var(--md-ease-standard);
-  }
-  .rail-item:hover .indicator::after { opacity: 0.08; }
-  .rail-item.active { color: var(--md-on-surface); }
-  .rail-item.active .indicator { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-  .rail-item.active .label-m { font-weight: 700; }
+  .items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .item { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px; color: color-mix(in srgb, var(--sidebar-foreground) 70%, transparent); transition: color var(--dur); }
+  .indicator { display: grid; place-items: center; width: 52px; height: 34px; border-radius: var(--radius-md); border: 1px solid transparent; transition: background var(--dur), border-color var(--dur); }
+  .item:hover { color: var(--sidebar-foreground); }
+  .item:hover .indicator { background: var(--sidebar-accent); }
+  .item.active { color: var(--sidebar-primary); }
+  .item.active .indicator { background: var(--sidebar-accent); border-color: color-mix(in srgb, var(--gold) 60%, transparent); box-shadow: 0 0 14px -4px var(--glow); }
+  .label { font: 600 12px/1 var(--font-serif); }
 </style>

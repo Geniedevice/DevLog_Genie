@@ -1,0 +1,37 @@
+---
+// 히어로 뒤 마법진. .draw 선은 anime.js createDrawable 로 그려지고, 전체 회전은 CSS 가 맡는다.
+interface Props { class?: string }
+const { class: className } = Astro.props;
+const runes = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ'.split('');
+const hex = Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 3) * i - Math.PI / 2;
+  return [100 + 62 * Math.cos(a), 100 + 62 * Math.sin(a)];
+});
+const tri = (o: number) => [0, 2, 4].map((k) => hex[(k + o) % 6].map((n) => n.toFixed(1)).join(',')).join(' ');
+---
+<svg class:list={['magic-circle', className]} viewBox="0 0 200 200" aria-hidden="true" data-magic-circle>
+  <g class="spin">
+    <circle class="draw" cx="100" cy="100" r="96" />
+    <circle class="draw thin" cx="100" cy="100" r="88" />
+    {runes.map((r, i) => {
+      const a = (i / runes.length) * 360;
+      return <text class="rune" x="100" y="16" transform={`rotate(${a} 100 100)`} text-anchor="middle">{r}</text>;
+    })}
+  </g>
+  <g class="spin-rev">
+    <circle class="draw" cx="100" cy="100" r="62" />
+    <polygon class="draw" points={tri(0)} />
+    <polygon class="draw" points={tri(1)} />
+    <circle class="draw thin" cx="100" cy="100" r="30" />
+  </g>
+</svg>
+
+<style>
+  .magic-circle { overflow: visible; }
+  .magic-circle :global(.draw) { fill: none; stroke: var(--gold); stroke-width: 1.2; opacity: 0.8; }
+  .magic-circle :global(.thin) { stroke-width: 0.6; stroke-dasharray: 2 3; }
+  .rune { fill: var(--gold); font-size: 9px; opacity: 0.85; font-family: 'Segoe UI Historic', 'Noto Sans Runic', serif; }
+  .spin { transform-origin: 100px 100px; animation: spin 90s linear infinite; }
+  .spin-rev { transform-origin: 100px 100px; animation: spin 60s linear infinite reverse; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>

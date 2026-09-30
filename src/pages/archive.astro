@@ -11,25 +11,30 @@ for (const p of posts) {
   byYear.set(y, [...(byYear.get(y) ?? []), p]);
 }
 ---
-<BaseLayout title="아카이브" active="archive">
+<BaseLayout title="연대기" active="archive">
   <div class="page">
-    <PageHeader title="아카이브" subtitle={`지금까지 ${posts.length}편`} icon="inventory_2" />
-    {[...byYear].map(([year, list]) => (
-      <section class="year" aria-labelledby={`y${year}`}>
-        <h2 class="title-l" id={`y${year}`}>{year}<span class="label-l count">{list.length}</span></h2>
-        <ul class="list">
-          {list.map((p) => <PostListItem post={p} />)}
-        </ul>
-      </section>
-    ))}
+    <PageHeader title="모험 연대기" eyebrow="Chronicle" subtitle={`지금까지 완수한 의뢰 ${posts.length}건`} icon="auto_stories" />
+    <div class="timeline">
+      {[...byYear].map(([year, list]) => (
+        <section class="era" aria-labelledby={`y${year}`}>
+          <h2 class="year" id={`y${year}`} data-reveal><span class="gem" aria-hidden="true"></span>{year}년<span class="count">{list.length}건</span></h2>
+          <ul class="list" data-reveal-group>
+            {list.map((p) => <PostListItem post={p} />)}
+          </ul>
+        </section>
+      ))}
+    </div>
   </div>
 </BaseLayout>
 
 <style>
-  .page { max-width: 960px; margin: 0 auto; padding: 16px 16px 64px; }
-  @media (min-width: 840px) { .page { padding: 16px 28px 64px; } }
-  .year + .year { margin-top: 32px; }
-  h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 8px; position: sticky; top: 64px; z-index: 1; padding: 8px 0; background: var(--md-surface); }
-  .count { color: var(--md-on-surface-variant); }
-  .list { list-style: none; margin: 0 -16px; padding: 0; }
+  .page { max-width: 1000px; margin: 0 auto; padding: 8px 16px 72px; }
+  @media (min-width: 900px) { .page { padding: 8px 40px 72px; } }
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--gold), transparent); }
+  .era + .era { margin-top: 40px; }
+  .year { position: relative; display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; font-size: 24px; }
+  .gem { position: absolute; left: -28px; top: 8px; width: 16px; height: 16px; rotate: 45deg; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); box-shadow: 0 0 12px var(--glow); }
+  .count { font: 500 13px var(--font-sans); color: var(--muted-foreground); }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 </style>

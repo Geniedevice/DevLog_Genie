@@ -1,10 +1,10 @@
-// GitHub 문법 `> [!NOTE]` 블록인용을 M3 콜아웃으로 바꾼다. 외부 의존성 없이 mdast 를 직접 순회.
+// GitHub 문법 `> [!NOTE]` 블록인용을 콜아웃으로 바꾼다. 외부 의존성 없이 mdast 를 직접 순회.
 const TYPES = {
-  NOTE: { label: '참고', icon: 'info' },
-  TIP: { label: '팁', icon: 'lightbulb' },
-  IMPORTANT: { label: '중요', icon: 'priority_high' },
-  WARNING: { label: '주의', icon: 'warning' },
-  CAUTION: { label: '위험', icon: 'dangerous' },
+  NOTE: { label: '기록', icon: 'edit_note' },
+  TIP: { label: '현자의 조언', icon: 'auto_awesome' },
+  IMPORTANT: { label: '길드 공지', icon: 'campaign' },
+  WARNING: { label: '함정 주의', icon: 'warning' },
+  CAUTION: { label: '치명적 위험', icon: 'skull' },
 };
 
 function walk(node) {

@@ -2,8 +2,24 @@
 
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
-Astro 정적 사이트 + Material 3 디자인(Baseline 스킴, Navigation Rail / Bottom Navigation Bar).
+판타지 "모험가 길드" 콘셉트의 Astro 정적 사이트. 글 하나가 토벌 게시판에 꽂힌 **의뢰서** 한 장입니다.
 `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
+
+| 영역 | 구성 |
+| --- | --- |
+| 디자인 토큰 | [shadcn/ui](https://ui.shadcn.com) 식 시맨틱 쌍(`--background`/`--foreground`, `--card`, `--primary` …) + 판타지 확장(`--parchment`, `--wood`, `--gold`) — `src/styles/tokens.css`. 밤(다크)·낮(라이트) |
+| 컴포넌트 | shadcn 구조(Button 변형, Badge, Card, Tabs, Breadcrumb, Kbd, Command 팔레트)를 순수 CSS 로 — `src/styles/global.css` |
+| 애니메이션 | [anime.js](https://animejs.com) v4 — `src/scripts/fx.ts` 한 곳에 모음. `prefers-reduced-motion` 이면 전부 끔 |
+
+### 의뢰서 수치는 자동 계산
+
+| 표시 | 계산 (`src/lib/quest.ts`) |
+| --- | --- |
+| 등급 S/A/B/C | 읽는 시간 12분↑ / 6분↑ / 3분↑ / 그 외 |
+| 보상 EXP | 분당 250 |
+| 의뢰 No. | 오래된 글부터 001 — 새 글이 생겨도 기존 번호는 유지 |
+| 도장 | 공개 글 "토벌 완료", 초안 "모집 중" |
+| 긴급 의뢰 | `pinned: true` 인 글(없으면 최신 글)이 게시판 맨 위에 크게 |
 
 ## 글 쓰기
 
@@ -53,7 +69,7 @@ http://localhost:4321/DevLog_Genie/ 에서 확인. 초안도 보입니다.
 
 - 사이트 이름·소개·링크: `src/site.config.ts`
 - 소개 페이지: `src/pages/about.astro`
-- 색 토큰: `src/styles/tokens.css` — [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) 에서 내보낸 값으로 교체 가능
+- 색 토큰: `src/styles/tokens.css` — 밤(다크)·낮(라이트) 두 벌. 이름은 shadcn 규칙(표면/`-foreground` 쌍)
 
 ### 댓글
 
@@ -61,7 +77,7 @@ http://localhost:4321/DevLog_Genie/ 에서 확인. 초안도 보입니다.
 방문자는 GitHub 로그인 후 댓글을 달 수 있고, 스레드 관리는 레포의 Discussions 탭에서 합니다.
 
 - 설정값: `src/site.config.ts` 의 `giscus` (`repoId` 를 비우면 꺼짐)
-- 댓글창 색은 `public/giscus/{light,dark}.css` (M3 토큰). 색을 바꾸면 `node scripts/giscus-theme.mjs` 로 재생성
+- 댓글창 색은 `public/giscus/{light,dark}.css` (길드 팔레트). 색을 바꾸면 `node scripts/giscus-theme.mjs` 로 재생성
 - ⚠️ 로컬 dev 에서는 CORS 때문에 giscus 기본 테마로 보입니다(배포 사이트에서만 커스텀 테마)
 - ⚠️ 동작하려면 [giscus 앱](https://github.com/apps/giscus)이 이 레포에 설치돼 있어야 합니다.
 

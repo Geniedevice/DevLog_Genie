@@ -1,11 +1,11 @@
 ---
 import '../styles/global.css';
+import Emblem from '../components/Emblem.astro';
 import NavRail from '../components/NavRail.astro';
 import BottomNav from '../components/BottomNav.astro';
 import TopAppBar from '../components/TopAppBar.astro';
-import SearchDialog from '../components/SearchDialog.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 import Footer from '../components/Footer.astro';
-import shapes from '../lib/shapes.json';
 import { SITE } from '../site.config';
 import { url } from '../lib/posts';
 import type { NavKey } from '../lib/nav';
@@ -19,9 +19,9 @@ interface Props {
   image?: string;
 }
 const { title, description = SITE.description, active, type = 'website', image } = Astro.props;
-const ogImage = image ? new URL(image, Astro.site).href : undefined;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
 ---
 <!doctype html>
 <html lang={SITE.lang}>
@@ -43,28 +43,29 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:locale" content="ko_KR" />
     {ogImage && <meta property="og:image" content={ogImage} />}
     <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
-    <meta name="theme-color" content="#fef7ff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141218" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4ecd9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e0c15" media="(prefers-color-scheme: dark)" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700&family=Roboto+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" />
 
-    <!-- 첫 페인트 전에 테마를 정해야 깜빡임이 없다 -->
     <script is:inline>
       (() => {
+        const d = document.documentElement;
         let t = null;
         try { t = localStorage.getItem('theme'); } catch {}
         if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        document.documentElement.dataset.theme = t;
+        d.dataset.theme = t;
+        // 등장 연출용 초기 숨김은 JS 가 돌고 모션을 허용할 때만 건다
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('js-fx');
       })();
     </script>
   </head>
   <body>
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-      <symbol id="logo-shape" viewBox="0 0 48 48"><path d={shapes.cookie9} fill="currentColor" /><path d="M17 17h7a7 7 0 0 1 0 14h-7z" fill="none" stroke="var(--md-surface)" stroke-width="3.2" stroke-linejoin="round" /></symbol>
-    </svg>
+    <Emblem />
+    <div class="fireflies" data-fireflies aria-hidden="true"></div>
 
     <a class="skip sr-only" href="#main">본문으로 건너뛰기</a>
     <div class="shell">
@@ -78,9 +79,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </div>
     </div>
     <BottomNav active={active} />
-    <SearchDialog />
+    <CommandPalette />
 
     <script>
+      import { fireflies, revealOnScroll, countUp } from '../scripts/fx';
+
       const root = document.documentElement;
       document.querySelectorAll('[data-theme-toggle]').forEach((b) =>
         b.addEventListener('click', () => {
@@ -94,24 +97,38 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       const onScroll = () => bar?.classList.toggle('scrolled', scrollY > 4);
       addEventListener('scroll', onScroll, { passive: true });
       onScroll();
+
+      fireflies(document.querySelector('[data-fireflies]'));
+      revealOnScroll();
+      countUp();
     </script>
   </body>
 </html>
 
+<style is:global>
+  .js-fx [data-reveal],
+  .js-fx [data-reveal-group] > *,
+  .js-fx [data-poster],
+  .js-fx [data-stamp],
+  .js-fx [data-post-stamp],
+  .js-fx [data-hero-title] { opacity: 0; }
+  .char { display: inline-block; }
+
+  .fireflies { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .firefly {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    background: radial-gradient(circle, #fff6c8 0 30%, var(--gold-bright) 60%, transparent 70%);
+    box-shadow: 0 0 10px 3px var(--glow);
+  }
+  [data-theme='light'] .firefly { background: radial-gradient(circle, #fff 0 25%, #f1c35a 60%, transparent 70%); box-shadow: 0 0 8px 2px rgb(217 164 65 / 0.4); }
+</style>
+
 <style>
-  .shell { display: flex; min-height: 100dvh; }
-  .pane {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    background: var(--md-surface);
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  }
-  /* 확장 레이아웃: 레일 옆 콘텐츠를 surface 판 위에 얹는다(M3 웹 앱 캔버스 구성) */
-  @media (min-width: 840px) {
-    .pane { margin: 16px 16px 16px 0; border-radius: var(--md-shape-xl); padding-bottom: 0; }
-  }
+  .shell { position: relative; z-index: 1; display: flex; min-height: 100dvh; }
+  .pane { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  @media (min-width: 900px) { .pane { padding-bottom: 0; } }
   main { flex: 1; }
-  .skip:focus { position: fixed; top: 8px; left: 8px; width: auto; height: auto; clip: auto; z-index: 100; padding: 8px 16px; background: var(--md-primary); color: var(--md-on-primary); border-radius: var(--md-shape-full); }
+  .skip:focus { position: fixed; top: 8px; left: 8px; width: auto; height: auto; clip: auto; z-index: 100; padding: 8px 16px; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-md); }
 </style>

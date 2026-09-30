@@ -1,125 +1,180 @@
-/* Material 3 기본(Baseline) 스킴 — Material 3 Design Kit 의 보라 시드(#6750A4) 기준 */
+/*
+ * shadcn/ui 식 시맨틱 토큰(표면 --x / 그 위 글자 --x-foreground)에 판타지 팔레트를 얹는다.
+ * 밤 = 달빛 아래 길드(다크), 낮 = 양피지와 참나무(라이트).
+ */
 :root {
-  --md-primary: #6750a4;
-  --md-on-primary: #ffffff;
-  --md-primary-container: #eaddff;
-  --md-on-primary-container: #4f378b;
-  --md-secondary: #625b71;
-  --md-on-secondary: #ffffff;
-  --md-secondary-container: #e8def8;
-  --md-on-secondary-container: #4a4458;
-  --md-tertiary: #7d5260;
-  --md-on-tertiary: #ffffff;
-  --md-tertiary-container: #ffd8e4;
-  --md-on-tertiary-container: #633b48;
-  --md-error: #b3261e;
-  --md-error-container: #f9dedc;
-  --md-on-error-container: #8c1d18;
-  --md-surface: #fef7ff;
-  --md-on-surface: #1d1b20;
-  --md-on-surface-variant: #49454f;
-  --md-surface-container-lowest: #ffffff;
-  --md-surface-container-low: #f7f2fa;
-  --md-surface-container: #f3edf7;
-  --md-surface-container-high: #ece6f0;
-  --md-surface-container-highest: #e6e0e9;
-  --md-outline: #79747e;
-  --md-outline-variant: #cac4d0;
-  --md-inverse-surface: #322f35;
-  --md-inverse-on-surface: #f5eff7;
-  --md-inverse-primary: #d0bcff;
-  --md-shadow: #000000;
-  --md-scrim: #000000;
+  --background: #f4ecd9;
+  --foreground: #2b1d10;
+  --card: #fbf6e9;
+  --card-foreground: #2b1d10;
+  --popover: #fbf6e9;
+  --popover-foreground: #2b1d10;
+  --primary: #8a5a14;
+  --primary-foreground: #fff7e3;
+  --secondary: #eadcbc;
+  --secondary-foreground: #3b2814;
+  --muted: #ece2c9;
+  --muted-foreground: #6d5a3f;
+  --accent: #f1dfae;
+  --accent-foreground: #4a3110;
+  --destructive: #a4302b;
+  --border: #d8c59c;
+  --input: #cdb88b;
+  --ring: #b07a1f;
+  --radius: 0.5rem;
+
+  /* 사이드바(= 길드 레일) */
+  --sidebar: #3b2618;
+  --sidebar-foreground: #f1e2bf;
+  --sidebar-primary: #e2b457;
+  --sidebar-accent: #573a24;
+
+  /* 판타지 확장 */
+  --gold: #b07a1f;
+  --gold-bright: #d9a441;
+  --parchment: #efe0bb;
+  --parchment-edge: #d6bd86;
+  --ink: #2b1d10;
+  --ink-muted: #6b5236;
+  --wood: #7a4f2c;
+  --wood-light: #9a6a3e;
+  --wood-dark: #4b2f19;
+  --seal: #9e2a2b;
+  --arcane: #6a4bd1;
+  --emerald: #2f8a63;
+  --glow: rgb(217 164 65 / 0.35);
+  --sky-top: #f7efd9;
+  --sky-bottom: #eadbb6;
+  --star: transparent;
+  --scroll-bg: #fbf5e4;
+  --scroll-fg: #2b1d10;
+  --code-bg: #1d1826;
+
+  --rank-s: #d9731f;
+  --rank-a: #7c4ddb;
+  --rank-b: #2f6fc4;
+  --rank-c: #5b7a5f;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --md-primary: #d0bcff;
-    --md-on-primary: #381e72;
-    --md-primary-container: #4f378b;
-    --md-on-primary-container: #eaddff;
-    --md-secondary: #ccc2dc;
-    --md-on-secondary: #332d41;
-    --md-secondary-container: #4a4458;
-    --md-on-secondary-container: #e8def8;
-    --md-tertiary: #efb8c8;
-    --md-on-tertiary: #492532;
-    --md-tertiary-container: #633b48;
-    --md-on-tertiary-container: #ffd8e4;
-    --md-error: #f2b8b5;
-    --md-error-container: #8c1d18;
-    --md-on-error-container: #f9dedc;
-    --md-surface: #141218;
-    --md-on-surface: #e6e0e9;
-    --md-on-surface-variant: #cac4d0;
-    --md-surface-container-lowest: #0f0d13;
-    --md-surface-container-low: #1d1b20;
-    --md-surface-container: #211f26;
-    --md-surface-container-high: #2b2930;
-    --md-surface-container-highest: #36343b;
-    --md-outline: #938f99;
-    --md-outline-variant: #49454f;
-    --md-inverse-surface: #e6e0e9;
-    --md-inverse-on-surface: #322f35;
-    --md-inverse-primary: #6750a4;
+    --background: #0e0c15;
+    --foreground: #ece3cf;
+    --card: #1a1622;
+    --card-foreground: #ece3cf;
+    --popover: #19141f;
+    --popover-foreground: #ece3cf;
+    --primary: #e2b457;
+    --primary-foreground: #1d1305;
+    --secondary: #2a2233;
+    --secondary-foreground: #ece3cf;
+    --muted: #211b2a;
+    --muted-foreground: #a99d88;
+    --accent: #362a1c;
+    --accent-foreground: #f4d58d;
+    --destructive: #d4524b;
+    --border: #372d42;
+    --input: #3f3449;
+    --ring: #e2b457;
+    --sidebar: #15111c;
+    --sidebar-foreground: #e6dac0;
+    --sidebar-primary: #e2b457;
+    --sidebar-accent: #2b2233;
+    --gold: #e2b457;
+    --gold-bright: #f4cf78;
+    --parchment: #e8d6ae;
+    --parchment-edge: #bf9f63;
+    --ink: #2b1d10;
+    --ink-muted: #6b5236;
+    --wood: #4a2f1c;
+    --wood-light: #664127;
+    --wood-dark: #2a190e;
+    --seal: #b0302e;
+    --arcane: #9d82ff;
+    --emerald: #5cc493;
+    --glow: rgb(226 180 87 / 0.35);
+    --sky-top: #151027;
+    --sky-bottom: #0b0a10;
+    --star: rgb(255 244 214 / 0.8);
+    --scroll-bg: #17131e;
+    --scroll-fg: #e6dcc6;
+    --code-bg: #120f18;
+    --rank-s: #ff9f43;
+    --rank-a: #b388ff;
+    --rank-b: #5aa9ff;
+    --rank-c: #8fb996;
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --md-primary: #d0bcff;
-  --md-on-primary: #381e72;
-  --md-primary-container: #4f378b;
-  --md-on-primary-container: #eaddff;
-  --md-secondary: #ccc2dc;
-  --md-on-secondary: #332d41;
-  --md-secondary-container: #4a4458;
-  --md-on-secondary-container: #e8def8;
-  --md-tertiary: #efb8c8;
-  --md-on-tertiary: #492532;
-  --md-tertiary-container: #633b48;
-  --md-on-tertiary-container: #ffd8e4;
-  --md-error: #f2b8b5;
-  --md-error-container: #8c1d18;
-  --md-on-error-container: #f9dedc;
-  --md-surface: #141218;
-  --md-on-surface: #e6e0e9;
-  --md-on-surface-variant: #cac4d0;
-  --md-surface-container-lowest: #0f0d13;
-  --md-surface-container-low: #1d1b20;
-  --md-surface-container: #211f26;
-  --md-surface-container-high: #2b2930;
-  --md-surface-container-highest: #36343b;
-  --md-outline: #938f99;
-  --md-outline-variant: #49454f;
-  --md-inverse-surface: #e6e0e9;
-  --md-inverse-on-surface: #322f35;
-  --md-inverse-primary: #6750a4;
+  --background: #0e0c15;
+  --foreground: #ece3cf;
+  --card: #1a1622;
+  --card-foreground: #ece3cf;
+  --popover: #19141f;
+  --popover-foreground: #ece3cf;
+  --primary: #e2b457;
+  --primary-foreground: #1d1305;
+  --secondary: #2a2233;
+  --secondary-foreground: #ece3cf;
+  --muted: #211b2a;
+  --muted-foreground: #a99d88;
+  --accent: #362a1c;
+  --accent-foreground: #f4d58d;
+  --destructive: #d4524b;
+  --border: #372d42;
+  --input: #3f3449;
+  --ring: #e2b457;
+  --sidebar: #15111c;
+  --sidebar-foreground: #e6dac0;
+  --sidebar-primary: #e2b457;
+  --sidebar-accent: #2b2233;
+  --gold: #e2b457;
+  --gold-bright: #f4cf78;
+  --parchment: #e8d6ae;
+  --parchment-edge: #bf9f63;
+  --ink: #2b1d10;
+  --ink-muted: #6b5236;
+  --wood: #4a2f1c;
+  --wood-light: #664127;
+  --wood-dark: #2a190e;
+  --seal: #b0302e;
+  --arcane: #9d82ff;
+  --emerald: #5cc493;
+  --glow: rgb(226 180 87 / 0.35);
+  --sky-top: #151027;
+  --sky-bottom: #0b0a10;
+  --star: rgb(255 244 214 / 0.8);
+  --scroll-bg: #17131e;
+  --scroll-fg: #e6dcc6;
+  --code-bg: #120f18;
+  --rank-s: #ff9f43;
+  --rank-a: #b388ff;
+  --rank-b: #5aa9ff;
+  --rank-c: #8fb996;
   color-scheme: dark;
 }
 
 :root {
-  /* Shape scale */
-  --md-shape-xs: 4px;
-  --md-shape-sm: 8px;
-  --md-shape-md: 12px;
-  --md-shape-lg: 16px;
-  --md-shape-xl: 28px;
-  --md-shape-full: 999px;
+  /* shadcn radius 스케일 */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 
-  /* Elevation (M3 key + ambient shadow) */
-  --md-elev-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
-  --md-elev-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
-  --md-elev-3: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.12);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.25);
+  --shadow-lg: 0 18px 40px -12px rgb(0 0 0 / 0.45);
 
-  /* Motion */
-  --md-ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --md-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --md-dur-short: 150ms;
-  --md-dur-medium: 300ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 200ms;
 
-  /* Typeface: Roboto 는 라틴, Noto Sans KR 이 한글을 받는다 */
-  --md-font: 'Roboto Flex', 'Roboto', 'Noto Sans KR', system-ui, sans-serif;
-  --md-font-mono: 'Roboto Mono', 'D2Coding', ui-monospace, monospace;
+  /* 제목은 세리프(Cinzel + 고운바탕), 본문은 가독성 위주 산세리프 */
+  --font-display: 'Cinzel', 'Gowun Batang', serif;
+  --font-serif: 'Gowun Batang', 'Noto Serif KR', serif;
+  --font-sans: 'Noto Sans KR', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
 }

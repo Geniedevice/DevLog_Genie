@@ -4,20 +4,32 @@ import PageHeader from '../../components/PageHeader.astro';
 import { getPosts, tagCounts, tagUrl } from '../../lib/posts';
 
 const tags = tagCounts(await getPosts());
+const max = Math.max(1, ...tags.map(([, n]) => n));
 ---
-<BaseLayout title="태그" active="tags">
+<BaseLayout title="각인" active="tags">
   <div class="page">
-    <PageHeader title="태그" subtitle={`${tags.length}개의 태그`} icon="sell" />
-    <ul class="cloud">
+    <PageHeader title="각인 목록" eyebrow="Runes & Tags" subtitle={`의뢰에 새겨진 ${tags.length}개의 각인`} icon="diamond" />
+    <ul class="runes" data-reveal-group>
       {tags.map(([t, n]) => (
-        <li><a class="chip state" href={tagUrl(t)}><span class="msr">tag</span>{t}<span class="count">{n}</span></a></li>
+        <li>
+          <a class="rune card" href={tagUrl(t)} style={`--w:${0.4 + (n / max) * 0.6}`}>
+            <span class="msr">diamond</span>
+            <span class="name">#{t}</span>
+            <span class="n">{n}</span>
+          </a>
+        </li>
       ))}
     </ul>
   </div>
 </BaseLayout>
 
 <style>
-  .page { max-width: 960px; margin: 0 auto; padding: 16px 16px 64px; }
-  @media (min-width: 840px) { .page { padding: 16px 28px 64px; } }
-  .cloud { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .page { max-width: 1000px; margin: 0 auto; padding: 8px 16px 72px; }
+  @media (min-width: 900px) { .page { padding: 8px 40px 72px; } }
+  .runes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .rune { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; transition: border-color var(--dur), background var(--dur), translate var(--dur), box-shadow var(--dur); }
+  .rune:hover { border-color: var(--gold); background: var(--accent); translate: 0 -2px; box-shadow: 0 6px 18px -6px var(--glow); }
+  .rune .msr { font-size: 16px; color: var(--gold); opacity: var(--w); }
+  .name { font: 700 15px/1 var(--font-serif); }
+  .n { font: 600 12px/1 var(--font-mono); color: var(--muted-foreground); }
 </style>

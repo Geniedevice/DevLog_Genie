@@ -1,46 +1,54 @@
-/* 마크다운 본문. M3 타입 스케일을 읽기용 리듬으로 옮긴다. */
+/* 의뢰 보고서 본문. 두루마리(.scroll) 안에서 읽힌다. */
 .prose {
   font-size: 17px;
-  line-height: 1.8;
-  letter-spacing: 0.005em;
-  color: var(--md-on-surface);
+  line-height: 1.85;
+  color: var(--scroll-fg);
 }
 .prose > :first-child { margin-top: 0; }
+.prose > :last-child { margin-bottom: 0; }
 
 .prose h2,
 .prose h3,
-.prose h4 {
-  color: var(--md-on-surface);
-  font-weight: 500;
-  scroll-margin-top: 88px;
+.prose h4 { font-family: var(--font-serif); scroll-margin-top: 88px; line-height: 1.35; }
+.prose h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 26px;
+  margin: 56px 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
 }
-.prose h2 { font-size: 28px; line-height: 36px; margin: 56px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--md-outline-variant); }
-.prose h3 { font-size: 22px; line-height: 28px; margin: 40px 0 12px; }
-.prose h4 { font-size: 18px; line-height: 24px; margin: 32px 0 8px; }
+.prose h2::before { content: '◆'; font-size: 14px; color: var(--gold); }
+.prose h3 { font-size: 21px; margin: 40px 0 12px; }
+.prose h3::before { content: '— '; color: var(--gold); }
+.prose h4 { font-size: 18px; margin: 28px 0 8px; }
 
 .prose p { margin: 0 0 20px; }
-.prose strong { font-weight: 700; }
+.prose strong { font-weight: 700; color: color-mix(in srgb, var(--scroll-fg) 100%, var(--gold)); }
 
 .prose a {
-  color: var(--md-primary);
+  color: var(--gold);
+  font-weight: 500;
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--md-primary) 40%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--gold) 45%, transparent);
   text-underline-offset: 3px;
 }
-.prose a:hover { text-decoration-color: var(--md-primary); }
+.prose a:hover { text-decoration-color: var(--gold); }
 
 .prose ul,
-.prose ol { margin: 0 0 20px; padding-left: 24px; }
-.prose li { margin: 4px 0; }
-.prose li::marker { color: var(--md-primary); }
+.prose ol { margin: 0 0 20px; padding-left: 26px; }
+.prose li { margin: 6px 0; }
+.prose ul > li::marker { content: '✦  '; color: var(--gold); font-size: 0.8em; }
+.prose ol > li::marker { color: var(--gold); font-family: var(--font-display); font-weight: 700; }
 
-.prose hr { border: 0; border-top: 1px solid var(--md-outline-variant); margin: 48px 0; }
+.prose hr { border: 0; height: 20px; margin: 48px 0; background: radial-gradient(circle, var(--gold) 0 3px, transparent 4px) center / 24px 20px repeat-x; opacity: 0.6; }
 
 .prose img {
   display: block;
   margin: 32px auto;
-  border-radius: var(--md-shape-lg);
-  box-shadow: 0 0 0 1px var(--md-outline-variant);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 50%, transparent), var(--shadow-md);
   cursor: zoom-in;
 }
 /* 이미지 바로 아래 *기울임* 한 줄은 캡션으로 */
@@ -49,70 +57,62 @@
   margin-top: -20px;
   text-align: center;
   font-size: 14px;
-  font-style: normal;
-  color: var(--md-on-surface-variant);
+  color: var(--muted-foreground);
 }
 
 .prose blockquote {
   margin: 24px 0;
-  padding: 12px 20px;
-  border-left: 4px solid var(--md-primary);
-  border-radius: 0 var(--md-shape-md) var(--md-shape-md) 0;
-  background: var(--md-surface-container-low);
-  color: var(--md-on-surface-variant);
+  padding: 14px 22px;
+  border-left: 3px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: color-mix(in srgb, var(--scroll-fg) 80%, transparent);
 }
 .prose blockquote > :last-child { margin-bottom: 0; }
 
-/* Inline code */
+/* 인라인 코드 */
 .prose :not(pre) > code {
-  font-family: var(--md-font-mono);
-  font-size: 0.86em;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
   padding: 2px 6px;
-  border-radius: var(--md-shape-xs);
-  background: var(--md-surface-container-high);
-  color: var(--md-on-surface);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
 }
 
-/* Code block (Shiki 이중 테마: 사이트 테마에 맞춰 변수를 고른다) */
-.prose .code-wrap { position: relative; margin: 24px 0; }
+/* 코드 블록 = 마도서. 낮/밤 상관없이 어두운 페이지에 룬처럼 빛나는 글자 */
+.prose .code-wrap {
+  position: relative;
+  margin: 28px 0;
+  border-radius: var(--radius-lg);
+  background: var(--code-bg);
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, #000);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  overflow: hidden;
+}
+.prose .code-bar { display: flex; align-items: center; justify-content: space-between; height: 38px; padding: 0 6px 0 14px; border-bottom: 1px solid rgb(226 180 87 / 0.18); background: rgb(226 180 87 / 0.06); }
+.prose .code-lang { display: inline-flex; align-items: center; gap: 6px; font: 600 11px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: #d9b86a; }
+.prose .code-lang .msr { font-size: 15px; }
+.prose .copy { color: #cbbd9f; height: 28px; }
+.prose .copy:hover { background: rgb(226 180 87 / 0.15); color: #f4cf78; }
 .prose pre {
-  margin: 24px 0;
-  padding: 20px;
+  margin: 0;
+  padding: 18px 20px;
   overflow-x: auto;
-  border-radius: var(--md-shape-lg);
-  background: var(--md-surface-container-low) !important;
-  border: 1px solid var(--md-outline-variant);
-  font-family: var(--md-font-mono);
+  background: transparent !important;
+  font-family: var(--font-mono);
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.7;
   tab-size: 4;
 }
-.prose .code-wrap pre { margin: 0; padding-top: 36px; }
+/* JS 로 감싸기 전(또는 JS 없이)에도 어두운 판 위에 보이도록 */
+.prose > pre { margin: 28px 0; border-radius: var(--radius-lg); background: var(--code-bg) !important; }
 .prose pre code { font-family: inherit; }
-.astro-code span { color: var(--shiki-light); }
-[data-theme='dark'] .astro-code span { color: var(--shiki-dark); }
+.astro-code span { color: var(--shiki-dark); }
 
-.prose .code-lang {
-  position: absolute;
-  top: 10px;
-  left: 20px;
-  color: var(--md-on-surface-variant);
-  text-transform: uppercase;
-  pointer-events: none;
-}
-.prose .copy {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  opacity: 0;
-  transition: opacity var(--md-dur-short);
-}
-.prose .copy .msr { font-size: 20px; }
-.prose .code-wrap:hover .copy,
-.prose .copy:focus-visible { opacity: 1; }
-@media (hover: none) { .prose .copy { opacity: 1; } }
-
-/* Table */
+/* 표 */
 .prose table {
   display: block;
   width: max-content;
@@ -121,59 +121,54 @@
   margin: 24px 0;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-shape-md);
+  border: 1px solid color-mix(in srgb, var(--gold) 35%, var(--border));
+  border-radius: var(--radius-md);
   font-size: 15px;
   line-height: 1.6;
 }
 .prose th,
-.prose td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--md-outline-variant); }
-.prose th { background: var(--md-surface-container); font-weight: 500; }
+.prose td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+.prose th { font-family: var(--font-serif); background: color-mix(in srgb, var(--gold) 12%, transparent); }
 .prose tr:last-child td { border-bottom: 0; }
 
-/* Callout: `> [!NOTE]` 등 */
+/* 콜아웃 */
 .prose .callout {
-  margin: 24px 0;
-  padding: 16px 20px;
-  border-radius: var(--md-shape-lg);
-  background: var(--md-surface-container-high);
-  color: var(--md-on-surface);
+  position: relative;
+  margin: 26px 0;
+  padding: 16px 20px 16px 22px;
+  border-radius: var(--radius-md);
+  border: 1px solid;
+  border-left-width: 4px;
+  --c: var(--gold);
+  border-color: color-mix(in srgb, var(--c) 45%, transparent);
+  border-left-color: var(--c);
+  background: color-mix(in srgb, var(--c) 9%, transparent);
 }
 .prose .callout > :last-child { margin-bottom: 0; }
-.prose .callout-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 6px;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 700;
-  letter-spacing: 0.1px;
-}
+.prose .callout-title { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font: 700 14px/1.3 var(--font-serif); color: var(--c); }
 .prose .callout-title .msr { font-size: 20px; }
-.prose .callout-note { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-.prose .callout-tip { background: var(--md-primary-container); color: var(--md-on-primary-container); }
-.prose .callout-important { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
-.prose .callout-warning { background: color-mix(in srgb, #f9a825 22%, var(--md-surface)); color: var(--md-on-surface); }
-.prose .callout-warning .callout-title { color: color-mix(in srgb, #e65100 80%, var(--md-on-surface)); }
-.prose .callout-caution { background: var(--md-error-container); color: var(--md-on-error-container); }
-.prose .callout :not(pre) > code { background: color-mix(in srgb, currentColor 10%, transparent); }
+.prose .callout-note { --c: #6f8fb8; }
+.prose .callout-tip { --c: var(--emerald); }
+.prose .callout-important { --c: var(--arcane); }
+.prose .callout-warning { --c: #d08a1e; }
+.prose .callout-caution { --c: var(--seal); }
 
 .prose kbd {
-  font-family: var(--md-font-mono);
+  font-family: var(--font-mono);
   font-size: 0.8em;
   padding: 2px 6px;
-  border: 1px solid var(--md-outline-variant);
+  border: 1px solid var(--border);
   border-bottom-width: 2px;
-  border-radius: var(--md-shape-xs);
-  background: var(--md-surface-container-low);
+  border-radius: var(--radius-sm);
+  background: var(--muted);
 }
 
 .prose details {
   margin: 20px 0;
   padding: 12px 16px;
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-shape-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
-.prose summary { cursor: pointer; font-weight: 500; }
+.prose summary { cursor: pointer; font-family: var(--font-serif); font-weight: 700; }
+.prose summary::marker { color: var(--gold); }
 .prose details[open] summary { margin-bottom: 12px; }

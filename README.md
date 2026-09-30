@@ -2,7 +2,7 @@
 
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
-**LUNAR LAB** 콘셉트(달 기지 작업실)의 게임 개발 블로그. 대표 캐릭터 **JINY**(보라 헤드폰을 쓴 흰 토끼)가 주인공인 Astro 정적 사이트입니다.
+**GENIE LAB** 콘셉트(달 기지 작업실)의 게임 개발 블로그. 대표 캐릭터 **JINY**(보라 헤드폰을 쓴 흰 토끼)가 주인공인 Astro 정적 사이트입니다.
 글 목록은 유튜브식 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성, **통계** 페이지에는 차트와 데이터 표가 있습니다.
 `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
 

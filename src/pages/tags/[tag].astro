@@ -2,7 +2,8 @@
 import Icon from '../../components/Icon.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
-import PostListItem from '../../components/PostListItem.astro';
+import GalleryCard from '../../components/GalleryCard.astro';
+import { tileSize } from '../../lib/gallery';
 import { getPosts, tagCounts, url, type Post } from '../../lib/posts';
 
 export async function getStaticPaths() {
@@ -20,9 +21,9 @@ const { tag, posts } = Astro.props;
   <div class="page">
     <a class="btn btn-ghost btn-sm back" href={url('tags/')}><Icon name="arrow-left" />모든 태그</a>
     <PageHeader eyebrow="Tag" title={`#${tag}`} subtitle={`이 태그가 붙은 기록 ${posts.length}개`} />
-    <ul class="list" data-reveal-group>
-      {posts.map((p) => <PostListItem post={p} />)}
-    </ul>
+    <div class="gallery">
+      {posts.map((p, i) => <GalleryCard post={p} size={tileSize(i)} eager={i < 2} />)}
+    </div>
   </div>
 </BaseLayout>
 
@@ -30,5 +31,17 @@ const { tag, posts } = Astro.props;
   .page { max-width: 1100px; margin: 0 auto; padding: 24px 16px 72px; }
   @media (min-width: 1024px) { .page { padding: 28px 40px 72px; } }
   .back { margin-left: -8px; }
-  .list { list-style: none; margin: 0 -8px; padding: 0; display: grid; gap: 8px; }
 </style>
+
+<script>
+  import { wireBookmarks } from '../../scripts/bookmarks';
+  import { markReadCards } from '../../scripts/read';
+  import { cardsIn } from '../../scripts/fx';
+  wireBookmarks();
+  markReadCards();
+  // 스크롤 트리거: 갤러리 타일이 화면에 들어올 때 차례로
+  document.querySelectorAll<HTMLElement>('.gallery').forEach((g) => {
+    const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) return; io.disconnect(); cardsIn([...g.querySelectorAll<HTMLElement>('[data-card]')]); }, { rootMargin: '0px 0px -8% 0px' });
+    io.observe(g);
+  });
+</script>

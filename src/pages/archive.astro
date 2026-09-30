@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
-import PostListItem from '../components/PostListItem.astro';
+import GalleryCard from '../components/GalleryCard.astro';
+import { tileSize } from '../lib/gallery';
 import { getPosts, type Post } from '../lib/posts';
 
 const posts = await getPosts();
@@ -19,7 +20,7 @@ for (const p of posts) {
       {[...groups].map(([month, list]) => (
         <section class="era" aria-label={month}>
           <h2 class="month" data-reveal><span class="dot" aria-hidden="true"></span>{month}<span class="n">{list.length}</span></h2>
-          <ul class="list" data-reveal-group>{list.map((p) => <PostListItem post={p} />)}</ul>
+          <div class="gallery">{list.map((p, i) => <GalleryCard post={p} size={tileSize(i, false)} />)}</div>
         </section>
       ))}
     </div>
@@ -35,5 +36,17 @@ for (const p of posts) {
   .month { position: relative; display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; font-size: 19px; font-weight: 800; }
   .dot { position: absolute; left: -24px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft), 0 0 12px var(--glow); }
   .n { font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
-  .list { list-style: none; margin: 0 -8px; padding: 0; display: grid; gap: 6px; }
 </style>
+
+<script>
+  import { wireBookmarks } from '../scripts/bookmarks';
+  import { markReadCards } from '../scripts/read';
+  import { cardsIn } from '../scripts/fx';
+  wireBookmarks();
+  markReadCards();
+  // 스크롤 트리거: 갤러리 타일이 화면에 들어올 때 차례로
+  document.querySelectorAll<HTMLElement>('.gallery').forEach((g) => {
+    const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) return; io.disconnect(); cardsIn([...g.querySelectorAll<HTMLElement>('[data-card]')]); }, { rootMargin: '0px 0px -8% 0px' });
+    io.observe(g);
+  });
+</script>

@@ -2,7 +2,7 @@ import { animate, createTimeline, onScroll, stagger, steps } from 'animejs';
 import { reduced } from './fx';
 import { startSky } from './sky';
 
-// LUNAR LAB 히어로 장면(anime.js v4). 부위 class 는 src/lib/scene.mjs, 레이어 구조는 HeroScene.astro 참고.
+// GENIE LAB 히어로 장면(anime.js v4). 부위 class 는 src/lib/scene.mjs, 레이어 구조는 HeroScene.astro 참고.
 export function animateScene(root: HTMLElement) {
   const sky = root.querySelector<HTMLCanvasElement>('[data-sky]');
   if (sky) startSky(sky, root);

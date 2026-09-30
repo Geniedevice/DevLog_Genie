@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import VideoCard from '../components/VideoCard.astro';
+import GalleryCard from '../components/GalleryCard.astro';
+import { tileSize } from '../lib/gallery';
 import HeroScene from '../components/HeroScene.astro';
 import KpiCard from '../components/charts/KpiCard.astro';
 import Heatmap from '../components/charts/Heatmap.astro';
@@ -26,12 +27,11 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   <section class="hero" data-hero>
     <div class="hero-art"><HeroScene /></div>
     <div class="hero-text" data-hero-text>
-      <p class="eyebrow pixel-font" data-reveal>GAME DEV / BUILD LOG</p>
+      <p class="eyebrow pixel-font" data-reveal>GENIE LAB</p>
       <h1 class="headline" data-type>
-        <span class="l1">플레이 뒤에 숨은</span>
-        <span class="l2">코드를 기록하다.</span>
+        <span class="l1">Dev</span><span class="l2">Log</span>
       </h1>
-      <p class="sub" data-reveal>게임을 만드는 과정, 실험과 발견의 기록.</p>
+      <p class="sub" data-reveal>게임 개발 기록</p>
       <div class="hud pixel-font" data-reveal>
         <span class="lv">LV {t.level}</span>
         <span class="seg" data-segs role="progressbar" aria-label="경험치" aria-valuemin="0" aria-valuemax={t.next} aria-valuenow={t.xp}>
@@ -100,8 +100,8 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     {posts.length === 0 ? (
       <p class="empty">아직 기록이 없어요.</p>
     ) : (
-      <div class="grid" data-grid>
-        {ordered.map((post, i) => <VideoCard post={post} eager={i < 3} hidden={i >= PAGE} />)}
+      <div class="gallery" data-grid>
+        {ordered.map((post, i) => <GalleryCard post={post} size={i < PAGE ? tileSize(i) : ''} eager={i < 3} hidden={i >= PAGE} />)}
       </div>
     )}
     <p class="empty" data-empty hidden>이 분류의 기록은 아직 없어요.</p>
@@ -131,6 +131,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 <script>
   import { animate, onScroll, splitText, stagger, steps } from 'animejs';
   import { reduced, cardsIn } from '../scripts/fx';
+  import { relayout } from '../lib/gallery';
   import { wireBookmarks } from '../scripts/bookmarks';
   import { markReadCards } from '../scripts/read';
 
@@ -191,6 +192,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     shown.forEach((c) => (c.hidden = false));
     if (more) more.hidden = matched.length <= limit;
     if (empty) empty.hidden = matched.length > 0;
+    relayout(shown);
     cardsIn(animateAll ? shown : shown.filter((c) => !before.has(c)));
   }
 
@@ -233,8 +235,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   .hero-text { position: relative; z-index: 4; padding: 56px 24px 44px; max-width: 640px; color: #e7ebf5; }
   @media (min-width: 1024px) { .hero-text { padding: 64px 48px 52px; } }
   .eyebrow { margin: 0 0 20px; font-size: 12px; letter-spacing: 0.36em; color: #98a0b8; }
-  .headline { margin: 0 0 18px; font-size: clamp(34px, 4.6vw, 58px); font-weight: 900; line-height: 1.16; letter-spacing: -0.045em; text-shadow: 0 4px 30px rgb(0 0 0 / 0.6); }
-  .headline span { display: block; }
+  .headline { margin: 0 0 10px; font-size: clamp(52px, 7.4vw, 104px); font-weight: 900; line-height: 1; letter-spacing: -0.055em; white-space: nowrap; text-shadow: 0 4px 30px rgb(0 0 0 / 0.6); }
   .headline .l2 { color: #a99be8; }
   .headline :global(.cursor) { display: inline-block; width: 0.42em; height: 0.9em; margin-left: 6px; vertical-align: -0.08em; background: #8fd4c1; }
   :global(.js-fx) .headline { opacity: 0; }
@@ -316,9 +317,6 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     .search-box .kbd { display: none; }
   }
 
-  .grid { display: grid; gap: 32px 22px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
-  @media (min-width: 1400px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 639px) { .grid { grid-template-columns: 1fr; } }
   .empty { margin: 32px 0; text-align: center; color: var(--muted-foreground); }
   .more { display: flex; justify-content: center; margin-top: 36px; }
 

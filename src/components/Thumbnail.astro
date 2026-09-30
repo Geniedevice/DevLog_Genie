@@ -12,9 +12,11 @@ interface Props {
   text?: boolean;
   /** 우하단 "N분" 칩 */
   duration?: boolean;
+  /** 부모 상자를 꽉 채운다(갤러리 타일처럼 비율이 제각각인 곳) */
+  fill?: boolean;
   class?: string;
 }
-const { post, sizes, eager = false, text = true, duration = false, class: className } = Astro.props;
+const { post, sizes, eager = false, text = true, duration = false, fill = false, class: className } = Astro.props;
 const { cover, coverAlt, title, category, thumbText, pixelArt } = post.data;
 const style = categoryStyle(category);
 // 커버가 없으면 제목을 문구로 써서 텅 빈 썸네일이 없게 한다.
@@ -24,7 +26,7 @@ const lines = (thumbText ?? (cover ? '' : title))
   .filter(Boolean)
   .map((l) => l.split(/(\*[^*]+\*)/).filter(Boolean).map((seg) => (seg.startsWith('*') ? { hl: true, t: seg.slice(1, -1) } : { hl: false, t: seg })));
 ---
-<div class:list={['thumb', className, { pixel: pixelArt }]}>
+<div class:list={['thumb', className, { pixel: pixelArt, fill }]}>
   {cover ? (
     <Image
       src={cover}
@@ -51,6 +53,7 @@ const lines = (thumbText ?? (cover ? '' : title))
   .thumb { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--muted); container-type: inline-size; isolation: isolate; }
   .thumb :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out), filter 300ms; }
   .pixel :global(img) { image-rendering: pixelated; }
+  .thumb.fill { aspect-ratio: auto; width: 100%; height: 100%; }
 
   .art { position: absolute; inset: 0; display: grid; place-items: end; padding: 5%; }
   .art :global(.icon) { width: 34cqw; height: 34cqw; opacity: 0.22; }

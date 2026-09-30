@@ -1,4 +1,4 @@
-// LUNAR LAB 히어로 장면: 달 기지 작업실을 깊이별 레이어로 나눈다(뒤 → 앞).
+// GENIE LAB 히어로 장면: 달 기지 작업실을 깊이별 레이어로 나눈다(뒤 → 앞).
 //   창밖  : ① 별(캔버스, 페이지에서 그림) ② 달·행성 ③ 먼 산맥 ④ 가까운 지면·기지
 //   실내  : ⑤ 방(창 구멍이 뚫린 벽, 선반, 모니터) ⑥ JINY(HTML 컴포넌트) ⑦ 책상 앞면
 // 모든 레이어는 같은 viewBox(1200×520). 창밖 레이어는 페이지에서 창 모양으로 잘린 틀 안에 들어가
@@ -165,7 +165,7 @@ export function sceneFront() {
     </g>
     <g transform="translate(70 446)">
       <rect width="190" height="46" rx="10" fill="#141a2b" stroke="#3a4466" stroke-width="2"/>
-      <text x="22" y="30" font-family="Galmuri11, 'JetBrains Mono', monospace" font-size="15" font-weight="700" fill="${P.lav}" letter-spacing="4">LUNAR LAB</text>
+      <text x="22" y="30" font-family="Galmuri11, 'JetBrains Mono', monospace" font-size="15" font-weight="700" fill="${P.lav}" letter-spacing="4">GENIE LAB</text>
       <g transform="translate(164 23)"><circle r="9" fill="${P.lav}"/><ellipse rx="15" ry="4" fill="none" stroke="${P.mint}" stroke-width="2" transform="rotate(-20)"/></g>
     </g>
     <g transform="translate(1150 410)"><path d="M-18 0h36l-5 -30h-26z" fill="#6c63b5"/><path class="leaf" d="M0 -30 C-6 -60 -26 -66 -30 -54 M0 -30 C6 -64 22 -72 28 -58 M0 -30 C0 -66 8 -80 14 -74" stroke="${P.mint}" stroke-width="6" fill="none" stroke-linecap="round"/></g>`,

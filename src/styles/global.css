@@ -190,8 +190,10 @@ a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .js-fx [data-reveal], .js-fx [data-reveal-group] > *, .js-fx [data-card], .js-fx [data-headline], .js-fx [data-type] { opacity: 1 !important; transform: none !important; }
 }
 
 /* ─── Chart tooltip (shadcn ChartTooltip 모양) ─── */

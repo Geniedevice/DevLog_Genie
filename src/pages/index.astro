@@ -215,7 +215,8 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
   .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .chips::-webkit-scrollbar { display: none; }
-  .tools { display: flex; align-items: center; gap: 8px; }
+  /* PR #1: 좁은 화면에서 검색·정렬이 넘치지 않게 줄바꿈 */
+  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 100%; }
   .search-box { display: flex; align-items: center; gap: 10px; width: 280px; height: 42px; padding: 0 8px 0 14px; border: 1px solid var(--input); border-radius: var(--radius-lg); background: var(--card); color: var(--muted-foreground); font: 400 14px/1 var(--font-sans); cursor: text; transition: border-color var(--dur), box-shadow var(--dur); }
   .search-box:hover { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
   .ph { flex: 1; text-align: left; }

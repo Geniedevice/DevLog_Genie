@@ -187,7 +187,6 @@ const pct = Math.round((t.xp / t.next) * 100);
     align-items: center;
     gap: 8px;
     padding: 24px 16px 8px;
-    overflow: hidden;
     isolation: isolate;
   }
   /* shadcn 랜딩처럼 옅은 점 격자 + 보라 빛 */
@@ -203,15 +202,18 @@ const pct = Math.round((t.xp / t.next) * 100);
     mask-image: linear-gradient(180deg, #000 60%, transparent);
   }
   @media (min-width: 900px) {
-    .hero { grid-template-columns: minmax(0, 1fr) minmax(280px, 420px); padding: 32px 40px 16px; }
+    .hero { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; padding: 32px 40px 16px; }
   }
 
+  /* Size the wordmark against its actual column, including the sidebar breakpoint. */
+  .hero-text { min-width: 0; container-type: inline-size; }
   .title {
     margin: 0 0 22px;
-    font-size: clamp(64px, 11vw, 136px);
+    font-size: clamp(40px, 26cqw, 136px);
     font-weight: 900;
-    line-height: 0.95;
+    line-height: 1.2;
     letter-spacing: -0.055em;
+    white-space: nowrap;
     cursor: default;
   }
   /* ⚠️ splitText 가 글자를 단어 span 으로 한 번 더 감싸서 background: inherit 로는 그라디언트가 안 내려온다.
@@ -224,7 +226,6 @@ const pct = Math.round((t.xp / t.next) * 100);
     color: transparent;
   }
   .title .log:has(:global(.char)) { background: none; }
-  :global(.js-fx) .title { opacity: 0; }
 
   .status { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; font-size: 14px; }
   .lv { font-weight: 800; }
@@ -259,7 +260,7 @@ const pct = Math.round((t.xp / t.next) * 100);
   .feed-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 19px; font-weight: 700; height: 44px; }
   .count { display: inline-grid; place-items: center; min-width: 32px; height: 26px; padding: 0 8px; border-radius: var(--radius-sm); background: var(--secondary); color: var(--secondary-foreground); font-size: 14px; font-variant-numeric: tabular-nums; }
   .tabs-line { flex: 1; min-width: 0; margin-bottom: -1px; }
-  .tools { display: flex; align-items: center; gap: 12px; padding-bottom: 6px; }
+  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; max-width: 100%; padding-bottom: 6px; }
 
   .search-box { display: flex; align-items: center; gap: 10px; width: 250px; height: 40px; padding: 0 8px 0 12px; border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--card); color: var(--muted-foreground); font: 400 14px/1 var(--font-sans); cursor: text; transition: border-color var(--dur); }
   .search-box:hover { border-color: var(--brand); }

@@ -1,13 +1,14 @@
 ---
 import '../styles/global.css';
-import Emblem from '../components/Emblem.astro';
-import NavRail from '../components/NavRail.astro';
+import Marks from '../components/Marks.astro';
+import Sidebar from '../components/Sidebar.astro';
+import MobileBar from '../components/MobileBar.astro';
 import BottomNav from '../components/BottomNav.astro';
-import TopAppBar from '../components/TopAppBar.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../site.config';
-import { url } from '../lib/posts';
+import { getPosts, url } from '../lib/posts';
+import { levelOf } from '../lib/quest';
 import type { NavKey } from '../lib/nav';
 
 interface Props {
@@ -21,7 +22,8 @@ interface Props {
 const { title, description = SITE.description, active, type = 'website', image } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = image ? new URL(image, Astro.site).href : undefined;
+const ogImage = new URL(image ?? url('images/hero-camp.png'), Astro.site).href;
+const { level } = levelOf(await getPosts());
 ---
 <!doctype html>
 <html lang={SITE.lang}>
@@ -41,14 +43,16 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.title} />
     <meta property="og:locale" content="ko_KR" />
-    {ogImage && <meta property="og:image" content={ogImage} />}
-    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
-    <meta name="theme-color" content="#f4ecd9" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0e0c15" media="(prefers-color-scheme: dark)" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f4f6f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1511" media="(prefers-color-scheme: dark)" />
 
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" />
 
     <script is:inline>
@@ -64,14 +68,12 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     </script>
   </head>
   <body>
-    <Emblem />
-    <div class="fireflies" data-fireflies aria-hidden="true"></div>
-
+    <Marks />
     <a class="skip sr-only" href="#main">본문으로 건너뛰기</a>
     <div class="shell">
-      <NavRail active={active} />
+      <Sidebar active={active} level={level} />
       <div class="pane">
-        <TopAppBar />
+        <MobileBar />
         <main id="main">
           <slot />
         </main>
@@ -82,7 +84,7 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     <CommandPalette />
 
     <script>
-      import { fireflies, revealOnScroll, countUp } from '../scripts/fx';
+      import { revealOnScroll, countUp } from '../scripts/fx';
 
       const root = document.documentElement;
       document.querySelectorAll('[data-theme-toggle]').forEach((b) =>
@@ -98,7 +100,6 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
       addEventListener('scroll', onScroll, { passive: true });
       onScroll();
 
-      fireflies(document.querySelector('[data-fireflies]'));
       revealOnScroll();
       countUp();
     </script>
@@ -108,27 +109,16 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
 <style is:global>
   .js-fx [data-reveal],
   .js-fx [data-reveal-group] > *,
-  .js-fx [data-poster],
-  .js-fx [data-stamp],
-  .js-fx [data-post-stamp],
-  .js-fx [data-hero-title] { opacity: 0; }
+  .js-fx [data-card],
+  .js-fx [data-headline],
+  .js-fx [data-scramble] { opacity: 0; }
   .char { display: inline-block; }
-
-  .fireflies { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  .firefly {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0;
-    background: radial-gradient(circle, #fff6c8 0 30%, var(--gold-bright) 60%, transparent 70%);
-    box-shadow: 0 0 10px 3px var(--glow);
-  }
-  [data-theme='light'] .firefly { background: radial-gradient(circle, #fff 0 25%, #f1c35a 60%, transparent 70%); box-shadow: 0 0 8px 2px rgb(217 164 65 / 0.4); }
 </style>
 
 <style>
-  .shell { position: relative; z-index: 1; display: flex; min-height: 100dvh; }
-  .pane { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
-  @media (min-width: 900px) { .pane { padding-bottom: 0; } }
+  .shell { display: flex; min-height: 100dvh; }
+  .pane { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  @media (min-width: 1024px) { .pane { padding-bottom: 0; } }
   main { flex: 1; }
   .skip:focus { position: fixed; top: 8px; left: 8px; width: auto; height: auto; clip: auto; z-index: 100; padding: 8px 16px; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-md); }
 </style>

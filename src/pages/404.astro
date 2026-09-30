@@ -1,37 +1,29 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import MagicCircle from '../components/MagicCircle.astro';
 import { url } from '../lib/posts';
 ---
-<BaseLayout title="길을 잃었습니다">
+<BaseLayout title="페이지를 찾을 수 없음">
   <div class="nf">
-    <div class="art" aria-hidden="true">
-      <MagicCircle class="circle" />
-      <span class="msr compass">explore</span>
-    </div>
-    <p class="eyebrow">Lost in the Wilds</p>
-    <h1 class="font-display code" data-hero-title>404</h1>
-    <p class="msg">지도에 없는 곳입니다. 안개 속에서 길을 잃은 모양이네요.</p>
+    <img class="pixel art" src={url('images/hero-camp.png')} alt="" aria-hidden="true" />
+    <p class="eyebrow">404 · Lost in the woods</p>
+    <h1 data-headline>길을 잃었어요</h1>
+    <p class="msg">찾는 페이지가 없거나 옮겨졌어요. 캠프로 돌아가 볼까요?</p>
     <div class="actions">
-      <a class="btn btn-default" href={url()}><span class="msr">castle</span>길드로 귀환</a>
-      <button class="btn btn-outline" type="button" data-open-search><span class="msr">blur_on</span>수정구슬 검색</button>
+      <a class="btn btn-default" href={url()}><span class="msr">home</span>개발 일지로</a>
+      <button class="btn btn-outline" type="button" data-open-search><span class="msr">search</span>검색</button>
     </div>
   </div>
 </BaseLayout>
 
 <script>
-  import { titleIntro, drawMagicCircle } from '../scripts/fx';
-  drawMagicCircle(document.querySelector('[data-magic-circle]'));
-  titleIntro(document.querySelector('[data-hero-title]'), 300);
+  import { headline } from '../scripts/fx';
+  headline(document.querySelector('[data-headline]'), 200);
 </script>
 
 <style>
-  .nf { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 48px 16px 80px; }
-  .art { position: relative; display: grid; place-items: center; width: 220px; aspect-ratio: 1; margin-bottom: 16px; }
-  .art :global(.circle) { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .compass { font-size: 64px; color: var(--gold); animation: wobble 3s ease-in-out infinite; }
-  @keyframes wobble { 25% { rotate: 25deg; } 60% { rotate: -35deg; } 85% { rotate: 10deg; } }
-  .code { margin: 8px 0 8px; font-size: 88px; line-height: 1; color: var(--gold); text-shadow: 0 0 30px var(--glow); }
-  .msg { margin: 0 0 28px; color: var(--muted-foreground); }
+  .nf { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 16px 80px; }
+  .art { width: min(560px, 100%); aspect-ratio: 2.4; object-fit: cover; object-position: 50% 80%; border-radius: var(--radius-xl); margin-bottom: 28px; box-shadow: 0 0 0 1px var(--border); }
+  h1 { margin: 12px 0 8px; font-size: clamp(30px, 4vw, 40px); font-weight: 800; }
+  .msg { margin: 0 0 24px; color: var(--muted-foreground); }
   .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 </style>

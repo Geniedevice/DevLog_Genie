@@ -1,32 +1,33 @@
 import { readingMinutes, type Post } from './posts';
 
-// 글을 "토벌 의뢰"로 보여 주기 위한 수치. 분량이 곧 난이도라서 읽는 시간으로 등급을 매긴다.
-export type Rank = 'S' | 'A' | 'B' | 'C';
+// 글쓰기를 "경험치"로 보여 주기 위한 수치. 전부 글에서 계산하므로 따로 입력할 것이 없다.
 
-export function rankOf(post: Post): Rank {
-  const m = readingMinutes(post.body);
-  if (m >= 12) return 'S';
-  if (m >= 6) return 'A';
-  if (m >= 3) return 'B';
-  return 'C';
+/** 글 하나의 경험치: 읽는 시간 분당 50 XP, 최소 50 */
+export function xpOf(post: Post): number {
+  return Math.max(50, readingMinutes(post.body) * 50);
 }
 
-export const RANK_LABEL: Record<Rank, string> = { S: '전설', A: '영웅', B: '숙련', C: '일반' };
+const XP_PER_LEVEL = 1000;
 
-// 보상 경험치: 분당 250 EXP, 50 단위로 끊는다
-export function expOf(post: Post): number {
-  return Math.max(100, Math.round((readingMinutes(post.body) * 250) / 50) * 50);
+export function levelOf(posts: Post[]) {
+  const total = posts.reduce((n, p) => n + xpOf(p), 0);
+  return { level: Math.floor(total / XP_PER_LEVEL) + 1, xp: total % XP_PER_LEVEL, next: XP_PER_LEVEL, total };
 }
 
-// 의뢰 번호는 오래된 글부터 1번. 새 글이 생겨도 기존 번호는 그대로다.
-export function questNo(post: Post, all: Post[]): string {
-  const ordered = [...all].sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf() || a.id.localeCompare(b.id));
-  return String(ordered.findIndex((p) => p.id === post.id) + 1).padStart(3, '0');
+/**
+ * 가장 최근 글 날짜에서 거꾸로 하루도 빠짐없이 글이 있었던 날 수.
+ * ⚠️ "오늘 기준"으로 세면 빌드한 날에 따라 숫자가 바뀌므로, 마지막으로 쓴 날 기준으로 센다.
+ */
+export function streakOf(posts: Post[]): number {
+  const days = new Set(posts.map((p) => kstDay(p.data.date)));
+  if (!days.size) return 0;
+  let day = Math.max(...days);
+  let n = 0;
+  while (days.has(day)) {
+    n++;
+    day--;
+  }
+  return n;
 }
 
-// 게시판에 핀으로 꽂힌 종이가 조금씩 삐뚤어져 있도록. 글마다 고정된 값이라 새로고침해도 같다.
-export function tiltOf(post: Post): number {
-  let h = 0;
-  for (const c of post.id) h = (h * 31 + c.charCodeAt(0)) | 0;
-  return ((Math.abs(h) % 7) - 3) * 0.6;
-}
+const kstDay = (d: Date) => Math.floor((d.valueOf() + 9 * 3600e3) / 86400e3);

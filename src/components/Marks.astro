@@ -1,0 +1,21 @@
+---
+// 공용 심볼: <use href="#logo" /> 반짝이는 별, <use href="#avatar" /> 픽셀 개발자 얼굴
+const px = (x: number, y: number, c: string, w = 1, h = 1) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
+const avatar = [
+  px(0, 0, '#2b4a3a', 12, 12),
+  px(3, 1, '#3b2414', 6), px(2, 2, '#4a2e18', 8, 2), px(2, 4, '#4a2e18', 1, 2), px(9, 4, '#4a2e18', 1, 2),
+  px(3, 4, '#f1c49c', 6, 4), px(3, 4, '#4a2e18', 2, 1), px(7, 4, '#4a2e18', 1, 1),
+  px(4, 5, '#2a1a10'), px(7, 5, '#2a1a10'), px(5, 7, '#d98e6b', 2, 1),
+  px(2, 8, '#4f8a4a', 8, 4), px(4, 8, '#6fae5f', 4, 1), px(5, 9, '#e6eee8', 2, 1),
+].join('');
+---
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 32 32">
+    <g fill="currentColor">
+      <path d="M16 1.5 18.4 12 29 14.6v2.8L18.4 20 16 30.5 13.6 20 3 17.4v-2.8L13.6 12Z" />
+      <path d="m7 7 5.4 3.3-1.1 1.1Zm18 0-3.3 5.4-1.1-1.1ZM7 25l3.3-5.4 1.1 1.1Zm18 0-5.4-3.3 1.1-1.1Z" opacity=".75" />
+    </g>
+    <circle cx="16" cy="16" r="3.2" fill="#fff6d6" />
+  </symbol>
+  <symbol id="avatar" viewBox="0 0 12 12" shape-rendering="crispEdges" set:html={avatar} />
+</svg>

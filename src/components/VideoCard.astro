@@ -1,0 +1,102 @@
+---
+import Thumbnail from './Thumbnail.astro';
+import { postUrl, readingMinutes, type Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  eager?: boolean;
+  hidden?: boolean;
+}
+const { post, eager = false, hidden } = Astro.props;
+const { title, date, category, pinned, draft } = post.data;
+const md = date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' }).replace(/\s/g, '').replace(/\.$/, '');
+const minutes = readingMinutes(post.body);
+---
+<article
+  class="vcard"
+  data-card
+  data-category={category}
+  data-date={date.valueOf()}
+  data-minutes={minutes}
+  hidden={hidden}
+>
+  <a class="media" href={postUrl(post)} tabindex="-1" aria-hidden="true">
+    <Thumbnail post={post} eager={eager} duration sizes="(min-width: 1400px) 400px, (min-width: 1024px) 30vw, (min-width: 640px) 48vw, 100vw" />
+    {(pinned || draft) && (
+      <span class:list={['flag', { draft }]}>{draft ? '초안 · 로컬 전용' : <><span class="msr fill">push_pin</span>고정</>}</span>
+    )}
+  </a>
+  <button class="bm" type="button" data-bookmark={post.id} aria-label="북마크" aria-pressed="false">
+    <span class="msr">bookmark</span>
+  </button>
+  <h3 class="title"><a href={postUrl(post)}>{title}</a></h3>
+  <p class="meta">
+    <span>{category}</span><span class="dot" aria-hidden="true">·</span>
+    <time datetime={date.toISOString()}>{md}</time><span class="dot" aria-hidden="true">·</span>
+    <span>{minutes}분 읽기</span>
+  </p>
+</article>
+
+<style>
+  .vcard { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .media {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--border);
+    transition: box-shadow 300ms var(--ease-out), translate 300ms var(--ease-out);
+  }
+  .vcard:hover .media { translate: 0 -3px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 60%, transparent), 0 16px 32px -14px rgb(0 0 0 / 0.6), 0 0 24px -8px var(--glow); }
+  .vcard:hover .media :global(img) { transform: scale(1.04); }
+
+  .flag {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font: 700 11px/1 var(--font-sans);
+  }
+  .flag .msr { font-size: 13px; }
+  .flag.draft { background: #2f6fc4; color: #fff; }
+
+  .bm {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--dur), background var(--dur);
+  }
+  .bm .msr { font-size: 19px; }
+  .vcard:hover .bm,
+  .bm:focus-visible,
+  .bm[aria-pressed='true'] { opacity: 1; }
+  .bm[aria-pressed='true'] { color: #ffd45a; }
+  .bm:hover { background: rgb(0 0 0 / 0.8); }
+  @media (hover: none) { .bm { opacity: 1; } }
+
+  .title { margin: 2px 2px 0; font-size: 17px; font-weight: 700; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .title a { transition: color var(--dur); }
+  .title a::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+  .vcard:hover .title a { color: var(--brand); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 2px; font-size: 14px; color: var(--muted-foreground); }
+  .dot { opacity: 0.6; }
+</style>

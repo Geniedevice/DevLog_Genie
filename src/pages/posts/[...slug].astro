@@ -5,183 +5,173 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Toc from '../../components/Toc.astro';
 import Comments from '../../components/Comments.astro';
 import Thumbnail from '../../components/Thumbnail.astro';
-import QuestPoster from '../../components/QuestPoster.astro';
 import { getPosts, postUrl, tagUrl, url, formatDate, readingMinutes, relatedTo, type Post } from '../../lib/posts';
-import { rankOf, expOf, questNo, RANK_LABEL } from '../../lib/quest';
-import { categoryStyle } from '../../lib/categories';
+import { levelOf, xpOf } from '../../lib/quest';
 import { SITE } from '../../site.config';
 import '../../styles/prose.css';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  return posts.map((post, i) => ({
-    params: { slug: post.id },
-    props: {
-      post,
-      all: posts,
-      // 목록이 최신순이라 배열상 뒤쪽이 "이전 의뢰"
-      newer: posts[i - 1],
-      older: posts[i + 1],
-      series: post.data.series ? posts.filter((p) => p.data.series === post.data.series).reverse() : [],
-      related: relatedTo(post, posts),
-    },
-  }));
+  const { level } = levelOf(posts);
+  return posts.map((post, i) => {
+    // 다음 기록: 태그·분류가 가까운 글 먼저, 나머지는 최신순으로 채운다
+    const near = relatedTo(post, posts, 8);
+    const upNext = [...near, ...posts.filter((p) => p.id !== post.id && !near.includes(p))].slice(0, 8);
+    return {
+      params: { slug: post.id },
+      props: { post, level, newer: posts[i - 1], older: posts[i + 1], upNext, series: post.data.series ? posts.filter((p) => p.data.series === post.data.series).reverse() : [] },
+    };
+  });
 }
 
-interface Props { post: Post; all: Post[]; newer?: Post; older?: Post; series: Post[]; related: Post[] }
-const { post, all, newer, older, series, related } = Astro.props;
+interface Props { post: Post; level: number; newer?: Post; older?: Post; upNext: Post[]; series: Post[] }
+const { post, level, newer, older, upNext, series } = Astro.props;
 const { Content, headings } = await render(post);
-const { title, description, date, updated, category, tags, cover, draft } = post.data;
-const style = categoryStyle(category);
-const rank = rankOf(post);
-const no = questNo(post, all);
+const { title, description, date, updated, category, tags, cover } = post.data;
 const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src : undefined;
+const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' }).replace(/\s/g, '').replace(/\.$/, '');
 ---
 <BaseLayout title={title} description={description} type="article" image={og}>
   <div class="progress" aria-hidden="true"><div class="bar" data-progress></div></div>
 
-  <article class="post">
-    <header class="post-header">
-      <nav aria-label="현재 위치">
+  <div class="watch">
+    <article class="primary">
+      <nav aria-label="현재 위치" class="crumbs">
         <ol class="breadcrumb">
-          <li><a href={url()}>길드 홀</a></li>
+          <li><a href={url()}>개발 일지</a></li>
           <li class="sep msr" aria-hidden="true">chevron_right</li>
-          <li><a href={url('#board')}>토벌 게시판</a></li>
-          <li class="sep msr" aria-hidden="true">chevron_right</li>
-          <li aria-current="page">No.{no}</li>
+          <li><a href={url(`?category=${encodeURIComponent(category)}`)}>{category}</a></li>
         </ol>
       </nav>
 
-      <div class="badges">
-        <span class:list={['rank-badge', `rank-${rank}`]}><span class="shield">{rank}</span>{RANK_LABEL[rank]} 등급</span>
-        <a class="badge badge-outline" href={url(`?category=${encodeURIComponent(category)}#board`)}><span class="msr">{style.icon}</span>{category}</a>
+      <div class="player" data-reveal>
+        <Thumbnail post={post} eager text={false} sizes="(min-width: 1400px) 900px, (min-width: 1024px) 65vw, 100vw" />
       </div>
 
-      <h1 class="title" data-hero-title>{title}</h1>
-      <p class="desc" data-reveal>{description}</p>
+      <h1 data-headline>{title}</h1>
 
-      <div class="byline" data-reveal>
-        <svg class="avatar" viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem" /></svg>
-        <div class="who">
-          <p class="name">{SITE.author}</p>
-          <p class="meta">
-            <time datetime={date.toISOString()}>{formatDate(date)}</time>
-            {updated && <> · {formatDate(updated)} 갱신</>}
-            · {readingMinutes(post.body)}분 · <span class="exp">{expOf(post).toLocaleString('ko-KR')} EXP</span>
-          </p>
+      <div class="channel">
+        <a class="owner" href={url('about/')}>
+          <svg class="avatar pixel" viewBox="0 0 12 12" aria-hidden="true"><use href="#avatar" /></svg>
+          <span>
+            <span class="name">{SITE.author}</span>
+            <span class="role">Lv. {level} · Unreal Client Developer</span>
+          </span>
+        </a>
+        <div class="actions">
+          <button class="pill" type="button" data-bookmark={post.id} aria-pressed="false"><span class="msr">bookmark</span><span data-bm-label>북마크</span></button>
+          <button class="pill" type="button" data-share><span class="msr">share</span>공유</button>
         </div>
       </div>
 
-      <span class:list={['stamp', { open: draft }]} data-post-stamp aria-hidden="true">{draft ? '모집 중' : '토벌 완료'}</span>
-    </header>
-
-    <div class="cover" data-reveal>
-      <div class="gold-frame">
-        <Thumbnail post={post} eager sizes="(min-width: 1180px) 1080px, 100vw" />
+      <div class="about-box" data-reveal>
+        <p class="stats">
+          <time datetime={date.toISOString()}>{short(date)}</time>
+          {updated && <span>· {short(updated)} 수정</span>}
+          <span>· {readingMinutes(post.body)}분 읽기</span>
+          <span class="xp">· +{xpOf(post)} XP</span>
+        </p>
+        <p class="desc">{description}</p>
+        {tags.length > 0 && <p class="tags">{tags.map((t) => <a href={tagUrl(t)}>#{t}</a>)}</p>}
       </div>
-    </div>
 
-    <div class="layout">
-      <div class="main-col">
-        {series.length > 1 && (
-          <nav class="series card" aria-label="연작 의뢰">
-            <p class="series-title"><span class="msr">collections_bookmark</span>{post.data.series}<span class="count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
-            <ol>
-              {series.map((s) => (
-                <li class:list={{ current: s.id === post.id }}>
-                  {s.id === post.id ? <span>{s.data.title}</span> : <a href={postUrl(s)}>{s.data.title}</a>}
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )}
-
-        <div class="scroll">
-          <div class="prose" data-prose>
-            <Content />
-          </div>
-        </div>
-
-        {tags.length > 0 && (
-          <div class="tag-row" data-reveal>
-            <span class="tag-label"><span class="msr">diamond</span>각인</span>
-            <ul class="tag-list">
-              {tags.map((t) => <li><a class="badge badge-outline" href={tagUrl(t)}>#{t}</a></li>)}
-            </ul>
-          </div>
-        )}
-
-        <aside class="member card" data-reveal>
-          <svg class="member-emblem" viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem" /></svg>
-          <div class="member-body">
-            <p class="eyebrow">Guild Member</p>
-            <p class="member-name">{SITE.author}</p>
-            <p class="member-desc">Unreal Engine 게임 클라이언트 개발자. 구현을 넘어 동작 원리를 파고듭니다.</p>
-            <div class="member-links">
-              <a class="btn btn-default btn-sm" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
-              <a class="btn btn-outline btn-sm" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
-            </div>
-          </div>
-        </aside>
-
-        {(older || newer) && (
-          <nav class="adjacent" aria-label="이전·다음 의뢰" data-reveal-group>
-            {older ? (
-              <a class="adj card" href={postUrl(older)}>
-                <Thumbnail post={older} sizes="120px" class="mini" />
-                <span class="adj-text">
-                  <span class="dir"><span class="msr">west</span>이전 의뢰</span>
-                  <span class="adj-title">{older.data.title}</span>
-                </span>
-              </a>
-            ) : <span />}
-            {newer && (
-              <a class="adj card next" href={postUrl(newer)}>
-                <span class="adj-text">
-                  <span class="dir">다음 의뢰<span class="msr">east</span></span>
-                  <span class="adj-title">{newer.data.title}</span>
-                </span>
-                <Thumbnail post={newer} sizes="120px" class="mini" />
-              </a>
-            )}
-          </nav>
-        )}
-
-        <Comments />
-      </div>
+      {series.length > 1 && (
+        <nav class="series" aria-label="연재">
+          <p class="series-title"><span class="msr">playlist_play</span>{post.data.series}<span class="count">{series.findIndex((s) => s.id === post.id) + 1} / {series.length}</span></p>
+          <ol>
+            {series.map((s, i) => (
+              <li class:list={{ current: s.id === post.id }}>
+                <span class="n">{s.id === post.id ? '▶' : i + 1}</span>
+                {s.id === post.id ? <span>{s.data.title}</span> : <a href={postUrl(s)}>{s.data.title}</a>}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
 
       {toc.length > 0 && (
-        <aside class="side">
-          <Toc headings={toc} />
-        </aside>
+        <details class="toc-inline">
+          <summary><span class="msr">toc</span>목차</summary>
+          <ul>{toc.map((h) => <li class:list={[`d${h.depth}`]}><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul>
+        </details>
       )}
-    </div>
 
-    {related.length > 0 && (
-      <section class="related" aria-labelledby="related-title">
-        <h2 class="section-title" id="related-title"><span class="msr">link</span>연관 의뢰</h2>
-        <div class="related-board wood" data-board>
-          {related.map((p) => <QuestPoster post={p} all={all} />)}
-        </div>
-      </section>
-    )}
-  </article>
+      <div class="prose" data-prose>
+        <Content />
+      </div>
+
+      {(older || newer) && (
+        <nav class="adjacent" aria-label="이전·다음 기록">
+          {older ? (
+            <a class="adj" href={postUrl(older)}>
+              <span class="dir"><span class="msr">arrow_back</span>이전 기록</span>
+              <span class="adj-title">{older.data.title}</span>
+            </a>
+          ) : <span />}
+          {newer && (
+            <a class="adj next" href={postUrl(newer)}>
+              <span class="dir">다음 기록<span class="msr">arrow_forward</span></span>
+              <span class="adj-title">{newer.data.title}</span>
+            </a>
+          )}
+        </nav>
+      )}
+
+      <Comments />
+    </article>
+
+    <aside class="secondary">
+      {toc.length > 0 && <Toc headings={toc} />}
+      {upNext.length > 0 && (
+        <section aria-labelledby="upnext-title">
+          <h2 class="upnext-title" id="upnext-title">다음 기록</h2>
+          <ul class="upnext" data-reveal-group>
+            {upNext.map((p) => (
+              <li>
+                <a class="mini" href={postUrl(p)}>
+                  <Thumbnail post={p} text={false} duration sizes="168px" class="mini-thumb" />
+                  <span class="mini-body">
+                    <span class="mini-title">{p.data.title}</span>
+                    <span class="mini-meta">{p.data.category}</span>
+                    <span class="mini-meta">{short(p.data.date)} · {readingMinutes(p.body)}분 읽기</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </aside>
+  </div>
 
   <dialog class="lightbox" data-lightbox aria-label="이미지 크게 보기">
     <img alt="" data-lightbox-img />
-    <button class="btn btn-ghost btn-icon close" type="button" aria-label="닫기"><span class="msr">close</span></button>
   </dialog>
 </BaseLayout>
 
 <script>
-  import { titleIntro, stampIn, boardIntro, popIn } from '../../scripts/fx';
+  import { headline, popIn, toast } from '../../scripts/fx';
+  import { wireBookmarks } from '../../scripts/bookmarks';
 
-  titleIntro(document.querySelector('[data-hero-title]'), 100);
-  stampIn(document.querySelector('[data-post-stamp]'), 900);
-  boardIntro(document.querySelector('[data-board]'));
+  headline(document.querySelector('[data-headline]'), 100);
+  wireBookmarks();
 
-  // 읽기 진행률(HP 바처럼)
+  // 공유: 모바일은 시스템 공유 시트, 아니면 링크 복사
+  document.querySelector('[data-share]')?.addEventListener('click', async () => {
+    const data = { title: document.title, url: location.href };
+    try {
+      if (navigator.share && matchMedia('(pointer: coarse)').matches) await navigator.share(data);
+      else {
+        await navigator.clipboard.writeText(location.href);
+        toast('링크를 복사했어요', 'link');
+      }
+    } catch {
+      /* 사용자가 공유 시트를 닫은 경우 */
+    }
+  });
+
+  // 읽기 진행률
   const bar = document.querySelector<HTMLElement>('[data-progress]')!;
   const prose = document.querySelector<HTMLElement>('[data-prose]')!;
   const onScroll = () => {
@@ -192,7 +182,7 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // 본문 이미지 클릭 → 크게 보기
+  // 본문 이미지 크게 보기
   const box = document.querySelector<HTMLDialogElement>('[data-lightbox]')!;
   const big = box.querySelector<HTMLImageElement>('[data-lightbox-img]')!;
   prose.querySelectorAll('img').forEach((img) =>
@@ -205,20 +195,19 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
   );
   box.addEventListener('click', () => box.close());
 
-  // 코드 블록마다 언어 라벨과 복사 버튼
+  // 코드 블록: 언어 라벨 + 복사
   const COPY = '<span class="msr">content_copy</span>';
   prose.querySelectorAll('pre').forEach((pre) => {
     const wrap = document.createElement('div');
     wrap.className = 'code-wrap';
     pre.replaceWith(wrap);
     wrap.append(pre);
-
-    const bar = document.createElement('div');
-    bar.className = 'code-bar';
+    const head = document.createElement('div');
+    head.className = 'code-bar';
     const lang = pre.dataset.language;
-    bar.innerHTML = `<span class="code-lang"><span class="msr">auto_stories</span>${lang && lang !== 'plaintext' ? lang : 'text'}</span>`;
+    head.innerHTML = `<span class="dots"><i></i><i></i><i></i></span><span class="code-lang">${lang && lang !== 'plaintext' ? lang : 'text'}</span>`;
     const btn = document.createElement('button');
-    btn.className = 'copy btn btn-ghost btn-sm';
+    btn.className = 'copy';
     btn.type = 'button';
     btn.setAttribute('aria-label', '코드 복사');
     btn.innerHTML = COPY;
@@ -227,142 +216,92 @@ const og = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).
       btn.innerHTML = '<span class="msr">check</span>';
       setTimeout(() => (btn.innerHTML = COPY), 1500);
     });
-    bar.append(btn);
-    wrap.prepend(bar);
+    head.append(btn);
+    wrap.prepend(head);
   });
 </script>
 
 <style>
-  .progress { position: fixed; inset: 0 0 auto 0; height: 4px; z-index: 30; pointer-events: none; background: rgb(0 0 0 / 0.15); }
-  .bar { height: 100%; background: linear-gradient(90deg, var(--seal), var(--gold-bright)); box-shadow: 0 0 10px var(--glow); transform: scaleX(0); transform-origin: left; }
+  .progress { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 40; pointer-events: none; }
+  .bar { height: 100%; background: var(--brand); box-shadow: 0 0 10px var(--glow); transform: scaleX(0); transform-origin: left; }
 
-  /* ── Header ── */
-  .post-header { position: relative; max-width: 840px; margin: 0 auto; padding: 24px 16px 36px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-  @media (min-width: 900px) { .post-header { padding: 32px 40px 44px; } }
-  .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 28px 0 18px; }
-  .rank-badge { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px 0 4px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); font: 700 12px/1 var(--font-serif); }
-  .shield { display: grid; place-items: center; width: 20px; height: 22px; font: 700 12px/1 var(--font-display); color: #fff; clip-path: polygon(50% 100%, 0 72%, 0 0, 100% 0, 100% 72%); }
-  .rank-S .shield { background: var(--rank-s); }
-  .rank-A .shield { background: var(--rank-a); }
-  .rank-B .shield { background: var(--rank-b); }
-  .rank-C .shield { background: var(--rank-c); }
+  .watch { display: grid; gap: 32px; max-width: 1440px; margin: 0 auto; padding: 20px 16px 48px; }
+  @media (min-width: 1024px) { .watch { padding: 28px 40px 64px; } }
+  @media (min-width: 1200px) { .watch { grid-template-columns: minmax(0, 1fr) 360px; } }
+  .primary { min-width: 0; }
 
-  .title { margin: 0 0 16px; font-size: clamp(30px, 4.8vw, 48px); line-height: 1.25; text-wrap: balance; }
-  .desc { margin: 0 0 28px; max-width: 640px; font-size: 17px; color: var(--muted-foreground); text-wrap: pretty; }
-  .byline { display: flex; align-items: center; gap: 12px; text-align: left; }
-  .byline p { margin: 0; }
-  .avatar { width: 40px; height: 40px; flex: none; }
-  .name { font: 700 15px/1.3 var(--font-serif); }
-  .meta { font-size: 13px; color: var(--muted-foreground); }
-  .exp { color: var(--gold); font-weight: 700; }
+  .crumbs { margin-bottom: 14px; }
+  .player { border-radius: var(--radius-xl); overflow: hidden; box-shadow: 0 0 0 1px var(--border), var(--shadow-lg); }
 
-  .stamp {
-    position: absolute;
-    right: 8%;
-    bottom: 18px;
-    padding: 6px 14px;
-    border: 4px double var(--seal);
-    border-radius: 8px;
-    color: var(--seal);
-    font: 700 22px/1 var(--font-serif);
-    letter-spacing: 0.12em;
-    rotate: -12deg;
-    opacity: 0.75;
-    pointer-events: none;
-  }
-  .stamp.open { color: #4a7fd0; border-color: #4a7fd0; }
-  @media (max-width: 699px) { .stamp { display: none; } }
+  h1 { margin: 20px 0 14px; font-size: clamp(24px, 3vw, 32px); font-weight: 800; line-height: 1.3; letter-spacing: -0.03em; }
 
-  .cover { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
-  @media (min-width: 900px) { .cover { padding: 0 40px; } }
+  .channel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .owner { display: flex; align-items: center; gap: 12px; }
+  .owner > span { display: flex; flex-direction: column; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; }
+  .name { font-weight: 700; font-size: 15px; }
+  .role { font-size: 12.5px; color: var(--muted-foreground); }
+  .actions { display: flex; gap: 8px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--secondary); color: var(--secondary-foreground); font: 600 14px/1 var(--font-sans); cursor: pointer; transition: background var(--dur); }
+  .pill:hover { background: var(--accent); }
+  .pill .msr { font-size: 19px; }
+  .pill[aria-pressed='true'] { color: var(--brand); }
 
-  /* ── Body ── */
-  .layout { display: grid; max-width: 1180px; margin: 0 auto; padding: 44px 16px 40px; gap: 48px; }
-  @media (min-width: 900px) { .layout { padding: 56px 40px 48px; } }
-  @media (min-width: 1240px) { .layout { grid-template-columns: minmax(0, 1fr) 230px; } }
-  .main-col { min-width: 0; max-width: 780px; width: 100%; margin: 0 auto; }
-  .side { display: none; }
-  @media (min-width: 1240px) { .side { display: block; } }
+  .about-box { padding: 14px 16px; margin-bottom: 28px; border-radius: var(--radius-lg); background: var(--secondary); font-size: 14.5px; }
+  .about-box p { margin: 0; }
+  .stats { display: flex; flex-wrap: wrap; gap: 4px; font-weight: 700; }
+  .stats .xp { color: var(--brand); }
+  .desc { margin-top: 6px !important; line-height: 1.65; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 8px !important; }
+  .tags a { color: var(--brand); font-weight: 600; }
+  .tags a:hover { text-decoration: underline; }
 
-  /* 두루마리: 본문 판 */
-  .scroll {
-    position: relative;
-    padding: clamp(24px, 4vw, 48px) clamp(18px, 4vw, 52px);
-    border-radius: var(--radius-lg);
-    background: var(--scroll-bg);
-    color: var(--scroll-fg);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-md), inset 0 0 60px rgb(120 80 30 / 0.08);
-  }
-  .scroll::before,
-  .scroll::after {
-    content: '';
-    position: absolute;
-    left: -6px;
-    right: -6px;
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
-  }
-  .scroll::before { top: -6px; }
-  .scroll::after { bottom: -6px; }
-
-  .series { padding: 16px 20px; margin-bottom: 32px; }
-  .series-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font: 700 15px/1.3 var(--font-serif); }
-  .series-title .msr { color: var(--gold); }
+  .series { margin-bottom: 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .series-title { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 16px; background: var(--secondary); font-weight: 700; }
+  .series-title .msr { color: var(--brand); }
   .count { margin-left: auto; font: 500 12px var(--font-mono); color: var(--muted-foreground); }
-  .series ol { margin: 0; padding-left: 22px; color: var(--muted-foreground); font-size: 14px; }
-  .series li { padding: 2px 0; }
-  .series li.current { color: var(--foreground); font-weight: 700; }
-  .series a:hover { color: var(--gold); }
+  .series ol { list-style: none; margin: 0; padding: 6px; font-size: 14px; }
+  .series li { display: flex; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); }
+  .series li.current { background: var(--accent); font-weight: 700; }
+  .series .n { width: 18px; color: var(--muted-foreground); text-align: center; }
+  .series a:hover { color: var(--brand); }
 
-  .tag-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 40px; }
-  .tag-label { display: inline-flex; align-items: center; gap: 4px; font: 700 13px var(--font-serif); color: var(--muted-foreground); }
-  .tag-label .msr { font-size: 16px; color: var(--gold); }
-  .tag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .toc-inline { margin-bottom: 24px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .toc-inline summary { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
+  .toc-inline ul { list-style: none; margin: 10px 0 0; padding: 0; font-size: 14px; }
+  .toc-inline li { padding: 4px 0; }
+  .toc-inline .d3 { padding-left: 16px; }
+  .toc-inline a { color: var(--muted-foreground); }
+  @media (min-width: 1200px) { .toc-inline { display: none; } }
 
-  .member { display: flex; gap: 20px; margin-top: 32px; padding: 22px; background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 12%, var(--card)), var(--card)); border-color: color-mix(in srgb, var(--gold) 40%, var(--border)); }
-  .member-emblem { width: 64px; height: 64px; flex: none; filter: drop-shadow(0 6px 14px var(--glow)); }
-  .member-body p { margin: 0; }
-  .member-name { margin-top: 6px !important; font: 700 18px/1.3 var(--font-serif); }
-  .member-desc { margin-top: 4px !important; font-size: 14px; color: var(--muted-foreground); }
-  .member-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-  @media (max-width: 599px) { .member { flex-direction: column; gap: 12px; } }
-
-  .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-  .adj { display: flex; align-items: center; gap: 14px; padding: 12px; transition: border-color var(--dur), background var(--dur); }
-  .adj:hover { border-color: var(--gold); background: var(--accent); }
-  .adj :global(.mini) { width: 100px; flex: none; border-radius: var(--radius-sm); }
-  .adj-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .adj-title { font: 700 14px/1.4 var(--font-serif); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .dir { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted-foreground); }
+  .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 48px; }
+  .adj { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); transition: border-color var(--dur), background var(--dur); }
+  .adj:hover { border-color: var(--brand); background: var(--accent); }
+  .dir { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--muted-foreground); }
   .dir .msr { font-size: 16px; }
-  .adj.next { grid-column: 2; justify-content: flex-end; text-align: right; }
-  .adj.next .adj-text { align-items: flex-end; }
+  .adj-title { font-weight: 700; line-height: 1.4; }
+  .adj.next { grid-column: 2; text-align: right; align-items: flex-end; }
   @media (max-width: 599px) {
     .adjacent { grid-template-columns: 1fr; }
     .adj.next { grid-column: 1; }
-    .adj :global(.mini) { width: 84px; }
   }
 
-  /* ── Related ── */
-  .related { max-width: 1180px; margin: 0 auto; padding: 16px 16px 72px; }
-  @media (min-width: 900px) { .related { padding: 24px 40px 80px; } }
-  .related .section-title { margin-bottom: 20px; }
-  .related-board {
-    display: grid;
-    gap: 28px 24px;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    padding: clamp(20px, 3vw, 36px);
-    border: 8px solid var(--wood-dark);
-    border-radius: var(--radius-xl);
-    box-shadow: inset 0 0 40px rgb(0 0 0 / 0.5);
-  }
+  /* ── 오른쪽 열 ── */
+  .secondary { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+  @media (min-width: 1200px) { .secondary > :global(.toc) { position: sticky; top: 24px; z-index: 1; } }
+  @media (max-width: 1199px) { .secondary > :global(.toc) { display: none; } }
+  .upnext-title { margin: 0 0 12px; font-size: 17px; font-weight: 700; }
+  .upnext { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .mini { display: flex; gap: 10px; padding: 4px; border-radius: var(--radius-md); transition: background var(--dur); }
+  .mini:hover { background: var(--accent); }
+  .mini :global(.mini-thumb) { width: 168px; flex: none; border-radius: var(--radius-md); }
+  .mini-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding-top: 2px; }
+  .mini-title { font-size: 14px; font-weight: 700; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mini-meta { font-size: 12.5px; color: var(--muted-foreground); }
+  @media (max-width: 1199px) and (min-width: 640px) { .upnext { display: grid; grid-template-columns: 1fr 1fr; } }
 
   .lightbox { max-width: 100vw; max-height: 100dvh; width: 100vw; height: 100dvh; margin: 0; padding: 24px; border: 0; background: transparent; }
   .lightbox[open] { display: grid; place-items: center; }
-  .lightbox::backdrop { background: rgb(8 6 14 / 0.88); }
-  .lightbox img { max-width: 100%; max-height: calc(100dvh - 48px); border-radius: var(--radius-md); box-shadow: 0 0 0 4px var(--gold), var(--shadow-lg); cursor: zoom-out; }
-  .close { position: fixed; top: 16px; right: 16px; color: #fff; }
+  .lightbox::backdrop { background: rgb(4 8 6 / 0.9); }
+  .lightbox img { max-width: 100%; max-height: calc(100dvh - 48px); border-radius: var(--radius-md); cursor: zoom-out; }
 </style>

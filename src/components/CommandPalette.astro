@@ -1,33 +1,31 @@
 ---
 import { url } from '../lib/posts';
-import { NAV } from '../lib/nav';
-const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.label, icon: n.icon, href: url(n.path) }));
+import { NAV, BOOKMARKS } from '../lib/nav';
+const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, href: url(n.path) }));
 ---
-<dialog class="cmd" data-cmd data-index={url('search.json')} aria-label="수정구슬 검색">
-  <div class="cmd-panel" data-cmd-panel>
-    <div class="cmd-input">
-      <span class="msr orb-icon">blur_on</span>
-      <input type="text" placeholder="수정구슬에 의뢰명·각인·내용을 비춰 보세요" autocomplete="off" spellcheck="false" data-cmd-input role="combobox" aria-expanded="true" aria-controls="cmd-list" />
+<dialog class="cmd" data-cmd data-index={url('search.json')} aria-label="기록 검색">
+  <div class="panel" data-cmd-panel>
+    <div class="input-row">
+      <span class="msr">search</span>
+      <input type="text" placeholder="기록 검색… 제목·태그·내용" autocomplete="off" spellcheck="false" data-cmd-input role="combobox" aria-expanded="true" aria-controls="cmd-list" />
       <kbd class="kbd">Esc</kbd>
     </div>
-    <div class="cmd-list" id="cmd-list" role="listbox" data-cmd-list>
+    <div class="list" id="cmd-list" role="listbox" data-cmd-list>
       <div class="group" data-static>
-        <p class="group-heading">이동</p>
-        {places.map((p) => (
-          <a class="cmd-item" role="option" href={p.href} data-item><span class="msr">{p.icon}</span>{p.label}</a>
-        ))}
+        <p class="heading">이동</p>
+        {places.map((p) => <a class="cmd-item" role="option" href={p.href} data-item><span class="msr">{p.icon}</span>{p.label}</a>)}
         <button class="cmd-item" type="button" role="option" data-item data-action="theme"><span class="msr">contrast</span>낮·밤 전환</button>
       </div>
       <div class="group" data-results hidden>
-        <p class="group-heading">의뢰</p>
+        <p class="heading">기록</p>
         <div data-results-body></div>
       </div>
-      <p class="cmd-empty" data-empty hidden>수정구슬에 아무것도 비치지 않습니다…</p>
+      <p class="empty" data-empty hidden>찾는 기록이 없어요.</p>
     </div>
-    <div class="cmd-footer">
+    <div class="foot">
       <span><kbd class="kbd">↑</kbd><kbd class="kbd">↓</kbd> 이동</span>
       <span><kbd class="kbd">↵</kbd> 열기</span>
-      <span><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd> 열고 닫기</span>
+      <span><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd> 열기·닫기</span>
     </div>
   </div>
 </dialog>
@@ -35,7 +33,7 @@ const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.
 <script>
   import { popIn } from '../scripts/fx';
 
-  type Entry = { title: string; description: string; tags: string[]; category: string; date: string; url: string; text: string; rank: string; no: string };
+  type Entry = { id: string; title: string; description: string; tags: string[]; category: string; date: string; minutes: number; url: string; thumb: string | null; text: string };
 
   const dialog = document.querySelector<HTMLDialogElement>('[data-cmd]')!;
   const panel = dialog.querySelector<HTMLElement>('[data-cmd-panel]')!;
@@ -54,7 +52,6 @@ const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.
     const re = new RegExp(`(${terms.map((t) => esc(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
     return esc(s).replace(re, '<mark>$1</mark>');
   };
-
   const items = () => [...dialog.querySelectorAll<HTMLElement>('[data-item]')].filter((el) => !el.closest('[hidden]'));
 
   function select(i: number) {
@@ -65,15 +62,16 @@ const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.
     list[active].scrollIntoView({ block: 'nearest' });
   }
 
-  async function open() {
+  async function open(prefill = '') {
     if (dialog.open) return dialog.close();
     dialog.showModal();
     popIn(panel);
-    input.value = '';
-    render();
+    input.value = prefill;
     input.focus();
     index ??= await fetch(dialog.dataset.index!).then((r) => r.json());
+    render();
   }
+  (window as any).openSearch = open;
 
   function render() {
     const q = input.value.trim().toLowerCase();
@@ -88,7 +86,7 @@ const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.
       .map((e) => {
         let s = 0;
         for (const t of terms) {
-          const hit = [e.title.toLowerCase().includes(t) && 10, e.tags.some((x) => x.toLowerCase().includes(t)) && 6, e.description.toLowerCase().includes(t) && 4, e.text.toLowerCase().includes(t) && 1].filter(Boolean) as number[];
+          const hit = [e.title.toLowerCase().includes(t) && 10, e.tags.some((x) => x.toLowerCase().includes(t)) && 6, e.category.toLowerCase().includes(t) && 5, e.description.toLowerCase().includes(t) && 4, e.text.toLowerCase().includes(t) && 1].filter(Boolean) as number[];
           if (!hit.length) return null;
           s += hit.reduce((a, b) => a + b, 0);
         }
@@ -102,12 +100,11 @@ const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.
     results.hidden = scored.length === 0;
     body.innerHTML = scored
       .map(({ e }) => `<a class="cmd-item result" role="option" href="${e.url}" data-item>
-          <span class="rank rank-${e.rank}">${e.rank}</span>
+          <span class="thumb">${e.thumb ? `<img src="${e.thumb}" alt="" loading="lazy" />` : '<span class="msr">article</span>'}</span>
           <span class="r-body">
             <span class="r-title">${mark(e.title, terms)}</span>
-            <span class="r-desc">${mark(e.description, terms)}</span>
-          </span>
-          <span class="r-meta">No.${e.no}</span></a>`)
+            <span class="r-meta">${esc(e.category)} · ${esc(e.date)} · ${e.minutes}분 읽기</span>
+          </span></a>`)
       .join('');
     select(0);
   }
@@ -120,84 +117,51 @@ const places = NAV.map((n) => ({ label: n.label === '길드' ? '길드 홀' : n.
   });
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) dialog.close();
-    const item = (e.target as HTMLElement).closest<HTMLElement>('[data-action="theme"]');
-    if (item) { document.querySelector<HTMLButtonElement>('[data-theme-toggle]')?.click(); dialog.close(); }
+    if ((e.target as HTMLElement).closest('[data-action="theme"]')) {
+      document.querySelector<HTMLButtonElement>('[data-theme-toggle]')?.click();
+      dialog.close();
+    }
   });
   dialog.addEventListener('mousemove', (e) => {
     const item = (e.target as HTMLElement).closest<HTMLElement>('[data-item]');
     if (item) select(items().indexOf(item));
   });
-  document.querySelectorAll('[data-open-search]').forEach((b) => b.addEventListener('click', open));
+  document.querySelectorAll('[data-open-search]').forEach((b) => b.addEventListener('click', () => open()));
   document.addEventListener('keydown', (e) => {
-    const typing = (e.target as HTMLElement).closest('input, textarea') && e.target !== input;
-    if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing && !dialog.open)) { e.preventDefault(); open(); }
+    const typing = (e.target as HTMLElement).closest('input, textarea, select') && e.target !== input;
+    if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing && !dialog.open)) {
+      e.preventDefault();
+      open();
+    }
   });
 </script>
 
 <style>
-  .cmd {
-    width: min(640px, calc(100vw - 32px));
-    max-width: none;
-    max-height: none;
-    margin: 12vh auto auto;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--popover-foreground);
-    overflow: visible;
-  }
-  .cmd::backdrop { background: rgb(8 6 14 / 0.6); backdrop-filter: blur(3px); }
-  .cmd-panel {
-    display: flex;
-    flex-direction: column;
-    max-height: min(560px, 76vh);
-    border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--border));
-    border-radius: var(--radius-xl);
-    background: var(--popover);
-    box-shadow: var(--shadow-lg), 0 0 40px -10px color-mix(in srgb, var(--arcane) 50%, transparent);
-    overflow: hidden;
-  }
-  @media (max-width: 599px) { .cmd { margin-top: 16px; } }
+  .cmd { width: min(620px, calc(100vw - 24px)); max-width: none; max-height: none; margin: 12vh auto auto; padding: 0; border: 0; background: transparent; color: var(--popover-foreground); overflow: visible; }
+  .cmd::backdrop { background: rgb(4 8 6 / 0.6); backdrop-filter: blur(4px); }
+  @media (max-width: 599px) { .cmd { margin-top: 12px; } }
+  .panel { display: flex; flex-direction: column; max-height: min(560px, 78vh); border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--popover); box-shadow: var(--shadow-lg); overflow: hidden; }
 
-  .cmd-input { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 14px; border-bottom: 1px solid var(--border); flex: none; }
-  .orb-icon { color: var(--arcane); font-size: 22px; }
+  .input-row { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 14px; border-bottom: 1px solid var(--border); flex: none; }
+  .input-row .msr { color: var(--muted-foreground); }
   input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; color: var(--foreground); font: 400 15px var(--font-sans); outline: none; }
   input::placeholder { color: var(--muted-foreground); }
 
-  .cmd-list { overflow-y: auto; padding: 6px; }
-  .group-heading { margin: 0; padding: 10px 10px 6px; font: 600 11px/1 var(--font-sans); letter-spacing: 0.08em; color: var(--muted-foreground); }
-  .cmd-list :global(.cmd-item) {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 40px;
-    padding: 8px 10px;
-    border: 0;
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--foreground);
-    font: 400 14px/1.4 var(--font-sans);
-    text-align: left;
-    cursor: pointer;
-  }
-  .cmd-list :global(.cmd-item .msr) { font-size: 18px; color: var(--muted-foreground); }
-  .cmd-list :global(.cmd-item[aria-selected='true']) { background: var(--accent); color: var(--accent-foreground); }
-  .cmd-list :global(.cmd-item[aria-selected='true'] .msr) { color: var(--gold); }
+  .list { overflow-y: auto; padding: 6px; }
+  .heading { margin: 0; padding: 10px 10px 6px; font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
+  .list :global(.cmd-item) { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; padding: 8px 10px; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--foreground); font: 500 14px/1.4 var(--font-sans); text-align: left; cursor: pointer; }
+  .list :global(.cmd-item > .msr) { font-size: 19px; color: var(--muted-foreground); }
+  .list :global(.cmd-item[aria-selected='true']) { background: var(--accent); color: var(--accent-foreground); }
+  .list :global(.cmd-item[aria-selected='true'] > .msr) { color: var(--brand); }
+  .list :global(.thumb) { display: grid; place-items: center; width: 72px; aspect-ratio: 16 / 9; flex: none; overflow: hidden; border-radius: var(--radius-sm); background: var(--muted); color: var(--muted-foreground); }
+  .list :global(.thumb img) { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+  .list :global(.r-body) { display: flex; flex-direction: column; min-width: 0; }
+  .list :global(.r-title) { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list :global(.r-meta) { font-size: 12px; font-weight: 400; color: var(--muted-foreground); }
+  .list :global(mark) { background: var(--brand-soft); color: var(--brand); border-radius: 2px; }
 
-  .cmd-list :global(.rank) { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: var(--radius-sm); font: 700 13px/1 var(--font-display); color: #fff; }
-  .cmd-list :global(.rank-S) { background: var(--rank-s); }
-  .cmd-list :global(.rank-A) { background: var(--rank-a); }
-  .cmd-list :global(.rank-B) { background: var(--rank-b); }
-  .cmd-list :global(.rank-C) { background: var(--rank-c); }
-  .cmd-list :global(.r-body) { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-  .cmd-list :global(.r-title) { font-family: var(--font-serif); font-weight: 700; }
-  .cmd-list :global(.r-desc) { font-size: 12px; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cmd-list :global(.r-meta) { font: 500 11px var(--font-mono); color: var(--muted-foreground); }
-  .cmd-list :global(mark) { background: color-mix(in srgb, var(--gold) 35%, transparent); color: inherit; border-radius: 2px; }
-
-  .cmd-empty { margin: 0; padding: 32px 16px; text-align: center; color: var(--muted-foreground); font-size: 14px; }
-  .cmd-footer { display: flex; gap: 16px; padding: 10px 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-foreground); flex: none; }
-  .cmd-footer span { display: inline-flex; align-items: center; gap: 4px; }
-  @media (max-width: 599px) { .cmd-footer { display: none; } }
+  .empty { margin: 0; padding: 32px 16px; text-align: center; color: var(--muted-foreground); font-size: 14px; }
+  .foot { display: flex; gap: 16px; padding: 10px 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-foreground); flex: none; }
+  .foot span { display: inline-flex; align-items: center; gap: 4px; }
+  @media (max-width: 599px) { .foot { display: none; } }
 </style>

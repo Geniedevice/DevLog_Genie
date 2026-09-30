@@ -9,7 +9,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-padding-top: 88px;
+  scroll-padding-top: 80px;
 }
 
 body {
@@ -18,49 +18,20 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
+  letter-spacing: -0.01em;
   color: var(--foreground);
-  background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom)) fixed;
+  background: var(--background);
   -webkit-font-smoothing: antialiased;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
 
-/* 밤하늘: 별 두 겹을 서로 다른 속도로 반짝이게. 낮 테마에선 --star 가 투명이라 안 보인다. */
-body::before,
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    radial-gradient(1px 1px at 12% 18%, var(--star), transparent 60%),
-    radial-gradient(1px 1px at 72% 12%, var(--star), transparent 60%),
-    radial-gradient(1.5px 1.5px at 38% 42%, var(--star), transparent 60%),
-    radial-gradient(1px 1px at 88% 56%, var(--star), transparent 60%),
-    radial-gradient(1px 1px at 22% 76%, var(--star), transparent 60%),
-    radial-gradient(1.5px 1.5px at 58% 88%, var(--star), transparent 60%),
-    radial-gradient(1px 1px at 94% 28%, var(--star), transparent 60%),
-    radial-gradient(1px 1px at 6% 52%, var(--star), transparent 60%);
-  background-size: 420px 420px;
-  animation: twinkle 6s ease-in-out infinite alternate;
-}
-body::after {
-  background-size: 290px 290px;
-  background-position: 60px 90px;
-  animation-duration: 9s;
-  animation-delay: -3s;
-}
-@keyframes twinkle {
-  from { opacity: 0.35; }
-  to { opacity: 1; }
-}
-
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; height: auto; }
 [hidden] { display: none !important; }
+h1, h2, h3, h4 { letter-spacing: -0.02em; }
 
-::selection { background: var(--gold); color: var(--primary-foreground); }
+::selection { background: var(--primary); color: var(--primary-foreground); }
 
 :focus-visible {
   outline: 2px solid var(--ring);
@@ -68,13 +39,9 @@ img { max-width: 100%; height: auto; }
   border-radius: var(--radius-sm);
 }
 
-h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 700; letter-spacing: -0.01em; }
-
-.font-display { font-family: var(--font-display); letter-spacing: 0.04em; }
-.font-serif { font-family: var(--font-serif); }
 .muted { color: var(--muted-foreground); }
+.mono { font-family: var(--font-mono); }
 
-/* Material Symbols (Rounded) — 판타지 아이콘도 충분히 있다(swords, castle, shield, …) */
 .msr {
   font-family: 'Material Symbols Rounded';
   font-weight: normal;
@@ -91,41 +58,34 @@ h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 700; letter-spacin
 }
 .msr.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
-/* ─── Button (shadcn variants: default · secondary · outline · ghost · link) ─── */
+/* ─── Button (shadcn: default · secondary · outline · ghost) ─── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   height: 40px;
-  padding: 0 18px;
+  padding: 0 16px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   font: 600 14px/1 var(--font-sans);
   white-space: nowrap;
   cursor: pointer;
-  transition: background var(--dur), color var(--dur), border-color var(--dur), box-shadow var(--dur), translate var(--dur);
+  transition: background var(--dur), color var(--dur), border-color var(--dur), box-shadow var(--dur);
   -webkit-tap-highlight-color: transparent;
 }
 .btn .msr { font-size: 18px; }
-.btn:active { translate: 0 1px; }
-.btn-default {
-  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
-  color: var(--primary-foreground);
-  border-color: color-mix(in srgb, var(--gold) 60%, #000);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 2px 10px -2px var(--glow);
-}
-.btn-default:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 4px 20px -2px var(--glow); }
+.btn-default { background: var(--primary); color: var(--primary-foreground); }
+.btn-default:hover { background: color-mix(in srgb, var(--primary) 88%, #fff); box-shadow: 0 6px 20px -6px var(--glow); }
 .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
-.btn-secondary:hover { background: color-mix(in srgb, var(--secondary) 80%, var(--foreground)); }
+.btn-secondary:hover { background: var(--accent); }
 .btn-outline { background: transparent; color: var(--foreground); border-color: var(--input); }
-.btn-outline:hover { background: var(--accent); color: var(--accent-foreground); border-color: var(--gold); }
+.btn-outline:hover { background: var(--accent); color: var(--accent-foreground); }
 .btn-ghost { background: transparent; color: var(--foreground); }
 .btn-ghost:hover { background: var(--accent); color: var(--accent-foreground); }
-.btn-link { background: transparent; color: var(--primary); padding: 0 4px; height: auto; }
-.btn-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
 .btn-icon { width: 40px; padding: 0; }
+.btn-icon.btn-sm { width: 32px; }
 
 /* ─── Badge ─── */
 .badge {
@@ -133,7 +93,7 @@ h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 700; letter-spacin
   align-items: center;
   gap: 4px;
   height: 24px;
-  padding: 0 10px;
+  padding: 0 9px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font: 600 12px/1 var(--font-sans);
@@ -144,22 +104,18 @@ h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 700; letter-spacin
 .badge-default { background: var(--primary); color: var(--primary-foreground); }
 .badge-secondary { background: var(--secondary); color: var(--secondary-foreground); }
 .badge-outline { border-color: var(--border); color: var(--foreground); }
-a.badge-outline:hover { border-color: var(--gold); background: var(--accent); color: var(--accent-foreground); }
+a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
 .badge .count { opacity: 0.6; font-weight: 500; }
 
-/* ─── Card (header · title · description · content · footer) ─── */
+/* ─── Card ─── */
 .card {
   background: var(--card);
   color: var(--card-foreground);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
 }
-.card-header { display: flex; flex-direction: column; gap: 6px; padding: 20px 20px 0; }
-.card-title { margin: 0; font-family: var(--font-serif); font-size: 18px; font-weight: 700; line-height: 1.3; }
+.card-title { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.35; }
 .card-description { margin: 0; font-size: 14px; color: var(--muted-foreground); }
-.card-content { padding: 16px 20px; }
-.card-footer { display: flex; align-items: center; gap: 8px; padding: 0 20px 20px; }
 
 /* ─── Kbd ─── */
 .kbd {
@@ -170,120 +126,45 @@ a.badge-outline:hover { border-color: var(--gold); background: var(--accent); co
   height: 20px;
   padding: 0 5px;
   border: 1px solid var(--border);
-  border-bottom-width: 2px;
   border-radius: var(--radius-sm);
   background: var(--muted);
   color: var(--muted-foreground);
   font: 500 11px/1 var(--font-mono);
 }
 
-/* ─── Tabs ─── */
-.tabs {
-  display: inline-flex;
-  gap: 2px;
-  padding: 4px;
-  border-radius: var(--radius-lg);
-  background: var(--muted);
-  max-width: 100%;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.tabs::-webkit-scrollbar { display: none; }
+/* ─── Tabs (밑줄형) ─── */
+.tabs-line { position: relative; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs-line::-webkit-scrollbar { display: none; }
 .tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
+  position: relative;
+  height: 44px;
   padding: 0 14px;
   border: 0;
-  border-radius: var(--radius-md);
   background: transparent;
   color: var(--muted-foreground);
-  font: 600 13px/1 var(--font-sans);
+  font: 500 15px/1 var(--font-sans);
   white-space: nowrap;
   cursor: pointer;
-  transition: background var(--dur), color var(--dur), box-shadow var(--dur);
+  transition: color var(--dur);
 }
 .tab:hover { color: var(--foreground); }
-.tab[aria-selected='true'] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-sm); }
-.tab .msr { font-size: 16px; }
+.tab[aria-selected='true'] { color: var(--foreground); font-weight: 700; }
+.tab-indicator { position: absolute; bottom: 0; left: 0; height: 2px; width: 0; border-radius: 2px; background: var(--brand); pointer-events: none; }
 
 /* ─── Breadcrumb ─── */
 .breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted-foreground); }
 .breadcrumb a:hover { color: var(--foreground); }
-.breadcrumb .sep { font-size: 14px; opacity: 0.6; }
+.breadcrumb .sep { font-size: 16px; opacity: 0.6; }
 .breadcrumb [aria-current] { color: var(--foreground); font-weight: 600; }
 
 .separator { border: 0; border-top: 1px solid var(--border); margin: 0; }
 
-/* ─── 판타지 재질 ─── */
+.eyebrow { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted-foreground); }
+.section-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 20px; font-weight: 700; }
+.section-title .msr { color: var(--brand); }
 
-/* 양피지: 가장자리가 그을린 종이 */
-.parchment {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgb(255 255 255 / 0.35), transparent 60%),
-    radial-gradient(ellipse at 50% 120%, rgb(120 80 30 / 0.18), transparent 60%),
-    var(--parchment);
-  color: var(--ink);
-  box-shadow: inset 0 0 0 1px rgb(90 60 20 / 0.25), inset 0 0 28px rgb(120 80 30 / 0.35), var(--shadow-md);
-}
-
-/* 나무판: 결을 흉내낸 반복 그라디언트 */
-.wood {
-  background:
-    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.07) 0 2px, transparent 2px 7px, rgb(255 255 255 / 0.04) 7px 9px, transparent 9px 23px),
-    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.18) 0 2px, transparent 2px 120px),
-    linear-gradient(180deg, var(--wood-light), var(--wood) 40%, var(--wood-dark));
-}
-
-/* 금테 액자: 이중 테두리 + 모서리 장식 */
-.gold-frame {
-  position: relative;
-  padding: 6px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold) 40%, color-mix(in srgb, var(--gold) 55%, #000) 60%, var(--gold-bright));
-  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(0 0 0 / 0.3);
-}
-.gold-frame > * { border-radius: calc(var(--radius-lg) - 3px); overflow: hidden; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.4); }
-.gold-frame::before,
-.gold-frame::after {
-  content: '';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--gold-bright);
-  rotate: 45deg;
-  background: var(--background);
-  z-index: 2;
-}
-.gold-frame::before { top: -9px; left: calc(50% - 9px); }
-.gold-frame::after { bottom: -9px; left: calc(50% - 9px); }
-
-/* 장식 구분선: ──◆── */
-.ornament {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--gold);
-}
-.ornament::before,
-.ornament::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(22px, 3vw, 28px);
-}
-.section-title .msr { color: var(--gold); font-size: 26px; }
-.eyebrow { margin: 0; font: 600 12px/1 var(--font-display); letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); }
+/* 픽셀아트는 흐려지지 않게 */
+.pixel { image-rendering: pixelated; }
 
 .sr-only {
   position: absolute;
@@ -293,6 +174,28 @@ a.badge-outline:hover { border-color: var(--gold); background: var(--accent); co
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* 토스트 */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  z-index: 60;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--shadow-lg);
+  font-size: 14px;
+  pointer-events: none;
+}
+.toast .msr { color: var(--brand); font-size: 18px; }
+@media (min-width: 1024px) { .toast { bottom: 32px; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

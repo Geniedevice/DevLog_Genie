@@ -2,51 +2,51 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
 import { getPosts, url } from '../lib/posts';
-import { expOf } from '../lib/quest';
+import { levelOf, streakOf } from '../lib/quest';
 
 // 소개 페이지 내용은 여기서 직접 고친다
 const posts = await getPosts();
-const totalExp = posts.reduce((n, p) => n + expOf(p), 0);
+const lv = levelOf(posts);
 const topics = [
-  { icon: 'swords', title: 'Unreal Engine', body: '게임플레이 프레임워크, GAS, 네트워크 복제처럼 엔진이 실제로 어떻게 돌아가는지.' },
-  { icon: 'bug_report', title: '버그 토벌', body: '크래시·버그를 추적한 과정과, 원인이 왜 거기 숨어 있었는지.' },
-  { icon: 'architecture', title: '설계 결정', body: '여러 갈림길 중 무엇을 골랐고 왜 그렇게 갈렸는지.' },
-  { icon: 'hourglass_top', title: '회고', body: '원정을 마치며 남기는 기록과 다음엔 다르게 할 것들.' },
+  { icon: 'sports_esports', title: 'Unreal Engine', body: '게임플레이 프레임워크, GAS, 네트워크 복제처럼 엔진이 실제로 어떻게 돌아가는지.' },
+  { icon: 'bug_report', title: '트러블슈팅', body: '크래시·버그를 추적한 과정과, 원인이 왜 거기 숨어 있었는지.' },
+  { icon: 'account_tree', title: '설계 결정', body: '여러 선택지 중 무엇을 골랐고 왜 그렇게 갈렸는지.' },
+  { icon: 'history', title: '회고', body: '프로젝트를 마치며 남기는 기록과 다음엔 다르게 할 것들.' },
 ];
-const expeditions = [
-  { name: 'Gears of Deceit', meta: 'Unreal · 5인 파티' },
-  { name: 'Crawlescape', meta: 'Unreal · 6인 파티' },
-  { name: 'DESTINATION', meta: 'Unreal · 단독 원정' },
+const projects = [
+  { name: 'Gears of Deceit', meta: 'Unreal · 5인 팀' },
+  { name: 'Crawlescape', meta: 'Unreal · 6인 팀' },
+  { name: 'DESTINATION', meta: 'Unreal · 개인' },
 ];
 ---
-<BaseLayout title="모험가" active="about">
+<BaseLayout title="소개" active="about">
   <div class="page">
-    <section class="sheet card" data-reveal>
-      <div class="portrait">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem" /></svg>
-      </div>
+    <section class="profile" data-reveal>
+      <div class="cover" aria-hidden="true"><img class="pixel" src={url('images/hero-camp.png')} alt="" /></div>
       <div class="info">
-        <p class="eyebrow">Character Sheet</p>
-        <h1 data-hero-title>{SITE.author}</h1>
-        <p class="class"><span class="msr">shield_person</span>직업 · Unreal Engine 게임 클라이언트 개발자</p>
-        <p class="motto">“구현을 넘어 동작 원리를 집요하게 파고든다. 무엇을 했는지보다 <strong>왜 그렇게 갈렸는지</strong>를 기록한다.”</p>
-        <dl class="numbers">
-          <div><dt>완수한 의뢰</dt><dd data-count={posts.length}>{posts.length}</dd></div>
-          <div><dt>누적 EXP</dt><dd data-count={totalExp}>{totalExp.toLocaleString('ko-KR')}</dd></div>
-          <div><dt>원정</dt><dd data-count={expeditions.length}>{expeditions.length}</dd></div>
-        </dl>
+        <svg class="avatar pixel" viewBox="0 0 12 12" aria-hidden="true"><use href="#avatar" /></svg>
+        <div class="who">
+          <h1 data-headline>{SITE.author}</h1>
+          <p class="role">Unreal Engine 게임 클라이언트 개발자</p>
+        </div>
         <div class="links">
           <a class="btn btn-default" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
           <a class="btn btn-outline" href={SITE.github} target="_blank" rel="noopener"><span class="msr">code</span>GitHub</a>
-          <a class="btn btn-ghost" href={url('rss.xml')}><span class="msr">rss_feed</span>RSS 구독</a>
         </div>
       </div>
+      <p class="motto">구현을 넘어 동작 원리를 집요하게 파고듭니다. 무엇을 했는지보다 <strong>왜 그렇게 갈렸는지</strong>를 기록합니다.</p>
+      <dl class="numbers">
+        <div><dt>레벨</dt><dd>Lv. <span data-count={lv.level}>{lv.level}</span></dd></div>
+        <div><dt>누적 XP</dt><dd data-count={lv.total}>{lv.total.toLocaleString('ko-KR')}</dd></div>
+        <div><dt>기록</dt><dd data-count={posts.length}>{posts.length}</dd></div>
+        <div><dt>연속 기록</dt><dd><span data-count={streakOf(posts)}>{streakOf(posts)}</span>일</dd></div>
+      </dl>
     </section>
 
-    <h2 class="section-title"><span class="msr">auto_fix_high</span>주로 쓰는 기술서</h2>
+    <h2 class="section-title"><span class="msr">explore</span>다루는 주제</h2>
     <div class="grid" data-reveal-group>
       {topics.map((t) => (
-        <div class="card skill">
+        <div class="card topic">
           <span class="msr">{t.icon}</span>
           <h3 class="card-title">{t.title}</h3>
           <p class="card-description">{t.body}</p>
@@ -54,51 +54,47 @@ const expeditions = [
       ))}
     </div>
 
-    <h2 class="section-title"><span class="msr">flag</span>완수한 원정</h2>
-    <ul class="expeditions" data-reveal-group>
-      {expeditions.map((p) => (
-        <li class="card">
-          <span class="msr">castle</span>
-          <span class="exp-name">{p.name}</span>
-          <span class="exp-meta">{p.meta}</span>
-        </li>
+    <h2 class="section-title"><span class="msr">folder</span>프로젝트</h2>
+    <ul class="projects" data-reveal-group>
+      {projects.map((p) => (
+        <li class="card"><span class="msr">deployed_code</span><span class="p-name">{p.name}</span><span class="p-meta">{p.meta}</span></li>
       ))}
     </ul>
   </div>
 </BaseLayout>
 
 <script>
-  import { titleIntro } from '../scripts/fx';
-  titleIntro(document.querySelector('.sheet [data-hero-title]'), 150);
+  import { headline } from '../scripts/fx';
+  headline(document.querySelector('.profile [data-headline]'), 150);
 </script>
 
 <style>
-  .page { max-width: 1000px; margin: 0 auto; padding: 16px 16px 72px; }
-  @media (min-width: 900px) { .page { padding: 24px 40px 72px; } }
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px 16px 72px; }
+  @media (min-width: 1024px) { .page { padding: 32px 40px 72px; } }
 
-  .sheet { display: grid; gap: 28px; padding: clamp(22px, 4vw, 40px); margin-bottom: 56px; border-color: color-mix(in srgb, var(--gold) 45%, var(--border)); background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 10%, var(--card)), var(--card) 60%); }
-  @media (min-width: 720px) { .sheet { grid-template-columns: 180px 1fr; align-items: center; } }
-  .portrait { display: grid; place-items: center; aspect-ratio: 1; max-width: 180px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--gold) 25%, transparent), transparent 70%); }
-  .portrait svg { width: 70%; filter: drop-shadow(0 10px 24px var(--glow)); animation: float 6s ease-in-out infinite; }
-  @keyframes float { 50% { translate: 0 -8px; } }
-  h1 { margin: 8px 0 8px; font-size: clamp(30px, 4vw, 40px); }
-  .class { display: flex; align-items: center; gap: 6px; margin: 0 0 14px; color: var(--muted-foreground); font-size: 14px; }
-  .class .msr { color: var(--gold); font-size: 18px; }
-  .motto { margin: 0 0 20px; font-family: var(--font-serif); font-size: 17px; line-height: 1.7; }
-  .numbers { display: flex; flex-wrap: wrap; gap: 28px; margin: 0 0 24px; }
+  .profile { margin-bottom: 48px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); overflow: hidden; }
+  .cover { height: 150px; overflow: hidden; }
+  .cover img { width: 100%; height: 100%; object-fit: cover; object-position: 55% 70%; }
+  .info { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; padding: 0 24px; margin-top: -40px; }
+  .avatar { width: 96px; height: 96px; border-radius: 50%; box-shadow: 0 0 0 4px var(--card); flex: none; }
+  .who { flex: 1; min-width: 200px; }
+  h1 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; }
+  .role { margin: 2px 0 0; color: var(--muted-foreground); font-size: 14px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 4px; }
+  .motto { margin: 20px 24px 0; font-size: 16px; line-height: 1.75; }
+  .numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; margin: 20px 0 0; background: var(--border); border-top: 1px solid var(--border); }
+  .numbers div { padding: 16px 24px; background: var(--card); }
   .numbers dt { font-size: 12px; color: var(--muted-foreground); }
-  .numbers dd { margin: 4px 0 0; font: 700 26px/1 var(--font-display); color: var(--gold); font-variant-numeric: tabular-nums; }
-  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .numbers dd { margin: 4px 0 0; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-  .section-title { margin-bottom: 18px; }
-  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); margin-bottom: 56px; }
-  .skill { padding: 20px; display: flex; flex-direction: column; gap: 6px; transition: border-color var(--dur), translate var(--dur); }
-  .skill:hover { border-color: var(--gold); translate: 0 -3px; }
-  .skill > .msr { font-size: 28px; color: var(--gold); margin-bottom: 6px; }
-
-  .expeditions { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .expeditions li { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
-  .expeditions .msr { color: var(--gold); }
-  .exp-name { font: 700 17px/1.3 var(--font-serif); }
-  .exp-meta { margin-left: auto; font-size: 13px; color: var(--muted-foreground); }
+  .section-title { margin-bottom: 16px; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-bottom: 48px; }
+  .topic { padding: 20px; display: flex; flex-direction: column; gap: 6px; transition: border-color var(--dur), translate var(--dur); }
+  .topic:hover { border-color: var(--brand); translate: 0 -3px; }
+  .topic > .msr { font-size: 26px; color: var(--brand); margin-bottom: 6px; }
+  .projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .projects li { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+  .projects .msr { color: var(--brand); }
+  .p-name { font-weight: 700; }
+  .p-meta { margin-left: auto; font-size: 13px; color: var(--muted-foreground); }
 </style>

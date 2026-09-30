@@ -26,6 +26,7 @@ title: ${JSON.stringify(title)}
 description: ""
 date: ${date}
 # cover: ./cover.png   # 이 폴더에 이미지를 넣고 주석 해제. 16:9 권장(1600x900)
+# thumbText: "첫 줄\\n강조할 둘째 줄"   # 썸네일 위 큰 문구
 # coverAlt: ""
 category: Devlog
 tags: []

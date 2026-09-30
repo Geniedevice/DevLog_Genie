@@ -1,4 +1,4 @@
-// 카테고리 = 의뢰 분류. 아이콘과 문장(紋章) 색을 고정해 게시판에서 한눈에 구분되게 한다.
+// 카테고리마다 아이콘·색을 고정한다. 커버 없는 글의 썸네일 배경에 쓰인다.
 const ICONS: Record<string, string> = {
   Devlog: 'history_edu',
   Unreal: 'swords',

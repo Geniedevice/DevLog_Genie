@@ -1,13 +1,14 @@
 ---
-import { NAV, type NavKey } from '../lib/nav';
+import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
 interface Props { active?: NavKey }
 const { active } = Astro.props;
+const items = [NAV[0], NAV[1], BOOKMARKS, NAV[3]];
 ---
 <nav class="bottom-nav" aria-label="주 메뉴">
-  {NAV.map((n) => (
+  {items.map((n) => (
     <a href={url(n.path)} class:list={['item', { active: active === n.key }]} aria-current={active === n.key ? 'page' : undefined}>
-      <span class="indicator"><span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span></span>
+      <span class:list={['msr', { fill: active === n.key }]}>{n.icon}</span>
       <span class="label">{n.label}</span>
     </a>
   ))}
@@ -19,17 +20,14 @@ const { active } = Astro.props;
     inset: auto 0 0 0;
     z-index: 20;
     display: flex;
-    height: calc(72px + env(safe-area-inset-bottom));
-    padding: 10px 8px calc(12px + env(safe-area-inset-bottom));
-    background: color-mix(in srgb, var(--sidebar) 94%, transparent);
-    backdrop-filter: blur(10px);
-    color: var(--sidebar-foreground);
-    border-top: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--sidebar) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--sidebar-border);
   }
-  @media (min-width: 900px) { .bottom-nav { display: none; } }
-  .item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: color-mix(in srgb, var(--sidebar-foreground) 65%, transparent); }
-  .indicator { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-md); border: 1px solid transparent; }
+  @media (min-width: 1024px) { .bottom-nav { display: none; } }
+  .item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: var(--radius-md); color: var(--muted-foreground); }
   .item.active { color: var(--sidebar-primary); }
-  .item.active .indicator { background: var(--sidebar-accent); border-color: color-mix(in srgb, var(--gold) 55%, transparent); }
-  .label { font: 600 11px/1 var(--font-serif); }
+  .label { font-size: 11px; font-weight: 600; }
 </style>

@@ -2,24 +2,23 @@
 
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
-판타지 "모험가 길드" 콘셉트의 Astro 정적 사이트. 글 하나가 토벌 게시판에 꽂힌 **의뢰서** 한 장입니다.
+숲속 캠프 콘셉트의 Astro 정적 사이트. 글 목록은 유튜브처럼 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성입니다.
 `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
 
 | 영역 | 구성 |
 | --- | --- |
-| 디자인 토큰 | [shadcn/ui](https://ui.shadcn.com) 식 시맨틱 쌍(`--background`/`--foreground`, `--card`, `--primary` …) + 판타지 확장(`--parchment`, `--wood`, `--gold`) — `src/styles/tokens.css`. 밤(다크)·낮(라이트) |
-| 컴포넌트 | shadcn 구조(Button 변형, Badge, Card, Tabs, Breadcrumb, Kbd, Command 팔레트)를 순수 CSS 로 — `src/styles/global.css` |
+| 디자인 토큰 | [shadcn/ui](https://ui.shadcn.com) 식 시맨틱 쌍(`--background`/`--foreground`, `--card`, `--primary`, `--sidebar` …) — `src/styles/tokens.css`. 밤(다크)·낮(라이트) |
+| 컴포넌트 | shadcn 구조(Button 변형, Badge, Card, 밑줄 Tabs, Breadcrumb, Kbd, Command 팔레트)를 순수 CSS 로 — `src/styles/global.css` |
 | 애니메이션 | [anime.js](https://animejs.com) v4 — `src/scripts/fx.ts` 한 곳에 모음. `prefers-reduced-motion` 이면 전부 끔 |
+| 북마크 | 방문자 브라우저(localStorage)에만 저장 — `src/scripts/bookmarks.ts` |
 
-### 의뢰서 수치는 자동 계산
+### 레벨·경험치는 자동 계산 (`src/lib/quest.ts`)
 
-| 표시 | 계산 (`src/lib/quest.ts`) |
+| 표시 | 계산 |
 | --- | --- |
-| 등급 S/A/B/C | 읽는 시간 12분↑ / 6분↑ / 3분↑ / 그 외 |
-| 보상 EXP | 분당 250 |
-| 의뢰 No. | 오래된 글부터 001 — 새 글이 생겨도 기존 번호는 유지 |
-| 도장 | 공개 글 "토벌 완료", 초안 "모집 중" |
-| 긴급 의뢰 | `pinned: true` 인 글(없으면 최신 글)이 게시판 맨 위에 크게 |
+| XP | 글 하나당 읽는 시간 분당 50 XP |
+| Lv. | 누적 1,000 XP 마다 1 레벨 |
+| 🔥 연속 기록 | 가장 최근 글 날짜부터 거꾸로, 하루도 빠짐없이 글이 있던 날 수 |
 
 ## 글 쓰기
 
@@ -44,8 +43,10 @@ src/content/posts/my-post-slug/
 | `title` | ✅ | 제목 |
 | `description` | ✅ | 카드·검색·OG 에 쓰이는 요약 |
 | `date` | ✅ | 작성일 `YYYY-MM-DD` |
-| `cover` | | 썸네일 `./cover.png`. 없으면 카테고리 색 셰이프 아트. 링크 미리보기(OG)에도 쓰임 |
+| `cover` | | 썸네일 `./cover.png`. 없으면 분류 색 배경 + 제목. 링크 미리보기(OG)에도 쓰임 |
 | `coverAlt` | | 썸네일 대체 텍스트 |
+| `thumbText` | | 썸네일 위 큰 문구(유튜브식). `"상태 관리의\n경계"` — 둘째 줄은 강조색 |
+| `pixelArt` | | 픽셀아트 커버면 `true` (확대해도 흐려지지 않게). 사진에는 쓰지 말 것 |
 | `updated` | | 수정일 |
 | `category` | | 기본 `Devlog`. 카테고리별 아이콘·색은 `src/lib/categories.ts` |
 | `tags` | | `[GAS, 트러블슈팅]` |
@@ -77,7 +78,7 @@ http://localhost:4321/DevLog_Genie/ 에서 확인. 초안도 보입니다.
 방문자는 GitHub 로그인 후 댓글을 달 수 있고, 스레드 관리는 레포의 Discussions 탭에서 합니다.
 
 - 설정값: `src/site.config.ts` 의 `giscus` (`repoId` 를 비우면 꺼짐)
-- 댓글창 색은 `public/giscus/{light,dark}.css` (길드 팔레트). 색을 바꾸면 `node scripts/giscus-theme.mjs` 로 재생성
+- 댓글창 색은 `public/giscus/{light,dark}.css` (사이트 팔레트). 색을 바꾸면 `node scripts/giscus-theme.mjs` 로 재생성
 - ⚠️ 로컬 dev 에서는 CORS 때문에 giscus 기본 테마로 보입니다(배포 사이트에서만 커스텀 테마)
 - ⚠️ 동작하려면 [giscus 앱](https://github.com/apps/giscus)이 이 레포에 설치돼 있어야 합니다.
 

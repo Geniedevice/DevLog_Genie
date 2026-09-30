@@ -1,42 +1,35 @@
 ---
 import Thumbnail from './Thumbnail.astro';
-import { postUrl, formatDate, readingMinutes, type Post } from '../lib/posts';
-import { rankOf } from '../lib/quest';
+import { postUrl, readingMinutes, type Post } from '../lib/posts';
 interface Props { post: Post }
 const { post } = Astro.props;
 const { title, description, date, category } = post.data;
-const rank = rankOf(post);
+const md = date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' }).replace(/\s/g, '').replace(/\.$/, '');
 ---
 <li>
-  <a class="item card" href={postUrl(post)}>
-    <Thumbnail post={post} sizes="160px" class="list-thumb" />
+  <a class="item" href={postUrl(post)}>
+    <Thumbnail post={post} duration sizes="(min-width: 640px) 240px, 128px" class="list-thumb" />
     <span class="body">
-      <span class="meta"><span class:list={['rank', `rank-${rank}`]}>{rank}</span>{category} · <time datetime={date.toISOString()}>{formatDate(date)}</time> · {readingMinutes(post.body)}분</span>
       <span class="headline">{title}</span>
+      <span class="meta">{category} · <time datetime={date.toISOString()}>{md}</time> · {readingMinutes(post.body)}분 읽기</span>
       <span class="support">{description}</span>
     </span>
-    <span class="msr go" aria-hidden="true">east</span>
   </a>
 </li>
 
 <style>
-  .item { display: flex; align-items: center; gap: 18px; padding: 12px; transition: border-color var(--dur), background var(--dur), translate var(--dur); }
-  .item:hover { border-color: var(--gold); background: var(--accent); translate: 4px 0; }
-  .item :global(.list-thumb) { width: 150px; flex: none; border-radius: var(--radius-md); }
-  .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-  .meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted-foreground); }
-  .rank { display: grid; place-items: center; width: 18px; height: 20px; font: 700 11px/1 var(--font-display); color: #fff; clip-path: polygon(50% 100%, 0 72%, 0 0, 100% 0, 100% 72%); }
-  .rank-S { background: var(--rank-s); }
-  .rank-A { background: var(--rank-a); }
-  .rank-B { background: var(--rank-b); }
-  .rank-C { background: var(--rank-c); }
-  .headline { font: 700 17px/1.4 var(--font-serif); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .support { font-size: 14px; color: var(--muted-foreground); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-  .go { color: var(--gold); opacity: 0; transition: opacity var(--dur); }
-  .item:hover .go { opacity: 1; }
-  @media (max-width: 599px) {
-    .item { gap: 12px; align-items: flex-start; }
-    .item :global(.list-thumb) { width: 96px; }
-    .support, .go { display: none; }
+  .item { display: flex; gap: 16px; padding: 8px; border-radius: var(--radius-lg); transition: background var(--dur); }
+  .item:hover { background: var(--accent); }
+  .item :global(.list-thumb) { width: 240px; flex: none; border-radius: var(--radius-md); box-shadow: 0 0 0 1px var(--border); }
+  .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+  .headline { font-size: 17px; font-weight: 700; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .item:hover .headline { color: var(--brand); }
+  .meta { font-size: 13px; color: var(--muted-foreground); }
+  .support { margin-top: 4px; font-size: 14px; color: var(--muted-foreground); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  @media (max-width: 639px) {
+    .item { gap: 12px; }
+    .item :global(.list-thumb) { width: 128px; }
+    .headline { font-size: 15px; }
+    .support { display: none; }
   }
 </style>

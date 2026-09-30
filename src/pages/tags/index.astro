@@ -4,32 +4,24 @@ import PageHeader from '../../components/PageHeader.astro';
 import { getPosts, tagCounts, tagUrl } from '../../lib/posts';
 
 const tags = tagCounts(await getPosts());
-const max = Math.max(1, ...tags.map(([, n]) => n));
 ---
-<BaseLayout title="각인" active="tags">
+<BaseLayout title="태그" active="tags">
   <div class="page">
-    <PageHeader title="각인 목록" eyebrow="Runes & Tags" subtitle={`의뢰에 새겨진 ${tags.length}개의 각인`} icon="diamond" />
-    <ul class="runes" data-reveal-group>
+    <PageHeader eyebrow="Tags" title="태그" subtitle={`기록에 붙은 태그 ${tags.length}개`} />
+    <ul class="cloud" data-reveal-group>
       {tags.map(([t, n]) => (
-        <li>
-          <a class="rune card" href={tagUrl(t)} style={`--w:${0.4 + (n / max) * 0.6}`}>
-            <span class="msr">diamond</span>
-            <span class="name">#{t}</span>
-            <span class="n">{n}</span>
-          </a>
-        </li>
+        <li><a class="tag" href={tagUrl(t)}><span class="hash">#</span>{t}<span class="n">{n}</span></a></li>
       ))}
     </ul>
   </div>
 </BaseLayout>
 
 <style>
-  .page { max-width: 1000px; margin: 0 auto; padding: 8px 16px 72px; }
-  @media (min-width: 900px) { .page { padding: 8px 40px 72px; } }
-  .runes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-  .rune { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; transition: border-color var(--dur), background var(--dur), translate var(--dur), box-shadow var(--dur); }
-  .rune:hover { border-color: var(--gold); background: var(--accent); translate: 0 -2px; box-shadow: 0 6px 18px -6px var(--glow); }
-  .rune .msr { font-size: 16px; color: var(--gold); opacity: var(--w); }
-  .name { font: 700 15px/1 var(--font-serif); }
-  .n { font: 600 12px/1 var(--font-mono); color: var(--muted-foreground); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 0 16px 72px; }
+  @media (min-width: 1024px) { .page { padding: 0 40px 72px; } }
+  .cloud { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; height: 40px; padding: 0 8px 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-weight: 600; transition: border-color var(--dur), background var(--dur), translate var(--dur); }
+  .tag:hover { border-color: var(--brand); background: var(--accent); translate: 0 -2px; }
+  .hash { color: var(--brand); }
+  .n { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--secondary); color: var(--muted-foreground); font-size: 12px; }
 </style>

@@ -4,9 +4,9 @@ import { url } from '../lib/posts';
 const year = new Date().getFullYear();
 ---
 <footer class="footer">
-  <div class="ornament" aria-hidden="true"><span class="msr">diamond</span></div>
+  <hr class="separator" />
   <div class="inner">
-    <p>© {year} {SITE.author} · 모험가 길드 기록 보관소</p>
+    <p>© {year} {SITE.author} · Developer Journal</p>
     <nav class="links">
       <a class="btn btn-ghost btn-sm" href={url('rss.xml')}><span class="msr">rss_feed</span>RSS</a>
       <a class="btn btn-ghost btn-sm" href={SITE.portfolio} target="_blank" rel="noopener"><span class="msr">work</span>포트폴리오</a>
@@ -16,9 +16,9 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  .footer { max-width: 1200px; margin: 0 auto; padding: 24px 16px 28px; width: 100%; }
-  .ornament .msr { font-size: 16px; }
+  .footer { max-width: 1280px; width: 100%; margin: 0 auto; padding: 32px 24px 28px; }
   .inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 16px; color: var(--muted-foreground); font-size: 13px; }
   p { margin: 0; }
   .links { display: flex; flex-wrap: wrap; }
+  @media (min-width: 1024px) { .footer { padding: 32px 40px 28px; } }
 </style>

@@ -1,0 +1,61 @@
+---
+import type { HeatCell } from '../../lib/stats';
+interface Props { cols: HeatCell[][] }
+const { cols } = Astro.props;
+const days = ['일', '월', '화', '수', '목', '금', '토'];
+// 달이 바뀌는 첫 주에만 달 이름. 앞 이름과 3칸 안쪽이면 겹치므로 건너뛴다(기간이 월말에 시작할 때)
+let lastLabel = -9;
+const months = cols.map((c, i) => {
+  const m = Number(c[0].date.slice(5, 7));
+  const prev = i ? Number(cols[i - 1][0].date.slice(5, 7)) : -1;
+  if (m === prev || i - lastLabel < 3) return '';
+  lastLabel = i;
+  return `${m}월`;
+});
+const total = cols.flat().reduce((s, c) => s + c.count, 0);
+const active = cols.flat().filter((c) => c.count > 0).length;
+---
+<div class="heat" data-chart="heatmap" data-cols={cols.length}>
+  <div class="scroller">
+    <div class="grid" style={`--cols:${cols.length}`}>
+      <span class="corner"></span>
+      {months.map((m) => <span class="month">{m}</span>)}
+      {days.map((d, r) => (
+        <>
+          <span class="dow">{r % 2 === 1 ? d : ''}</span>
+          {cols.map((c) => {
+            const cell = c[r];
+            return cell.future
+              ? <span class="cell future" aria-hidden="true"></span>
+              : <span class:list={['cell', `l${cell.level}`]} data-cell data-tip={JSON.stringify({ t: cell.date, r: [['기록', `${cell.count}개`, 'var(--chart-1)']] })}></span>;
+          })}
+        </>
+      ))}
+    </div>
+  </div>
+  <div class="foot">
+    <span>최근 {cols.length}주 · 기록 {total}개 · 활동한 날 {active}일</span>
+    <span class="legend">적음<i class="cell l0"></i><i class="cell l1"></i><i class="cell l2"></i><i class="cell l3"></i><i class="cell l4"></i>많음</span>
+  </div>
+</div>
+
+<style>
+  .scroller { overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  /* 칸은 깃허브 잔디 크기(최대 16px)로. 넓은 화면에서 거대한 네모가 되지 않게 */
+  .grid { display: grid; grid-template-columns: 22px repeat(var(--cols), minmax(10px, 16px)); grid-template-rows: 16px repeat(7, auto); gap: 3px; width: max-content; min-width: calc(22px + var(--cols) * 13px); }
+  .month { font-size: 10.5px; color: var(--muted-foreground); white-space: nowrap; overflow: visible; }
+  .dow { font-size: 10px; color: var(--muted-foreground); line-height: 1; align-self: center; }
+  .cell { display: block; aspect-ratio: 1; min-width: 10px; border-radius: 3px; background: var(--heat-0); }
+  .cell[data-cell] { cursor: pointer; }
+  .cell[data-cell]:hover { outline: 2px solid var(--foreground); outline-offset: -1px; }
+  .cell.future { background: transparent; }
+  .l1 { background: color-mix(in srgb, var(--chart-1) 30%, var(--heat-0)); }
+  .l2 { background: color-mix(in srgb, var(--chart-1) 55%, var(--heat-0)); }
+  .l3 { background: color-mix(in srgb, var(--chart-1) 80%, var(--heat-0)); }
+  .l4 { background: var(--chart-1); box-shadow: 0 0 8px var(--glow); }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--muted-foreground); }
+  .legend { display: inline-flex; align-items: center; gap: 3px; }
+  .legend .cell { width: 11px; min-width: 11px; }
+  .legend .cell:first-child { margin-left: 4px; }
+  .legend .cell:last-of-type { margin-right: 4px; }
+</style>

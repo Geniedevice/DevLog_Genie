@@ -1,7 +1,8 @@
-export type NavKey = 'home' | 'archive' | 'tags' | 'about' | 'bookmarks';
+export type NavKey = 'home' | 'stats' | 'archive' | 'tags' | 'about' | 'bookmarks';
 
 export const NAV: { key: NavKey; label: string; icon: string; path: string }[] = [
   { key: 'home', label: '개발 일지', icon: 'menu_book', path: '' },
+  { key: 'stats', label: '통계', icon: 'monitoring', path: 'stats/' },
   { key: 'archive', label: '연대기', icon: 'calendar_month', path: 'archive/' },
   { key: 'tags', label: '태그', icon: 'sell', path: 'tags/' },
   { key: 'about', label: '소개', icon: 'info', path: 'about/' },

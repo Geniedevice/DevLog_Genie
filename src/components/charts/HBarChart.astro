@@ -1,0 +1,31 @@
+---
+interface Props { data: { name: string; count: number; href?: string }[]; unit: string; color?: string }
+const { data, unit, color = 'var(--chart-3)' } = Astro.props;
+const max = Math.max(1, ...data.map((d) => d.count));
+---
+<ul class="hbars" data-chart="hbar">
+  {data.map((d) => {
+    const inner = (
+      <>
+        <span class="name">#{d.name}</span>
+        <span class="track"><span class="fill" style={`width:${(d.count / max) * 100}%;background:${color}`} data-w={(d.count / max) * 100}></span></span>
+        <span class="val">{d.count}</span>
+      </>
+    );
+    return (
+      <li data-tip={JSON.stringify({ t: `#${d.name}`, r: [['기록', `${d.count}${unit}`, color]] })}>
+        {d.href ? <a href={d.href}>{inner}</a> : <span class="row">{inner}</span>}
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .hbars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  a, .row { display: grid; grid-template-columns: minmax(70px, 110px) 1fr 28px; align-items: center; gap: 10px; padding: 4px 6px; border-radius: var(--radius-sm); font-size: 13px; }
+  a:hover { background: var(--accent); }
+  .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-foreground); }
+  .track { height: 10px; border-radius: 99px; background: var(--muted); overflow: hidden; }
+  .fill { display: block; height: 100%; border-radius: inherit; }
+  .val { text-align: right; font-weight: 700; font-family: var(--font-mono); }
+</style>

@@ -1,5 +1,5 @@
 export const SITE = {
-  title: 'Genie Devlog',
+  title: 'DevLog',
   description: 'Unreal Engine 게임 클라이언트 개발 기록 — 구현을 넘어 동작 원리를 파고듭니다.',
   author: 'Jinhui Jang',
   lang: 'ko',

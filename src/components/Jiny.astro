@@ -1,0 +1,45 @@
+---
+import { jinySvg } from '../lib/jiny.mjs';
+interface Props { id?: string; class?: string; desk?: boolean; interactive?: boolean }
+const { id = 'jiny', class: className, desk = true, interactive = true } = Astro.props;
+---
+<div class:list={['jiny-wrap', className]} data-jiny={id} data-interactive={interactive ? '' : undefined}>
+  <Fragment set:html={jinySvg({ id, desk })} />
+  {interactive && <button class="poke" type="button" data-poke aria-label="JINY 쓰다듬기"></button>}
+</div>
+
+<script>
+  import { animateJiny } from '../scripts/jiny';
+  document.querySelectorAll<HTMLElement>('[data-jiny]').forEach(animateJiny);
+</script>
+
+<style>
+  .jiny-wrap { position: relative; width: 100%; aspect-ratio: 1; }
+  .jiny-wrap :global(.jiny) { width: 100%; height: 100%; overflow: visible; }
+  /* SVG 부위를 viewBox 좌표 기준으로 돌리기 위해 */
+  .jiny-wrap :global(.jiny g), .jiny-wrap :global(.jiny .spark), .jiny-wrap :global(.jiny .twinkle) { transform-box: view-box; }
+  .jiny-wrap :global(.spark), .jiny-wrap :global(.twinkle), .jiny-wrap :global(.blush) { transform-box: fill-box; transform-origin: center; }
+  /* ⚠️ view-box 기준 그룹은 기본 원점이 (0,0)이라 크기·회전이 왼쪽 위에서 일어난다. 부위마다 축을 잡아 준다. */
+  .jiny-wrap :global(.bunny) { transform-origin: 200px 360px; }
+  .jiny-wrap :global(.head) { transform-origin: 200px 270px; }
+  .jiny-wrap :global(.body) { transform-origin: 200px 400px; }
+  .jiny-wrap :global(.aura) { transform-box: fill-box; transform-origin: center; }
+  .poke { position: absolute; inset: 12% 22% 10%; border: 0; border-radius: 45%; background: transparent; cursor: pointer; }
+  .poke:focus-visible { outline: 2px dashed var(--ring); outline-offset: 4px; }
+  .jiny-wrap :global(.confetti) { position: absolute; left: 50%; top: 45%; width: 8px; height: 14px; border-radius: 3px; pointer-events: none; }
+  .jiny-wrap :global(.bubble) {
+    position: absolute;
+    left: 50%;
+    top: 4%;
+    translate: -50% 0;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--popover);
+    color: var(--popover-foreground);
+    font: 700 13px/1 var(--font-sans);
+    white-space: nowrap;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+  }
+</style>

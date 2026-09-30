@@ -1,0 +1,202 @@
+---
+import { postUrl, readingMinutes, type Post } from '../lib/posts';
+import { xpOf } from '../lib/quest';
+
+interface Props { posts: Post[] }
+const { posts } = Astro.props;
+const rows = posts.map((p) => ({
+  title: p.data.title,
+  url: postUrl(p),
+  category: p.data.category,
+  tags: p.data.tags,
+  date: p.data.date.valueOf(),
+  dateText: p.data.date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' }).replace(/\s/g, '').replace(/\.$/, ''),
+  minutes: readingMinutes(p.body),
+  xp: xpOf(p),
+}));
+const categories = [...new Set(rows.map((r) => r.category))];
+const cols = [
+  { key: 'title', label: '제목' },
+  { key: 'category', label: '분류' },
+  { key: 'date', label: '작성일' },
+  { key: 'minutes', label: '읽기', num: true },
+  { key: 'xp', label: 'XP', num: true },
+];
+---
+<div class="dt" data-table>
+  <div class="toolbar">
+    <label class="filter">
+      <span class="msr">filter_list</span>
+      <input type="text" placeholder="제목·태그로 거르기…" data-q aria-label="제목·태그로 거르기" />
+    </label>
+    <label class="facet">
+      <span class="msr">add_circle</span>
+      <select data-cat aria-label="분류">
+        <option value="">분류 전체</option>
+        {categories.map((c) => <option value={c}>{c}</option>)}
+      </select>
+    </label>
+    <button class="btn btn-ghost btn-sm reset" type="button" data-reset hidden>초기화<span class="msr">close</span></button>
+  </div>
+
+  <div class="frame">
+    <table>
+      <thead>
+        <tr>
+          {cols.map((c) => (
+            <th class:list={{ num: c.num }} scope="col" aria-sort="none" data-col={c.key}>
+              <button type="button" data-sort={c.key}>{c.label}<span class="msr sort-icon">unfold_more</span></button>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody data-body>
+        {rows.map((r) => (
+          <tr>
+            <td class="t"><a href={r.url}>{r.title}</a>{r.tags.length > 0 && <span class="tags">{r.tags.map((t) => `#${t}`).join(' ')}</span>}</td>
+            <td><span class="badge badge-outline">{r.category}</span></td>
+            <td class="mono">{r.dateText}</td>
+            <td class="num mono">{r.minutes}분</td>
+            <td class="num mono xp">+{r.xp}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p class="empty" data-empty hidden>조건에 맞는 기록이 없어요.</p>
+  </div>
+
+  <div class="pager">
+    <span class="muted" data-count-text>{rows.length}개</span>
+    <label class="per">
+      페이지당
+      <select data-per><option>10</option><option>20</option><option>50</option></select>
+    </label>
+    <span data-page-text>1 / 1</span>
+    <div class="nav">
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-first aria-label="첫 페이지"><span class="msr">keyboard_double_arrow_left</span></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-prev aria-label="이전 페이지"><span class="msr">chevron_left</span></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-next aria-label="다음 페이지"><span class="msr">chevron_right</span></button>
+      <button class="btn btn-outline btn-icon btn-sm" type="button" data-last aria-label="마지막 페이지"><span class="msr">keyboard_double_arrow_right</span></button>
+    </div>
+  </div>
+  <!-- ⚠️ 제목에 "</script>" 가 들어가도 태그가 닫히지 않게 < 를 이스케이프 -->
+  <script type="application/json" data-rows set:html={JSON.stringify(rows).replace(/</g, '\\u003c')}></script>
+</div>
+
+<script>
+  import { animate, stagger } from 'animejs';
+  import { reduced } from '../scripts/fx';
+
+  type Row = { title: string; url: string; category: string; tags: string[]; date: number; dateText: string; minutes: number; xp: number };
+
+  document.querySelectorAll<HTMLElement>('[data-table]').forEach((root) => {
+    const rows: Row[] = JSON.parse(root.querySelector('[data-rows]')!.textContent!);
+    const $ = <T extends Element>(s: string) => root.querySelector<T>(s)!;
+    const body = $<HTMLTableSectionElement>('[data-body]');
+    const q = $<HTMLInputElement>('[data-q]');
+    const cat = $<HTMLSelectElement>('[data-cat]');
+    const per = $<HTMLSelectElement>('[data-per]');
+    const reset = $<HTMLButtonElement>('[data-reset]');
+    const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+    let sortKey: keyof Row = 'date';
+    let dir: 1 | -1 = -1;
+    let page = 0;
+
+    function view() {
+      const term = q.value.trim().toLowerCase();
+      let list = rows.filter((r) => (!cat.value || r.category === cat.value) && (!term || r.title.toLowerCase().includes(term) || r.tags.some((t) => t.toLowerCase().includes(term))));
+      list = list.sort((a, b) => {
+        const x = a[sortKey], y = b[sortKey];
+        return (typeof x === 'string' ? x.localeCompare(y as string, 'ko') : (x as number) - (y as number)) * dir;
+      });
+      return list;
+    }
+
+    function render(animateRows = true) {
+      const list = view();
+      const size = Number(per.value);
+      const pages = Math.max(1, Math.ceil(list.length / size));
+      page = Math.min(page, pages - 1);
+      const slice = list.slice(page * size, page * size + size);
+      body.innerHTML = slice
+        .map((r) => `<tr>
+          <td class="t"><a href="${r.url}">${esc(r.title)}</a>${r.tags.length ? `<span class="tags">${r.tags.map((t) => `#${esc(t)}`).join(' ')}</span>` : ''}</td>
+          <td><span class="badge badge-outline">${esc(r.category)}</span></td>
+          <td class="mono">${r.dateText}</td>
+          <td class="num mono">${r.minutes}분</td>
+          <td class="num mono xp">+${r.xp}</td></tr>`)
+        .join('');
+      $('[data-empty]').toggleAttribute('hidden', list.length > 0);
+      $('[data-count-text]').textContent = list.length === rows.length ? `${rows.length}개` : `${rows.length}개 중 ${list.length}개`;
+      $('[data-page-text]').textContent = `${page + 1} / ${pages}`;
+      $<HTMLButtonElement>('[data-first]').disabled = $<HTMLButtonElement>('[data-prev]').disabled = page === 0;
+      $<HTMLButtonElement>('[data-last]').disabled = $<HTMLButtonElement>('[data-next]').disabled = page >= pages - 1;
+      reset.hidden = !q.value && !cat.value;
+      root.querySelectorAll<HTMLElement>('th[data-col]').forEach((th) => {
+        const on = th.dataset.col === sortKey;
+        th.setAttribute('aria-sort', on ? (dir === 1 ? 'ascending' : 'descending') : 'none');
+        th.querySelector('.sort-icon')!.textContent = on ? (dir === 1 ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
+      });
+      if (animateRows && !reduced()) animate(body.children, { opacity: [0, 1], translateX: [-8, 0], duration: 360, delay: stagger(25), ease: 'outQuad' });
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const k = b.dataset.sort as keyof Row;
+        if (sortKey === k) dir = dir === 1 ? -1 : 1;
+        else { sortKey = k; dir = k === 'title' || k === 'category' ? 1 : -1; }
+        render();
+      }),
+    );
+    q.addEventListener('input', () => { page = 0; render(); });
+    cat.addEventListener('change', () => { page = 0; render(); });
+    per.addEventListener('change', () => { page = 0; render(); });
+    reset.addEventListener('click', () => { q.value = ''; cat.value = ''; page = 0; render(); });
+    $('[data-first]').addEventListener('click', () => { page = 0; render(); });
+    $('[data-prev]').addEventListener('click', () => { page--; render(); });
+    $('[data-next]').addEventListener('click', () => { page++; render(); });
+    $('[data-last]').addEventListener('click', () => { page = 1e9; render(); });
+    render(false);
+  });
+</script>
+
+<style>
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .filter { display: flex; align-items: center; gap: 8px; width: min(280px, 100%); height: 36px; padding: 0 10px; border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--card); color: var(--muted-foreground); }
+  .filter:focus-within { border-color: var(--ring); }
+  .filter input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--foreground); font: 400 14px var(--font-sans); outline: none; }
+  .filter .msr { font-size: 18px; }
+  .facet { position: relative; display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border: 1px dashed var(--input); border-radius: var(--radius-md); color: var(--muted-foreground); }
+  .facet .msr { font-size: 17px; }
+  .facet select, .per select { border: 0; background: transparent; color: var(--foreground); font: 600 13px var(--font-sans); cursor: pointer; outline: none; }
+  .facet select option, .per select option { background: var(--popover); color: var(--popover-foreground); }
+  .reset .msr { font-size: 16px; }
+
+  .frame { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { height: 42px; padding: 0 8px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th button { display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 8px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); font: 600 13px var(--font-sans); cursor: pointer; }
+  th button:hover { background: var(--accent); color: var(--foreground); }
+  th[aria-sort='ascending'] button, th[aria-sort='descending'] button { color: var(--foreground); }
+  th .msr { font-size: 15px; }
+  th.num { text-align: right; }
+  tbody :global(tr) { border-bottom: 1px solid var(--border); transition: background var(--dur); }
+  tbody :global(tr:last-child) { border-bottom: 0; }
+  tbody :global(tr:hover) { background: var(--muted); }
+  tbody :global(td) { padding: 10px 16px; vertical-align: middle; white-space: nowrap; }
+  tbody :global(td.t) { white-space: normal; min-width: 220px; }
+  tbody :global(td.t a) { font-weight: 600; }
+  tbody :global(td.t a:hover) { color: var(--brand); }
+  tbody :global(.tags) { display: block; margin-top: 2px; font-size: 12px; color: var(--muted-foreground); }
+  tbody :global(td.num) { text-align: right; }
+  tbody :global(td.mono) { font-family: var(--font-mono); font-size: 13px; }
+  tbody :global(td.xp) { color: var(--brand); font-weight: 700; }
+  .empty { margin: 0; padding: 28px; text-align: center; color: var(--muted-foreground); }
+
+  .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 14px; margin-top: 12px; font-size: 13px; }
+  .pager .muted { margin-right: auto; }
+  .per { display: inline-flex; align-items: center; gap: 6px; }
+  .nav { display: flex; gap: 4px; }
+  .nav button:disabled { opacity: 0.4; cursor: default; }
+</style>

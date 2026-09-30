@@ -3,7 +3,7 @@ import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
 interface Props { active?: NavKey }
 const { active } = Astro.props;
-const items = [NAV[0], NAV[1], BOOKMARKS, NAV[3]];
+const items = [NAV[0], NAV[1], BOOKMARKS, NAV[4]];
 ---
 <nav class="bottom-nav" aria-label="주 메뉴">
   {items.map((n) => (

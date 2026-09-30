@@ -1,0 +1,30 @@
+---
+import { arcPath } from '../../lib/chart';
+interface Props { level: number; xp: number; next: number; total: number }
+const { level, xp, next, total } = Astro.props;
+const pct = xp / next;
+// 270° 게이지(아래가 열린 링)
+const A0 = -Math.PI * 0.75, A1 = Math.PI * 0.75;
+const track = arcPath(100, 100, 78, A0, A1);
+const fill = arcPath(100, 100, 78, A0, A0 + (A1 - A0) * Math.max(0.001, pct));
+---
+<div class="radial" data-chart="radial">
+  <svg viewBox="0 0 200 180" role="img" aria-label={`레벨 ${level}, 다음 레벨까지 ${xp}/${next} XP`}>
+    <defs>
+      <linearGradient id="lv-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--chart-2)" /><stop offset="1" stop-color="var(--chart-1)" /></linearGradient>
+    </defs>
+    <path d={track} fill="none" stroke="var(--muted)" stroke-width="14" stroke-linecap="round" />
+    <path class="gauge" d={fill} fill="none" stroke="url(#lv-grad)" stroke-width="14" stroke-linecap="round" data-tip={JSON.stringify({ t: `Lv. ${level} → ${level + 1}`, r: [['현재', `${xp} XP`, 'var(--chart-1)'], ['남은 XP', `${next - xp} XP`, 'var(--muted-foreground)']] })} />
+    <text x="100" y="92" text-anchor="middle" class="lv">Lv.<tspan data-count={level}>{level}</tspan></text>
+    <text x="100" y="116" text-anchor="middle" class="xp">{xp.toLocaleString('ko-KR')} / {next.toLocaleString('ko-KR')} XP</text>
+    <text x="100" y="172" text-anchor="middle" class="total">누적 {total.toLocaleString('ko-KR')} XP</text>
+  </svg>
+</div>
+
+<style>
+  svg { width: 100%; max-width: 260px; height: auto; display: block; margin: 0 auto; overflow: visible; }
+  .gauge { filter: drop-shadow(0 0 6px var(--glow)); cursor: pointer; }
+  .lv { fill: var(--foreground); font: 800 30px var(--font-sans); }
+  .xp { fill: var(--muted-foreground); font: 500 12px var(--font-mono); }
+  .total { fill: var(--muted-foreground); font: 500 11.5px var(--font-sans); }
+</style>

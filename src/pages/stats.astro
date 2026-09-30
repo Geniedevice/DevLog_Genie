@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import KpiCard from '../components/charts/KpiCard.astro';
+import AreaChart from '../components/charts/AreaChart.astro';
+import BarChart from '../components/charts/BarChart.astro';
+import DonutChart from '../components/charts/DonutChart.astro';
+import HBarChart from '../components/charts/HBarChart.astro';
+import Heatmap from '../components/charts/Heatmap.astro';
+import RadialLevel from '../components/charts/RadialLevel.astro';
+import DataTable from '../components/DataTable.astro';
+import { getPosts, tagUrl } from '../lib/posts';
+import { monthly, byCategory, topTags, readingBuckets, heatmap, totals } from '../lib/stats';
+
+const posts = await getPosts();
+const t = totals(posts);
+const months = monthly(posts, 12);
+const thisMonth = months.at(-1)!;
+const prevMonth = months.at(-2)!;
+const diff = thisMonth.count - prevMonth.count;
+const cats = byCategory(posts);
+const tags = topTags(posts, 8).map((d) => ({ ...d, href: tagUrl(d.name) }));
+---
+<BaseLayout title="통계" active="stats" description="DevLog 기록 통계: 월별 추이, 분류·태그 분포, 활동 잔디, 전체 기록 표">
+  <div class="page">
+    <PageHeader eyebrow="Dashboard" title="통계" subtitle="모든 수치는 글에서 자동으로 계산돼요." />
+
+    <div class="kpis" data-reveal-group>
+      <KpiCard label="전체 기록" value={t.posts} unit="개" icon="article" hint={`이번 달 ${thisMonth.count}개`} spark={months.map((m) => m.count)} color="var(--chart-1)" />
+      <KpiCard label="총 읽기 시간" value={t.minutes} unit="분" icon="schedule" hint={`글당 평균 ${t.avgMinutes}분`} spark={months.map((m) => m.minutes)} color="var(--chart-2)" />
+      <KpiCard label="태그" value={t.tags} unit="개" icon="sell" hint={`분류 ${t.categories}개`} color="var(--chart-3)" />
+      <KpiCard label="연속 기록" value={t.streak} unit="일" icon="local_fire_department" hint="마지막 글 기준" color="var(--chart-5)" />
+    </div>
+
+    <div class="row two">
+      <section class="card chart-card" data-reveal>
+        <header><div><h3>레벨</h3><p>분당 50 XP · 1,000 XP마다 레벨 업</p></div></header>
+        <RadialLevel level={t.level} xp={t.xp} next={t.next} total={t.total} />
+      </section>
+      <section class="card chart-card" data-reveal>
+        <header><div><h3>월별 기록</h3><p>최근 12개월</p></div></header>
+        <AreaChart id="monthly" data={months.map((m) => ({ label: m.label, value: m.count }))} name="기록" unit="개" />
+        <footer>
+          <span class="msr">{diff > 0 ? 'trending_up' : diff < 0 ? 'trending_down' : 'trending_flat'}</span>
+          이번 달 {thisMonth.count}개 · 지난달보다 {diff === 0 ? '같음' : `${Math.abs(diff)}개 ${diff > 0 ? '많음' : '적음'}`}
+        </footer>
+      </section>
+    </div>
+
+    <div class="row three">
+      <section class="card chart-card" data-reveal>
+        <header><div><h3>분류</h3><p>글이 어디에 쌓였나</p></div></header>
+        {cats.length ? <DonutChart data={cats} centerLabel="전체 기록" unit="개" /> : <p class="none">아직 없어요</p>}
+      </section>
+      <section class="card chart-card" data-reveal>
+        <header><div><h3>많이 쓴 태그</h3><p>상위 {tags.length}개 · 누르면 이동</p></div></header>
+        {tags.length ? <HBarChart data={tags} unit="개" /> : <p class="none">아직 없어요</p>}
+      </section>
+      <section class="card chart-card" data-reveal>
+        <header><div><h3>읽는 시간 분포</h3><p>글 길이 감각</p></div></header>
+        <BarChart data={readingBuckets(posts).map((b) => ({ label: b.label, value: b.count }))} name="글" unit="개" />
+      </section>
+    </div>
+
+    <section class="card chart-card" data-reveal>
+      <header><div><h3>기록 잔디</h3><p>최근 1년, 하루에 남긴 기록 수</p></div></header>
+      <Heatmap cols={heatmap(posts, 53)} />
+    </section>
+
+    <section class="card chart-card table-card" data-reveal>
+      <header><div><h3>전체 기록</h3><p>머리글을 눌러 정렬, 위에서 거르기</p></div></header>
+      <DataTable posts={posts} />
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page { max-width: 1400px; margin: 0 auto; padding: 0 16px 72px; display: flex; flex-direction: column; gap: 14px; }
+  @media (min-width: 1024px) { .page { padding: 0 40px 72px; } }
+  .kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .row { display: grid; gap: 14px; }
+  @media (min-width: 900px) {
+    .two { grid-template-columns: minmax(260px, 1fr) 2fr; }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  .none { margin: 24px 0; text-align: center; color: var(--muted-foreground); }
+</style>

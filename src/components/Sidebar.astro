@@ -5,34 +5,27 @@ import { SITE } from '../site.config';
 
 interface Props { active?: NavKey; level: number }
 const { active, level } = Astro.props;
-const item = (key: NavKey) => ({ class: ['item', { active: active === key }], current: active === key ? 'page' : undefined });
+const cls = (key: NavKey) => ['item', { active: active === key }];
+const cur = (key: NavKey) => (active === key ? 'page' : undefined);
 ---
 <aside class="sidebar" aria-label="사이드바">
   <a class="brand" href={url()}>
-    <span class="brand-row">
-      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><use href="#logo" /></svg>
-      <span class="brand-name">{SITE.title.toUpperCase()}</span>
+    <img class="logo" src={url('favicon.svg')} alt="" width="36" height="36" />
+    <span class="brand-text">
+      <span class="brand-name">{SITE.title}</span>
+      <span class="brand-sub">by JINY</span>
     </span>
-    <span class="brand-sub">DEVELOPER JOURNAL</span>
   </a>
 
   <nav aria-label="주 메뉴">
     <ul class="list">
       {NAV.map((n) => (
-        <li>
-          <a href={url(n.path)} class:list={item(n.key).class} aria-current={item(n.key).current}>
-            <span class="msr">{n.icon}</span>{n.label}
-          </a>
-        </li>
+        <li><a href={url(n.path)} class:list={cls(n.key)} aria-current={cur(n.key)}><span class="msr">{n.icon}</span>{n.label}</a></li>
       ))}
     </ul>
     <hr class="separator" />
     <ul class="list">
-      <li>
-        <a href={url(BOOKMARKS.path)} class:list={item(BOOKMARKS.key).class} aria-current={item(BOOKMARKS.key).current}>
-          <span class="msr">{BOOKMARKS.icon}</span>{BOOKMARKS.label}
-        </a>
-      </li>
+      <li><a href={url(BOOKMARKS.path)} class:list={cls(BOOKMARKS.key)} aria-current={cur(BOOKMARKS.key)}><span class="msr">{BOOKMARKS.icon}</span>{BOOKMARKS.label}</a></li>
       <li>
         <button class="item" type="button" data-open-search>
           <span class="msr">search</span>검색<span class="kbds"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
@@ -41,14 +34,8 @@ const item = (key: NavKey) => ({ class: ['item', { active: active === key }], cu
     </ul>
   </nav>
 
-  <a class="btn btn-default cta" href={url('rss.xml')}><span class="msr">rss_feed</span>새 기록 구독</a>
-
-  <svg class="pines" viewBox="0 0 250 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <path d="M20 150 38 70l18 80Zm40 0 26-110 26 110Zm58 0 20-80 20 80Zm44 0 28-120 28 120Zm-172 0 12-50 12 50Zm220 0 14-60 14 60Z" />
-  </svg>
-
   <div class="profile">
-    <svg class="avatar pixel" viewBox="0 0 12 12" aria-hidden="true"><use href="#avatar" /></svg>
+    <img class="avatar" src={url('images/jiny-avatar.webp')} alt="" width="40" height="40" />
     <div class="who">
       <p class="name">{SITE.author}</p>
       <p class="role">Lv. {level} · Unreal Client Developer</p>
@@ -68,36 +55,35 @@ const item = (key: NavKey) => ({ class: ['item', { active: active === key }], cu
     flex: none;
     display: none;
     flex-direction: column;
-    gap: 14px;
-    padding: 26px 18px 16px;
+    gap: 18px;
+    padding: 24px 16px 16px;
     background: var(--sidebar);
     color: var(--sidebar-foreground);
     border-right: 1px solid var(--sidebar-border);
-    overflow: hidden;
   }
   @media (min-width: 1024px) { .sidebar { display: flex; } }
 
-  .brand { display: flex; flex-direction: column; gap: 8px; padding: 0 8px 14px; }
-  .brand-row { display: flex; align-items: center; gap: 10px; }
-  .logo { width: 28px; height: 28px; color: var(--amber); filter: drop-shadow(0 0 8px color-mix(in srgb, var(--amber) 60%, transparent)); transition: rotate 600ms var(--ease-out); }
-  .brand:hover .logo { rotate: 90deg; }
-  .brand-name { font-size: 19px; font-weight: 800; letter-spacing: 0.06em; }
-  .brand-sub { font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.34em; color: var(--muted-foreground); padding-left: 2px; }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 8px; }
+  .logo { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--glow)); transition: rotate 500ms var(--ease-out); }
+  .brand:hover .logo { rotate: -10deg; }
+  .brand-text { display: flex; flex-direction: column; gap: 3px; }
+  .brand-name { font-size: 21px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .brand-sub { font: 500 11px/1 var(--font-mono); letter-spacing: 0.2em; color: var(--brand); }
 
   nav { display: flex; flex-direction: column; gap: 12px; }
-  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
   .item {
     position: relative;
     display: flex;
     align-items: center;
     gap: 14px;
     width: 100%;
-    height: 46px;
+    height: 44px;
     padding: 0 14px;
     border: 0;
     border-radius: var(--radius-md);
     background: transparent;
-    color: color-mix(in srgb, var(--sidebar-foreground) 80%, transparent);
+    color: color-mix(in srgb, var(--sidebar-foreground) 78%, transparent);
     font: 500 15px/1 var(--font-sans);
     text-align: left;
     cursor: pointer;
@@ -106,15 +92,11 @@ const item = (key: NavKey) => ({ class: ['item', { active: active === key }], cu
   .item .msr { font-size: 22px; }
   .item:hover { background: var(--sidebar-accent); color: var(--sidebar-foreground); }
   .item.active { background: var(--sidebar-accent); color: var(--sidebar-primary); font-weight: 700; }
-  .item.active::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--sidebar-primary); }
+  .item.active::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--sidebar-primary); box-shadow: 0 0 10px var(--glow); }
   .kbds { display: flex; gap: 2px; margin-left: auto; }
 
-  .cta { width: 100%; height: 46px; margin-top: 4px; font-size: 15px; }
-
-  .pines { position: absolute; left: 0; right: 0; bottom: 70px; width: 100%; height: 150px; fill: var(--pine); pointer-events: none; }
-
-  .profile { position: relative; display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 14px 6px 0; border-top: 1px solid var(--sidebar-border); }
-  .avatar { width: 40px; height: 40px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px var(--sidebar-border); }
+  .profile { display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 14px 6px 0; border-top: 1px solid var(--sidebar-border); }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px var(--brand), 0 0 12px var(--glow); }
   .who { flex: 1; min-width: 0; }
   .who p { margin: 0; }
   .name { font-size: 14px; font-weight: 700; }

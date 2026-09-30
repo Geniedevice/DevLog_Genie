@@ -1,0 +1,42 @@
+---
+import { niceScale } from '../../lib/chart';
+interface Props { data: { label: string; value: number }[]; unit: string; name: string; color?: string }
+const { data, unit, name, color = 'var(--chart-2)' } = Astro.props;
+const W = 400, H = 200, L = 26, R = 6, T = 10, B = 26;
+const { max, step } = niceScale(Math.max(...data.map((d) => d.value), 1), 3);
+const slot = (W - L - R) / data.length;
+const bw = Math.min(46, slot * 0.62);
+const y = (v: number) => T + (H - T - B) * (1 - v / max);
+const ticks = Array.from({ length: max / step + 1 }, (_, i) => i * step);
+// 윗모서리만 둥근 막대
+const bar = (x: number, top: number, w: number, bottom: number) => {
+  const r = Math.min(6, w / 2, (bottom - top) / 2);
+  return `M${x} ${bottom}V${top + r}Q${x} ${top} ${x + r} ${top}H${x + w - r}Q${x + w} ${top} ${x + w} ${top + r}V${bottom}Z`;
+};
+---
+<svg class="chart" viewBox={`0 0 ${W} ${H}`} data-chart="bar" role="img" aria-label={`${name}: ${data.map((d) => `${d.label} ${d.value}${unit}`).join(', ')}`}>
+  {ticks.map((t) => (
+    <g class="grid"><line x1={L} x2={W - R} y1={y(t)} y2={y(t)} /><text x={L - 6} y={y(t) + 4} text-anchor="end">{t}</text></g>
+  ))}
+  {data.map((d, i) => {
+    const x = L + i * slot + (slot - bw) / 2;
+    return (
+      <g>
+        <rect class="track" x={x} y={T} width={bw} height={H - T - B} rx="6" />
+        {d.value > 0 && <path class="bar" d={bar(x, y(d.value), bw, H - B)} fill={color} />}
+        <rect class="hit" x={L + i * slot} y={T} width={slot} height={H - T - B} data-tip={JSON.stringify({ t: d.label, r: [[name, `${d.value}${unit}`, color]] })} />
+        <text class="xlabel" x={x + bw / 2} y={H - 8} text-anchor="middle">{d.label}</text>
+      </g>
+    );
+  })}
+</svg>
+
+<style>
+  .chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .grid line { stroke: var(--border); stroke-dasharray: 3 4; }
+  .grid text, .xlabel { fill: var(--muted-foreground); font-size: 11px; font-family: var(--font-sans); }
+  .track { fill: var(--muted); opacity: 0.6; }
+  .bar { transform-box: fill-box; transform-origin: bottom; }
+  .hit { fill: transparent; cursor: crosshair; }
+  .hit:hover { fill: var(--brand-soft); }
+</style>

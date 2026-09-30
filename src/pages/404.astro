@@ -1,13 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Jiny from '../components/Jiny.astro';
 import { url } from '../lib/posts';
 ---
 <BaseLayout title="페이지를 찾을 수 없음">
   <div class="nf">
-    <img class="pixel art" src={url('images/hero-camp.png')} alt="" aria-hidden="true" />
-    <p class="eyebrow">404 · Lost in the woods</p>
-    <h1 data-headline>길을 잃었어요</h1>
-    <p class="msg">찾는 페이지가 없거나 옮겨졌어요. 캠프로 돌아가 볼까요?</p>
+    <div class="art"><Jiny id="lost" /></div>
+    <p class="code">404</p>
+    <h1>여긴 아무것도 없어요</h1>
+    <p class="msg">JINY도 못 찾은 페이지예요. 주소가 바뀌었거나 사라졌을 수 있어요.</p>
     <div class="actions">
       <a class="btn btn-default" href={url()}><span class="msr">home</span>개발 일지로</a>
       <button class="btn btn-outline" type="button" data-open-search><span class="msr">search</span>검색</button>
@@ -15,15 +16,11 @@ import { url } from '../lib/posts';
   </div>
 </BaseLayout>
 
-<script>
-  import { headline } from '../scripts/fx';
-  headline(document.querySelector('[data-headline]'), 200);
-</script>
-
 <style>
-  .nf { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 16px 80px; }
-  .art { width: min(560px, 100%); aspect-ratio: 2.4; object-fit: cover; object-position: 50% 80%; border-radius: var(--radius-xl); margin-bottom: 28px; box-shadow: 0 0 0 1px var(--border); }
-  h1 { margin: 12px 0 8px; font-size: clamp(30px, 4vw, 40px); font-weight: 800; }
+  .nf { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px 16px 80px; }
+  .art { width: min(300px, 70vw); }
+  .code { margin: 0; font: 800 64px/1 var(--font-mono); letter-spacing: -0.04em; background: linear-gradient(120deg, var(--chart-1), var(--chart-3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 { margin: 10px 0 8px; font-size: clamp(24px, 3vw, 30px); font-weight: 800; }
   .msg { margin: 0 0 24px; color: var(--muted-foreground); }
   .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 </style>

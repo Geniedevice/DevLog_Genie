@@ -1,0 +1,44 @@
+---
+import { arcPath, CHART_COLORS } from '../../lib/chart';
+interface Props { data: { name: string; count: number }[]; centerLabel: string; unit: string }
+const { data, centerLabel, unit } = Astro.props;
+const total = data.reduce((s, d) => s + d.count, 0);
+const GAP = data.length > 1 ? 0.04 : 0;
+let a = 0;
+const segs = data.map((d, i) => {
+  const span = (d.count / Math.max(1, total)) * Math.PI * 2;
+  const seg = { ...d, color: CHART_COLORS[i % CHART_COLORS.length], d: arcPath(100, 100, 74, a + GAP / 2, a + span - GAP / 2), pct: Math.round((d.count / Math.max(1, total)) * 100) };
+  a += span;
+  return seg;
+});
+---
+<div class="donut" data-chart="donut">
+  <svg viewBox="0 0 200 200" role="img" aria-label={segs.map((s) => `${s.name} ${s.count}${unit}`).join(', ')}>
+    <circle cx="100" cy="100" r="74" fill="none" stroke="var(--muted)" stroke-width="22" />
+    {segs.map((s) => (
+      <path class="seg" d={s.d} fill="none" stroke={s.color} stroke-width="22" data-tip={JSON.stringify({ t: s.name, r: [['비율', `${s.pct}%`, s.color], ['개수', `${s.count}${unit}`, s.color]] })} />
+    ))}
+    <text x="100" y="98" text-anchor="middle" class="num" data-count={total}>{total}</text>
+    <text x="100" y="120" text-anchor="middle" class="cap">{centerLabel}</text>
+  </svg>
+  <ul class="legend">
+    {segs.map((s) => (
+      <li><i style={`background:${s.color}`}></i><span class="n">{s.name}</span><span class="v">{s.count}</span><span class="p">{s.pct}%</span></li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .donut { display: grid; grid-template-columns: minmax(120px, 170px) 1fr; align-items: center; gap: 18px; }
+  svg { width: 100%; height: auto; overflow: visible; }
+  .seg { cursor: pointer; transition: stroke-width 150ms; }
+  .seg:hover { stroke-width: 28; }
+  .num { fill: var(--foreground); font: 800 34px var(--font-sans); }
+  .cap { fill: var(--muted-foreground); font: 500 12px var(--font-sans); }
+  .legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13px; }
+  .legend li { display: flex; align-items: center; gap: 8px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v { font-weight: 700; font-family: var(--font-mono); }
+  .p { width: 40px; text-align: right; color: var(--muted-foreground); font-family: var(--font-mono); }
+</style>

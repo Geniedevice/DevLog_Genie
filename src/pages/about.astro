@@ -22,9 +22,9 @@ const projects = [
 <BaseLayout title="소개" active="about">
   <div class="page">
     <section class="profile" data-reveal>
-      <div class="cover" aria-hidden="true"><img class="pixel" src={url('images/hero-camp.png')} alt="" /></div>
+      <div class="cover" aria-hidden="true"></div>
       <div class="info">
-        <svg class="avatar pixel" viewBox="0 0 12 12" aria-hidden="true"><use href="#avatar" /></svg>
+        <img class="avatar" src={url('images/jiny.webp')} alt="대표 캐릭터 JINY" width="96" height="96" />
         <div class="who">
           <h1 data-headline>{SITE.author}</h1>
           <p class="role">Unreal Engine 게임 클라이언트 개발자</p>
@@ -73,10 +73,9 @@ const projects = [
   @media (min-width: 1024px) { .page { padding: 32px 40px 72px; } }
 
   .profile { margin-bottom: 48px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); overflow: hidden; }
-  .cover { height: 150px; overflow: hidden; }
-  .cover img { width: 100%; height: 100%; object-fit: cover; object-position: 55% 70%; }
+  .cover { height: 150px; background: radial-gradient(circle at 75% 30%, var(--hero-glow), transparent 60%), radial-gradient(color-mix(in srgb, var(--foreground) 12%, transparent) 1px, transparent 1.4px) 0 0 / 20px 20px, linear-gradient(135deg, color-mix(in srgb, var(--chart-1) 25%, var(--card)), var(--card)); }
   .info { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; padding: 0 24px; margin-top: -40px; }
-  .avatar { width: 96px; height: 96px; border-radius: 50%; box-shadow: 0 0 0 4px var(--card); flex: none; }
+  .avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 4px var(--card), 0 0 24px var(--glow); flex: none; }
   .who { flex: 1; min-width: 200px; }
   h1 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; }
   .role { margin: 2px 0 0; color: var(--muted-foreground); font-size: 14px; }

@@ -1,16 +1,20 @@
-# Genie Devlog
+# DevLog
 
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
-숲속 캠프 콘셉트의 Astro 정적 사이트. 글 목록은 유튜브처럼 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성입니다.
-`main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
+대표 캐릭터 **JINY**(보라 헤드폰을 쓴 흰 토끼)가 주인공인 Astro 정적 사이트. 글 목록은 유튜브식 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성,
+**통계** 페이지에는 차트와 데이터 표가 있습니다. `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
 
 | 영역 | 구성 |
 | --- | --- |
-| 디자인 토큰 | [shadcn/ui](https://ui.shadcn.com) 식 시맨틱 쌍(`--background`/`--foreground`, `--card`, `--primary`, `--sidebar` …) — `src/styles/tokens.css`. 밤(다크)·낮(라이트) |
-| 컴포넌트 | shadcn 구조(Button 변형, Badge, Card, 밑줄 Tabs, Breadcrumb, Kbd, Command 팔레트)를 순수 CSS 로 — `src/styles/global.css` |
-| 애니메이션 | [anime.js](https://animejs.com) v4 — `src/scripts/fx.ts` 한 곳에 모음. `prefers-reduced-motion` 이면 전부 끔 |
+| 캐릭터 | `src/lib/jiny.mjs` 한 벌의 SVG 로 히어로·파비콘·OG 이미지를 모두 만든다. 움직임은 `src/scripts/jiny.ts` (깜빡임·귀·헤드폰 빛·타자·눈동자 추적, 클릭하면 점프 + 색종이 + 말풍선) |
+| 디자인 토큰 | [shadcn/ui](https://ui.shadcn.com) 식 시맨틱 쌍 + 차트 팔레트 `--chart-1…5` — `src/styles/tokens.css`. 밤(다크)·낮(라이트) |
+| 컴포넌트 | shadcn 구조(Button, Badge, Card, Tabs, Breadcrumb, Kbd, Command 팔레트, **Data Table**)를 순수 CSS/TS 로 |
+| 차트 | `src/components/charts/` — KPI(스파크라인), 영역·막대·도넛·가로막대, 레벨 게이지, 기록 잔디. 수치는 `src/lib/stats.ts` 가 빌드 때 계산 |
+| 애니메이션 | [anime.js](https://animejs.com) v4 — `src/scripts/fx.ts`, `charts.ts`, `jiny.ts`. `prefers-reduced-motion` 이면 전부 끔 |
 | 북마크 | 방문자 브라우저(localStorage)에만 저장 — `src/scripts/bookmarks.ts` |
+
+⚠️ 기록 잔디는 **빌드한 날**을 기준으로 그린다. 글을 안 올려도 재배포하면 한 칸씩 밀린다.
 
 ### 레벨·경험치는 자동 계산 (`src/lib/quest.ts`)
 

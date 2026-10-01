@@ -58,9 +58,9 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
       </div>
       <div class="game-row" data-reveal-group>
         {games.map((g, i) => (
-          <a class="game" href={url(`projects/?stage=${i + 1}`)} data-tilt>
+          <a class="game" href={url(`projects/?stage=${g.data.game.order}`)} data-tilt>
             <span class="g-art"><Thumbnail post={g} text={false} sizes="(min-width: 1024px) 30vw, 90vw" /><span class="g-scan" aria-hidden="true"></span></span>
-            <span class="g-no pixel-font">STAGE {String(i + 1).padStart(2, '0')}</span>
+            <span class="g-no pixel-font">STAGE {String(g.data.game.order).padStart(2, '0')}</span>
             <span class="g-body">
               <span class="g-title">{g.data.game.title}</span>
               <span class="g-tag">{g.data.game.tagline}</span>

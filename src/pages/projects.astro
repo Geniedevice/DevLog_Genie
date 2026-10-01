@@ -28,11 +28,11 @@ const bars = (g: (typeof games)[number]) => [
       {games.map((g, i) => {
         const d = g.data.game;
         return (
-          <section class="stage" data-stage={i} aria-labelledby={`stage-${i}`}>
+          <section class="stage" data-stage={i} data-no={d.order} aria-labelledby={`stage-${i}`}>
             <div class="screen" data-tilt>
               <Thumbnail post={g} text={false} eager={i === 0} sizes="(min-width: 1200px) 720px, 100vw" />
               <span class="scan" aria-hidden="true"></span>
-              <span class="stage-no pixel-font">STAGE {String(i + 1).padStart(2, '0')}</span>
+              <span class="stage-no pixel-font">STAGE {String(d.order).padStart(2, '0')}</span>
               <a class="press pixel-font" href={postUrl(g)}>▶ PRESS ENTER</a>
             </div>
             <div class="info">
@@ -73,7 +73,7 @@ const bars = (g: (typeof games)[number]) => [
           <span class="cursor pixel-font" aria-hidden="true">▼</span>
           <span class="cart-art"><Thumbnail post={g} text={false} sizes="240px" /></span>
           <span class="cart-label">
-            <span class="pixel-font no">0{i + 1}</span>
+            <span class="pixel-font no">{String(g.data.game.order).padStart(2, '0')}</span>
             <span class="name">{g.data.game.title}</span>
             <span class="meta">{g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team}P`} · {g.data.game.period.split(' ')[0]}</span>
           </span>
@@ -109,7 +109,7 @@ const bars = (g: (typeof games)[number]) => [
       carts.forEach((c, k) => c.setAttribute('aria-selected', String(k === i)));
       stages.forEach((s, k) => (s.hidden = k !== i));
       if (withSound) sfx('select');
-      history.replaceState(null, '', `?stage=${i + 1}`);
+      history.replaceState(null, '', `?stage=${stages[i].dataset.no}`);
       if (reduced()) return;
       const next = stages[i];
       // 화면 전환: 게임 스테이지가 바뀌듯 가로 줄무늬로 쓸고 들어온다
@@ -130,8 +130,9 @@ const bars = (g: (typeof games)[number]) => [
       else if (e.key === 'Enter' && !(e.target as Element).closest?.('a, button')) { sfx('jump'); stages[current].querySelector<HTMLAnchorElement>('.press')?.click(); }
     });
 
-    const want = Number(new URLSearchParams(location.search).get('stage')) - 1;
-    select(want >= 0 && want < stages.length ? want : 0, false);
+    // ?stage= 는 위치가 아니라 스테이지 번호(order)라, 정렬이 바뀌어도 링크가 같은 게임을 가리킨다
+    const want = stages.findIndex((s) => s.dataset.no === new URLSearchParams(location.search).get('stage'));
+    select(Math.max(want, 0), false);
 
     if (!reduced()) {
       // 입장: 카트리지가 아래에서 차례로 꽂히고, 선택 커서가 통통 튄다

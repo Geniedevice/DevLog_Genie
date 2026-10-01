@@ -145,8 +145,8 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur: 180ms;
 
-  /* 폰트는 전부 자체 호스팅(npm 으로 받아 번들). 픽셀 폰트는 영문 HUD 에만 */
-  --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  /* 폰트는 전부 자체 호스팅. 본문은 빛의 계승자(400·700 두 굵기, 없는 글자는 Pretendard), 픽셀 폰트는 영문 HUD 에만 */
+  --font-sans: 'HeirofLight', 'Pretendard Variable', Pretendard, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --font-pixel: 'Galmuri11', 'JetBrains Mono', monospace;
 

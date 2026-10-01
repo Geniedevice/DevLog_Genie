@@ -1,6 +1,6 @@
 ---
 // 폰트는 npm 으로 받아 함께 번들한다(외부 CDN 없음)
-import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'; // 본문 폰트에 없는 글자 대비 예비
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '../styles/global.css';
@@ -53,8 +53,10 @@ const { level } = levelOf(published);
     <meta name="theme-color" content="#f4f5fa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111522" media="(prefers-color-scheme: dark)" />
 
+    <link rel="preload" href={url('fonts/heir-of-light-regular.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={url('fonts/heir-of-light-bold.woff2')} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={url('fonts/galmuri11-bold-latin.woff2')} as="font" type="font/woff2" crossorigin />
-    <style is:inline set:html={`@font-face{font-family:'Galmuri11';src:url('${url('fonts/galmuri11-bold-latin.woff2')}') format('woff2');font-weight:100 900;font-display:swap}`}></style>
+    <style is:inline set:html={`@font-face{font-family:'Galmuri11';src:url('${url('fonts/galmuri11-bold-latin.woff2')}') format('woff2');font-weight:100 900;font-display:swap}@font-face{font-family:'HeirofLight';src:url('${url('fonts/heir-of-light-regular.woff2')}') format('woff2');font-weight:400;font-display:swap}@font-face{font-family:'HeirofLight';src:url('${url('fonts/heir-of-light-bold.woff2')}') format('woff2');font-weight:700;font-display:swap}`}></style>
 
     <script is:inline>
       (() => {

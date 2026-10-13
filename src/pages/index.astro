@@ -64,7 +64,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
             <span class="g-body">
               <span class="g-title">{g.data.game.title}</span>
               <span class="g-tag">{g.data.game.tagline}</span>
-              <span class="g-meta pixel-font">{!g.data.game.team ? 'TEAM' : g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team} PLAYERS`} · {g.data.game.engine.replace('Unreal Engine', 'UE')}</span>
+              <span class="g-meta pixel-font">{g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team} PLAYERS`} · {g.data.game.engine.replace('Unreal Engine', 'UE')}</span>
             </span>
             <span class="g-press pixel-font" aria-hidden="true">▶ START</span>
           </a>

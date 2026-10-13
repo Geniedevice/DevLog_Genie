@@ -28,7 +28,7 @@ const posts = defineCollection({
           tagline: z.string(),
           genre: z.string(),
           period: z.string(),
-          team: z.number().optional(), // 팀 인원(개인 = 1). 모르면 비운다
+          team: z.number(), // 팀 인원(개인 = 1)
           role: z.string(),
           engine: z.string(),
           stack: z.array(z.string()),

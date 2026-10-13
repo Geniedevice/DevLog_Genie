@@ -8,9 +8,9 @@ import { postUrl, readingMinutes } from '../lib/posts';
 // 게임 선택 화면처럼: 아래 카트리지를 고르면 위 미리보기·능력치가 바뀐다.
 // JS 가 없으면 스테이지 셋이 그냥 차례로 다 보인다(선택 UI 는 스크립트가 켤 때만).
 const games = await getGames();
-const MAX_TEAM = 6;
+const MAX_TEAM = 9;
 const bars = (g: (typeof games)[number]) => [
-  ...(g.data.game.team ? [{ label: 'TEAM', value: g.data.game.team, max: MAX_TEAM, text: g.data.game.team === 1 ? '1명 (개인)' : `${g.data.game.team}명` }] : []),
+  { label: 'TEAM', value: g.data.game.team, max: MAX_TEAM, text: g.data.game.team === 1 ? '1명 (개인)' : `${g.data.game.team}명` },
   { label: 'TECH', value: g.data.game.stack.length + 1, max: 6, text: `${g.data.game.stack.length + 1}종` },
   { label: 'LOG', value: Math.min(10, readingMinutes(g.body)), max: 10, text: `${readingMinutes(g.body)}분 분량` },
 ];
@@ -75,7 +75,7 @@ const bars = (g: (typeof games)[number]) => [
           <span class="cart-label">
             <span class="pixel-font no">{String(g.data.game.order).padStart(2, '0')}</span>
             <span class="name">{g.data.game.title}</span>
-            <span class="meta">{!g.data.game.team ? 'TEAM' : g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team}P`} · {g.data.game.period.split(' ')[0]}</span>
+            <span class="meta">{g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team}P`} · {g.data.game.period.split(' ')[0]}</span>
           </span>
         </button>
       ))}

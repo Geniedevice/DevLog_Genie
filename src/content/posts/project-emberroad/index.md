@@ -12,6 +12,7 @@ game:
   tagline: 모닥불에 둘러앉은 4~7인, 확률 판정 카드로 싸우는 마피아 게임
   genre: TRPG 스타일 마피아 카드 게임 · PvP 4~7인 / PvE
   period: 2026.07 – 2026.10
+  team: 9
   role: 카드 연출 · 시퀀스 · 렌더링 / 라이팅
   engine: Unreal Engine 5.8
   stack: [C++, GAS, CommonUI, Chaos Destruction]
@@ -19,7 +20,7 @@ game:
   portfolio: https://geniedevice.github.io/Game-Project-Technical-Introduction/projects/emberroad/
 ---
 
-보드게임 《뱅!》의 정체 은닉과 카드 전투에, 모든 카드가 **대실패 · 실패 · 성공 · 대성공** 으로 갈리는 확률 판정을 얹은 마피아 게임입니다. 팀에서 **카드 연출 · 시퀀스 · 렌더링 / 라이팅** 을 맡았습니다.
+보드게임 《뱅!》의 정체 은닉과 카드 전투에, 모든 카드가 **대실패 · 실패 · 성공 · 대성공** 으로 갈리는 확률 판정을 얹은 마피아 게임입니다. 9인 팀에서 **카드 연출 · 시퀀스 · 렌더링 / 라이팅** 을 맡았습니다.
 
 <video class="video" src="https://geniedevice.github.io/Game-Project-Technical-Introduction/projects/emberroad/card-play.mp4" poster="https://geniedevice.github.io/Game-Project-Technical-Introduction/projects/emberroad/card-play.jpg" controls playsinline preload="none"></video>
 
@@ -31,6 +32,7 @@ game:
 | 인원 | PvP 4~7인 · PvE 싱글 |
 | 기반 | 보드게임 《뱅!》 + 확률 판정 |
 | 기간 | 2026.07 – 2026.10 |
+| 팀 | 9명 |
 | 담당 | 카드 연출 · 시퀀스 · 렌더링 / 라이팅 |
 | 환경 | Unreal Engine 5.8 · C++ / Blueprint · PC (Steam) |
 

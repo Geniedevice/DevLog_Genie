@@ -10,12 +10,12 @@ import { postUrl, readingMinutes } from '../lib/posts';
 const games = await getGames();
 const MAX_TEAM = 6;
 const bars = (g: (typeof games)[number]) => [
-  { label: 'TEAM', value: g.data.game.team, max: MAX_TEAM, text: g.data.game.team === 1 ? '1명 (개인)' : `${g.data.game.team}명` },
+  ...(g.data.game.team ? [{ label: 'TEAM', value: g.data.game.team, max: MAX_TEAM, text: g.data.game.team === 1 ? '1명 (개인)' : `${g.data.game.team}명` }] : []),
   { label: 'TECH', value: g.data.game.stack.length + 1, max: 6, text: `${g.data.game.stack.length + 1}종` },
   { label: 'LOG', value: Math.min(10, readingMinutes(g.body)), max: 10, text: `${readingMinutes(g.body)}분 분량` },
 ];
 ---
-<BaseLayout title="프로젝트" active="projects" description="만든 게임 세 편 — Gears of Deceit, Crawlescape, DESTINATION">
+<BaseLayout title="프로젝트" active="projects" description="만든 게임 네 편 — EmberRoad, Gears of Deceit, Crawlescape, DESTINATION">
   <div class="page" data-stage-select>
     <header class="head">
       <p class="eyebrow pixel-font"><span class="blink">▶</span> STAGE SELECT</p>
@@ -75,7 +75,7 @@ const bars = (g: (typeof games)[number]) => [
           <span class="cart-label">
             <span class="pixel-font no">{String(g.data.game.order).padStart(2, '0')}</span>
             <span class="name">{g.data.game.title}</span>
-            <span class="meta">{g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team}P`} · {g.data.game.period.split(' ')[0]}</span>
+            <span class="meta">{!g.data.game.team ? 'TEAM' : g.data.game.team === 1 ? 'SOLO' : `${g.data.game.team}P`} · {g.data.game.period.split(' ')[0]}</span>
           </span>
         </button>
       ))}

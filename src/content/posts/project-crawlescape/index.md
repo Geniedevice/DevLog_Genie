@@ -1,6 +1,6 @@
 ---
 title: "Crawlescape — 무기를 늘려도 무너지지 않는 액션 로그라이크 TPS"
-description: 6인 팀으로 4주 동안 만든 액션 로그라이크 TPS. 데이터 드리븐 무기, 총알 오브젝트 풀링, UI 매니저로 "기능을 더할수록 비용이 붙는" 구조를 끊어낸 기록입니다.
+description: 6인 팀 4주 액션 로그라이크 TPS. 데이터 드리븐 무기 · 오브젝트 풀링 · UI 매니저를 영상과 그림으로 정리했습니다.
 date: 2026-09-30T20:10:00+09:00
 cover: ./cover.jpg
 coverAlt: Crawlescape 타이틀 아트
@@ -21,58 +21,75 @@ game:
   video: https://www.youtube.com/watch?v=6jrdc7jVilQ
 ---
 
-다양한 무기로 싸우며 구역을 돌파하는 액션 로그라이크 TPS 입니다. 6인 팀에서 **전투 시스템 · 오브젝트 풀링 · UI 관리 · 포스트 프로세스** 를 맡았습니다.
+다양한 무기로 구역을 돌파하는 액션 로그라이크 TPS. 6인 팀에서 **전투 시스템 · 오브젝트 풀링 · UI 관리 · 포스트 프로세스** 를 맡았습니다.
 
-<iframe class="video" src="https://www.youtube-nocookie.com/embed/6jrdc7jVilQ" title="Crawlescape 플레이 영상" loading="lazy" allowfullscreen></iframe>
+<iframe class="video" src="https://www.youtube-nocookie.com/embed/6jrdc7jVilQ" title="Crawlescape 프로젝트 기록 영상" loading="lazy" allowfullscreen></iframe>
 
-## 한눈에
+*프로젝트 전체 기록 영상*
 
-| 항목 | 내용 |
-| --- | --- |
-| 장르 | 액션 TPS |
-| 기간 | 2026.05.01 – 2026.05.27 (4주) |
-| 팀 | 6명 |
-| 담당 | 전투 시스템 · 오브젝트 풀링 · UI 매니저 · 포스트 프로세스 |
-| 환경 | Unreal Engine 5.5 · C++ / Blueprint · PC (Windows) |
+| 장르 | 기간 | 담당 | 결과 | 환경 |
+| --- | --- | --- | --- | --- |
+| 액션 TPS · 로그라이크 | 2026.05 · 4주 · 6인 팀 | 전투 · 풀링 · UI · 포스트 프로세스 | 60fps 안정화 | UE 5.5 · C++ / BP |
 
-## 풀어야 했던 문제
+<div class="media-2">
 
-총기가 늘 때마다 클래스를 하나씩 더 만들고, 화면이 늘 때마다 열고 닫는 코드를 여기저기 심는 구조였습니다. 거기에 몬스터를 많이 스폰하면 프레임이 무너졌습니다. **기능을 더할수록 비용이 같이 붙는 것**이 문제였습니다.
+![워크플로우](./flow-work.png)
 
-## 이렇게 풀었다
+*장비 · 전투 · 성장 → 처치 이벤트 → 미션, 풀링 · 스폰 지원*
 
-| 영역 | 접근 | 결과 |
+![게임 플로우](./flow-game.png)
+
+*구역 진입 → 전투 · 성장 → 미션 → 출구, 시간이 지나면 전기장*
+
+</div>
+
+## 01 · 전투 — 데이터 드리븐 무기
+
+<iframe class="video" src="https://www.youtube-nocookie.com/embed/LmYBKiMyngM" title="전투 시스템" loading="lazy" allowfullscreen></iframe>
+
+*무기 교체와 사격*
+
+<div class="media-2">
+
+![무기 DataAsset](./weapon-dataasset.png)
+
+*수치 · 강화 · 아이콘 · 장착 클래스가 전부 DataAsset 에*
+
+![소켓 장착](./weapon-sockets.png)
+
+*등 · 허리 · 양손 소켓 — 어디 붙일지도 데이터가 정한다*
+
+</div>
+
+공통 흐름은 C++, 무기별 동작만 BlueprintImplementableEvent — **C++ 수정 없이 무기 추가**.
+
+## 02 · 오브젝트 풀링
+
+| 단계 | 매번 Spawn / Destroy | 풀링 |
 | --- | --- | --- |
-| 무기 | 수치는 DataAsset, 무기별 동작은 BlueprintImplementableEvent 로 열어 템플릿화 | C++ 수정 없이 DataAsset + BP 로 무기 추가 |
-| 총알 | 미리 만들어 두고 꺼내 쓰는 오브젝트 풀링 | 총알 · 몬스터 재사용 |
-| UI | UIManager 한 곳이 열고 닫기와 중복을 카운팅으로 전담 | 화면 관리 일원화 |
-| 연출 | 무기 소켓 · 스프링 암 트레이스, 포스트 프로세스와 UI 머티리얼 | 연출을 게임 코드와 분리 |
+| 생성 | 발사마다 생성 | 미리 확보해 꺼내 쓰기 |
+| 반환 | Destroy → GC | 비활성화 후 반납 |
+| 비용 | 발사 수에 비례 | 풀 크기만큼 고정 |
 
-전체적으로 **60fps 안정화**까지 끌어올렸습니다.
+## 03 · UI 매니저
 
-### 데이터 드리븐 무기와 템플릿 패턴
+<iframe class="video" src="https://www.youtube-nocookie.com/embed/05jIXJ4GJK8" title="UI 시스템" loading="lazy" allowfullscreen></iframe>
 
-공통 흐름은 C++ 에 두고, 무기마다 달라지는 부분만 BlueprintImplementableEvent 로 열었습니다. 새 무기는 DataAsset 과 BP 하나로 추가됩니다.
+*화면을 열고 닫는 흐름 — 레퍼런스 카운트가 0 이 될 때만 내려간다*
 
-### UI 매니저
+## 04 · UI 효과 — Dynamic Material Instance
 
-레퍼런스 카운터를 기준으로 위젯을 중앙에서 관리했습니다. 여러 곳에서 같은 화면을 열어도 한 번만 뜨고, 모두 닫혀야 사라집니다.
+<iframe class="video" src="https://www.youtube-nocookie.com/embed/gZ5CZWi2KTQ" title="히트 이펙트" loading="lazy" allowfullscreen></iframe>
 
-### Dynamic Material Instance 로 UI 효과
-
-연출을 로직이 아니라 머티리얼에서 처리해 게임 코드와 분리했습니다.
+*피격 순간의 화면 반응 — 연출은 머티리얼 안에서 끝난다*
 
 ## 트러블 슈팅
 
-### 총알을 SpawnActor 로 만들 때 프레임이 떨어지는 문제
-
-풀링 컴포넌트를 붙여 총알을 미리 만들어 두고, 발사할 때는 꺼내 위치와 방향만 다시 세팅하도록 바꿨습니다. 명중하거나 수명이 끝나면 Destroy 대신 비활성화해 풀로 돌려보냅니다.
-
-### 패키징하면 일부 UASSET 이 빠지는 문제
-
-직접 참조가 없는 에셋이 쿠킹에서 빠지고 있었습니다. 프로젝트 세팅의 **Additional Asset Directories to Cook** 에 경로를 등록해 참조가 없어도 포함되게 했고, 패키징이 정상적으로 완료됐습니다.
+| 증상 | 원인 | 해결 |
+| --- | --- | --- |
+| 연사 중 프레임 하락 | SpawnActor / Destroy 반복 + GC | 풀링 컴포넌트로 재사용 |
+| 패키징에서 일부 에셋 누락 | 경로로만 불러 참조가 없음 | Additional Asset Directories to Cook |
 
 ## 더 보기
 
-- [포트폴리오 상세 — 워크플로우 · 게임 플로우 · 기능별 영상](https://geniedevice.github.io/Game-Project-Technical-Introduction/projects/crawlescape/)
-- [플레이 영상 (YouTube)](https://www.youtube.com/watch?v=6jrdc7jVilQ)
+- [포트폴리오 상세](https://geniedevice.github.io/Game-Project-Technical-Introduction/projects/crawlescape/) · [플레이 영상](https://www.youtube.com/watch?v=6jrdc7jVilQ)

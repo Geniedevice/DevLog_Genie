@@ -151,3 +151,16 @@
 
 /* 유튜브 임베드: 16:9 */
 .prose iframe.video, .prose video.video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; margin: 28px 0; border: 0; border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--border), var(--shadow-md); background: #000; }
+/* 영상 바로 아래 *기울임* 한 줄도 캡션으로 */
+.prose :is(iframe.video, p:has(> :is(iframe, video).video)) + p > em:only-child { display: block; margin-top: -16px; text-align: center; font-size: 14px; font-style: normal; color: var(--muted-foreground); }
+
+/* 미디어 두 장 나란히: <div class="media-2"> 안에 [미디어, *캡션*] 을 두 번.
+   ⚠️ 캡션까지 짝을 맞춰야 한다 — 열 방향으로 [미디어, 캡션] 두 칸씩 채운다 */
+.prose .media-2 { margin: 28px 0; }
+.prose .media-2 > * { margin: 0 0 8px; }
+.prose .media-2 img, .prose .media-2 .video { width: 100%; margin: 0; }
+.prose .media-2 em { margin-top: 0 !important; }
+@media (min-width: 720px) {
+  .prose .media-2 { display: grid; grid-auto-flow: column; grid-template-rows: auto auto; grid-auto-columns: 1fr; gap: 8px 14px; align-items: start; }
+  .prose .media-2 > * { margin: 0; }
+}

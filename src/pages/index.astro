@@ -8,6 +8,8 @@ import { totals } from '../lib/stats';
 import { SITE } from '../site.config';
 
 const PAGE = 12;
+// 첫 카드는 크게 보여서(styles/global.css .has-feature) 더 큰 이미지를 받는다
+const FEATURE_SIZES = '(min-width: 1100px) 60vw, 100vw';
 const posts = await getPosts();
 const latest = posts[0];
 // 기본 정렬(최신순)에서는 고정 글이 맨 앞
@@ -73,8 +75,8 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     {posts.length === 0 ? (
       <p class="empty">아직 기록이 없어요.</p>
     ) : (
-      <div class="gallery has-feature" data-grid>
-        {ordered.map((post, i) => <GalleryCard post={post} eager={i < 3} hidden={i >= PAGE} />)}
+      <div class="gallery has-feature" data-grid data-feature-sizes={FEATURE_SIZES}>
+        {ordered.map((post, i) => <GalleryCard post={post} eager={i < 3} hidden={i >= PAGE} sizes={i === 0 ? FEATURE_SIZES : undefined} />)}
       </div>
     )}
     <p class="empty" data-empty hidden>이 분류의 기록은 아직 없어요.</p>
@@ -150,6 +152,8 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
       c.hidden = !shown.includes(c);
       grid?.append(c);
     });
+    // 분류·정렬이 바뀌어 다른 카드가 첫 칸에 오면 그 카드도 큰 이미지로 바꿔 받는다
+    shown[0]?.querySelector('img')?.setAttribute('sizes', grid?.dataset.featureSizes ?? '');
     if (more) more.hidden = matched.length <= limit;
     if (empty) empty.hidden = matched.length > 0;
     cardsIn(animateAll ? shown : shown.filter((c) => !before.has(c)));

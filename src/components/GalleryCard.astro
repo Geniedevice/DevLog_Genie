@@ -8,15 +8,16 @@ interface Props {
   post: Post;
   eager?: boolean;
   hidden?: boolean;
+  sizes?: string;
 }
-const { post, eager = false, hidden } = Astro.props;
+const { post, eager = false, hidden, sizes = '(min-width: 1200px) 380px, (min-width: 640px) 45vw, 100vw' } = Astro.props;
 const { title, description, date, category, pinned, draft } = post.data;
 const ymd = date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
 const minutes = readingMinutes(post.body);
 ---
 <article class="card-post" data-card data-id={post.id} data-category={category} data-date={date.valueOf()} data-minutes={minutes} hidden={hidden}>
   <a class="thumb-wrap" href={postUrl(post)} tabindex="-1" aria-hidden="true">
-    <Thumbnail post={post} text={false} eager={eager} sizes="(min-width: 1200px) 380px, (min-width: 640px) 45vw, 100vw" />
+    <Thumbnail post={post} text={false} eager={eager} sizes={sizes} />
     <span class="flags">
       {draft && <span class="flag draft">초안</span>}
       {pinned && !draft && <span class="flag"><Icon name="pin" size={11} />고정</span>}

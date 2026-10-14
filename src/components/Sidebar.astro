@@ -14,7 +14,7 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   <a class="brand" href={url()}>
     <Icon name="moon" size={30} fill class="logo" />
     <span class="brand-name">{SITE.title}</span>
-    <span class="brand-sub pixel-font">GAME DEV BLOG<br />GENIE LAB</span>
+    <span class="brand-sub pixel-font">GENIE LAB</span>
   </a>
 
   <nav aria-label="주 메뉴">
@@ -42,9 +42,6 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
     <div class="ex-head pixel-font"><span>EXPLORED</span><span><b data-ex-count>0</b>/{ids.length}</span></div>
     <div class="ex-bar"><i data-ex-fill></i></div>
   </div>
-
-  <hr class="separator" />
-  <p class="motto pixel-font">SMALL LOGS<br />MAKE<br />A BRIGHTER<br />TOMORROW.</p>
 
   <div class="toggles">
     <button class="btn btn-ghost btn-icon btn-sm" type="button" data-theme-toggle aria-label="낮·밤 전환" title="낮·밤 전환">
@@ -114,7 +111,6 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   .ex-head b { color: var(--mint); font-weight: 700; }
   .ex-bar { height: 6px; border-radius: 99px; background: var(--sidebar-accent); overflow: hidden; }
   .ex-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--brand)); box-shadow: 0 0 8px var(--glow); }
-  .motto { margin: 0; padding: 0 10px; font-size: 10px; line-height: 1.9; letter-spacing: 0.3em; color: var(--muted-foreground); }
 
   .toggles { display: flex; gap: 2px; padding: 0 4px; }
   .theme-day, .snd-on { display: none; }

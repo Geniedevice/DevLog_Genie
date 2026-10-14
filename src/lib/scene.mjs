@@ -163,11 +163,6 @@ export function sceneFront() {
       <rect x="0" y="0" width="34" height="32" rx="6" fill="#e7ebf5"/><path d="M34 8 h6 a7 7 0 0 1 0 14 h-6" stroke="#e7ebf5" stroke-width="5" fill="none"/>
       <rect x="9" y="10" width="16" height="10" rx="3" fill="#a99be8"/>
     </g>
-    <g transform="translate(70 446)">
-      <rect width="190" height="46" rx="10" fill="#141a2b" stroke="#3a4466" stroke-width="2"/>
-      <text x="22" y="30" font-family="Galmuri11, 'JetBrains Mono', monospace" font-size="15" font-weight="700" fill="${P.lav}" letter-spacing="4">GENIE LAB</text>
-      <g transform="translate(164 23)"><circle r="9" fill="${P.lav}"/><ellipse rx="15" ry="4" fill="none" stroke="${P.mint}" stroke-width="2" transform="rotate(-20)"/></g>
-    </g>
     <g transform="translate(1150 410)"><path d="M-18 0h36l-5 -30h-26z" fill="#6c63b5"/><path class="leaf" d="M0 -30 C-6 -60 -26 -66 -30 -54 M0 -30 C6 -64 22 -72 28 -58 M0 -30 C0 -66 8 -80 14 -74" stroke="${P.mint}" stroke-width="6" fill="none" stroke-linecap="round"/></g>`,
     `<radialGradient id="sf-lamp" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#ffe7b0" stop-opacity=".28"/><stop offset="1" stop-color="#ffe7b0" stop-opacity="0"/></radialGradient>
     <linearGradient id="sf-desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.desk}"/><stop offset="1" stop-color="#151b2b"/></linearGradient>`,

@@ -5,7 +5,6 @@ import { reduced } from './fx';
 // 이벤트 위임으로 한 번만 걸어 두므로 나중에 생긴 요소(검색 결과 등)에도 적용된다.
 const MAGNETIC = '.btn-default, .chip, .search-box, [data-magnetic]';
 const RIPPLE = '.btn, .chip, .item, .pill, .tab';
-const TILT = '[data-tilt]';
 
 export function wireMicro() {
   if (reduced()) return;
@@ -42,26 +41,4 @@ export function wireMicro() {
     el.append(dot);
     animate(dot, { scale: [0, 1], opacity: [0.35, 0], duration: 650, ease: 'outQuad', onComplete: () => dot.remove() });
   });
-
-  // 기울기: 카드가 커서 방향으로 입체감 있게 기울고, 빛 반사가 따라온다
-  if (!coarse) {
-    document.addEventListener('pointermove', (e) => {
-      const el = (e.target as Element).closest?.<HTMLElement>(TILT);
-      document.querySelectorAll<HTMLElement>(`${TILT}[data-tilting]`).forEach((other) => {
-        if (other === el) return;
-        other.removeAttribute('data-tilting');
-        animate(other, { rotateX: 0, rotateY: 0, duration: 600, ease: 'outElastic(1, .6)' });
-        other.style.setProperty('--glare', '0');
-      });
-      if (!el) return;
-      el.setAttribute('data-tilting', '');
-      const r = el.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width;
-      const py = (e.clientY - r.top) / r.height;
-      animate(el, { rotateX: (0.5 - py) * 8, rotateY: (px - 0.5) * 10, duration: 300, ease: 'outQuad' });
-      el.style.setProperty('--gx', `${px * 100}%`);
-      el.style.setProperty('--gy', `${py * 100}%`);
-      el.style.setProperty('--glare', '1');
-    });
-  }
 }

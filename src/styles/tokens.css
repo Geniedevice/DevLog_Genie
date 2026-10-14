@@ -1,9 +1,33 @@
 /*
  * GENIE LAB 팔레트 — shadcn/ui 식 시맨틱 토큰(표면 --x / 그 위 글자 --x-foreground) + 차트 --chart-1…5.
- * 밤(기본 인상): Background #111522 · Surface #1C2335 · Lavender #A99BE8 · Mint #8FD4C1 · Text #E7EBF5
+ *
+ * 색은 아래 한 벌뿐이고, 강조색마다 맡은 뜻이 하나다. 새 색이 필요하면 hex 를 쓰지 말고 여기 토큰을 고른다.
+ *   밤   Night #111522 · Deep #0C0F19 · Surface #1C2335 · Line #283048 · Text #E7EBF5 · Muted #98A0B8
+ *   Lavender #A99BE8  브랜드 · 이동(링크, 선택된 메뉴, 진행 중인 것)
+ *   Mint     #8FD4C1  완료 · 성장(다 읽음, 레벨, 탐험률, 스테이지 번호)
+ *   Amber    #F2CF7A  보상 · 게임 신호(XP, 연속 기록, START, 업적)
+ *   Rose     #F29CC8  차트 · 장식 전용(색종이, 차트 3번째 계열) — UI 의미에는 쓰지 않는다
+ *   Sky      #7FB2F0  차트 · 안내(NOTE) 전용
+ *
  * 낮: 같은 색상을 달빛 종이 위로 옮긴 버전.
+ * --night-* 는 테마와 상관없이 늘 밤인 곳(히어로, 로딩 화면, 사진 위 라벨, 코드 블록)에만 쓴다.
  */
 :root {
+  --night: #111522;
+  --night-deep: #0c0f19;
+  --night-surface: #1c2335;
+  --night-line: #283048;
+  --night-text: #e7ebf5;
+  --night-muted: #98a0b8;
+  --night-lav: #a99be8;
+  --night-lav-hi: #b9adff;
+  --night-mint: #8fd4c1;
+  --night-amber: #f2cf7a;
+  --night-rose: #f29cc8;
+  --night-sky: #7fb2f0;
+  /* 사진·영상 위에 얹는 라벨 바탕 */
+  --night-scrim: rgb(12 15 25 / 0.8);
+
   --background: #f4f5fa;
   --foreground: #151a2b;
   --card: #ffffff;
@@ -41,93 +65,94 @@
   --mint: #2f9d84;
   --brand-soft: rgb(122 104 214 / 0.1);
   --amber: #c98a12;
+  --sky: #3d86d6;
   --glow: rgb(122 104 214 / 0.3);
   --hero-fade: #f4f5fa;
-  --code-bg: #111522;
+  --code-bg: var(--night-deep);
   --heat-0: #e6e8f2;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --background: #111522;
-    --foreground: #e7ebf5;
-    --card: #1c2335;
-    --card-foreground: #e7ebf5;
-    --popover: #1c2335;
-    --popover-foreground: #e7ebf5;
-    --primary: #a99be8;
-    --primary-foreground: #111522;
+    --background: var(--night);
+    --foreground: var(--night-text);
+    --card: var(--night-surface);
+    --card-foreground: var(--night-text);
+    --popover: var(--night-surface);
+    --popover-foreground: var(--night-text);
+    --primary: var(--night-lav);
+    --primary-foreground: var(--night);
     --secondary: #232b40;
-    --secondary-foreground: #e7ebf5;
+    --secondary-foreground: var(--night-text);
     --muted: #1a2032;
-    --muted-foreground: #98a0b8;
+    --muted-foreground: var(--night-muted);
     --accent: #262d45;
     --accent-foreground: #d9d2ff;
     --destructive: #f07a8e;
-    --border: #283048;
+    --border: var(--night-line);
     --input: #323a55;
-    --ring: #a99be8;
+    --ring: var(--night-lav);
     --sidebar: #141a2a;
     --sidebar-foreground: #dfe3ef;
-    --sidebar-primary: #a99be8;
-    --sidebar-primary-foreground: #111522;
+    --sidebar-primary: var(--night-lav);
+    --sidebar-primary-foreground: var(--night);
     --sidebar-accent: #1f2638;
     --sidebar-border: #222a3e;
-    --chart-1: #a99be8;
-    --chart-2: #8fd4c1;
-    --chart-3: #f29cc8;
-    --chart-4: #7fb2f0;
-    --chart-5: #f2cf7a;
-    --brand: #a99be8;
-    --mint: #8fd4c1;
+    --chart-1: var(--night-lav);
+    --chart-2: var(--night-mint);
+    --chart-3: var(--night-rose);
+    --chart-4: var(--night-sky);
+    --chart-5: var(--night-amber);
+    --brand: var(--night-lav);
+    --mint: var(--night-mint);
     --brand-soft: rgb(169 155 232 / 0.14);
-    --amber: #f2cf7a;
+    --amber: var(--night-amber);
+    --sky: var(--night-sky);
     --glow: rgb(169 155 232 / 0.4);
-    --hero-fade: #111522;
-    --code-bg: #0c0f19;
+    --hero-fade: var(--night);
     --heat-0: #1f2639;
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --background: #111522;
-  --foreground: #e7ebf5;
-  --card: #1c2335;
-  --card-foreground: #e7ebf5;
-  --popover: #1c2335;
-  --popover-foreground: #e7ebf5;
-  --primary: #a99be8;
-  --primary-foreground: #111522;
+  --background: var(--night);
+  --foreground: var(--night-text);
+  --card: var(--night-surface);
+  --card-foreground: var(--night-text);
+  --popover: var(--night-surface);
+  --popover-foreground: var(--night-text);
+  --primary: var(--night-lav);
+  --primary-foreground: var(--night);
   --secondary: #232b40;
-  --secondary-foreground: #e7ebf5;
+  --secondary-foreground: var(--night-text);
   --muted: #1a2032;
-  --muted-foreground: #98a0b8;
+  --muted-foreground: var(--night-muted);
   --accent: #262d45;
   --accent-foreground: #d9d2ff;
   --destructive: #f07a8e;
-  --border: #283048;
+  --border: var(--night-line);
   --input: #323a55;
-  --ring: #a99be8;
+  --ring: var(--night-lav);
   --sidebar: #141a2a;
   --sidebar-foreground: #dfe3ef;
-  --sidebar-primary: #a99be8;
-  --sidebar-primary-foreground: #111522;
+  --sidebar-primary: var(--night-lav);
+  --sidebar-primary-foreground: var(--night);
   --sidebar-accent: #1f2638;
   --sidebar-border: #222a3e;
-  --chart-1: #a99be8;
-  --chart-2: #8fd4c1;
-  --chart-3: #f29cc8;
-  --chart-4: #7fb2f0;
-  --chart-5: #f2cf7a;
-  --brand: #a99be8;
-  --mint: #8fd4c1;
+  --chart-1: var(--night-lav);
+  --chart-2: var(--night-mint);
+  --chart-3: var(--night-rose);
+  --chart-4: var(--night-sky);
+  --chart-5: var(--night-amber);
+  --brand: var(--night-lav);
+  --mint: var(--night-mint);
   --brand-soft: rgb(169 155 232 / 0.14);
-  --amber: #f2cf7a;
+  --amber: var(--night-amber);
+  --sky: var(--night-sky);
   --glow: rgb(169 155 232 / 0.4);
-  --hero-fade: #111522;
-  --code-bg: #0c0f19;
+  --hero-fade: var(--night);
   --heat-0: #1f2639;
   color-scheme: dark;
 }

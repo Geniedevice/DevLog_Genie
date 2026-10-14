@@ -50,7 +50,7 @@ const { id, xp } = Astro.props;
       for (let i = 0; i < 12; i++) {
         const p = document.createElement('i');
         p.className = 'rc-bit';
-        p.style.background = ['#a99be8', '#8fd4c1', '#f2cf7a', '#f29cc8'][i % 4];
+        p.style.background = ['var(--brand)', 'var(--mint)', 'var(--amber)', 'var(--chart-3)'][i % 4];
         box.append(p);
         const a = random(0, Math.PI * 2, 3), d = random(26, 52);
         animate(p, { translateX: [0, Math.cos(a) * d], translateY: [0, Math.sin(a) * d], scale: [1, 0], duration: random(500, 800), ease: 'outCubic', onComplete: () => p.remove() });
@@ -62,7 +62,7 @@ const { id, xp } = Astro.props;
 <style>
   .readcheck { position: relative; display: flex; align-items: center; gap: 16px; margin-top: 44px; padding: 18px 20px; border: 1px dashed var(--input); border-radius: var(--radius-xl); background: var(--card); transition: border-color 300ms, background 300ms; }
   .readcheck.done { border-style: solid; border-color: color-mix(in srgb, var(--mint) 60%, var(--border)); background: color-mix(in srgb, var(--mint) 7%, var(--card)); }
-  .rc-box { position: relative; display: grid; place-items: center; width: 34px; height: 34px; flex: none; border: 2px solid var(--input); border-radius: 9px; background: var(--background); color: #111522; cursor: pointer; transition: background 200ms, border-color 200ms, box-shadow 200ms; }
+  .rc-box { position: relative; display: grid; place-items: center; width: 34px; height: 34px; flex: none; border: 2px solid var(--input); border-radius: 9px; background: var(--background); color: var(--night); cursor: pointer; transition: background 200ms, border-color 200ms, box-shadow 200ms; }
   .rc-box:hover { border-color: var(--mint); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 18%, transparent); }
   .rc-box[aria-checked='true'] { background: var(--mint); border-color: var(--mint); }
   .rc-box svg { width: 22px; height: 22px; overflow: visible; }

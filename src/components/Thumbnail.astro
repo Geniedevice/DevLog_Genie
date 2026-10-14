@@ -54,17 +54,17 @@ const lines = (thumbText ?? (cover ? '' : title))
 
   .art { position: absolute; inset: 0; display: grid; place-items: end; padding: 5%; }
   .art :global(.icon) { width: 34cqw; height: 34cqw; opacity: 0.22; }
-  .tone-gold { background: radial-gradient(circle at 80% 85%, #4a3f1f, #111522 80%); color: #f2cf7a; }
-  .tone-arcane { background: radial-gradient(circle at 80% 85%, #3d3478, #111522 80%); color: #a99be8; }
-  .tone-ember { background: radial-gradient(circle at 80% 85%, #5a2645, #111522 80%); color: #f29cc8; }
-  .tone-emerald { background: radial-gradient(circle at 80% 85%, #1d4a44, #111522 80%); color: #8fd4c1; }
+  .tone-gold { background: radial-gradient(circle at 80% 85%, #4a3f1f, var(--night) 80%); color: var(--night-amber); }
+  .tone-arcane { background: radial-gradient(circle at 80% 85%, #3d3478, var(--night) 80%); color: var(--night-lav); }
+  .tone-ember { background: radial-gradient(circle at 80% 85%, #5a2645, var(--night) 80%); color: var(--night-rose); }
+  .tone-emerald { background: radial-gradient(circle at 80% 85%, #1d4a44, var(--night) 80%); color: var(--night-mint); }
 
   /* 문구 아래를 살짝 어둡게 해서 어떤 커버 위에서도 읽히게 */
   .thumb:has(.caption)::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgb(10 12 22 / 0.78), rgb(10 12 22 / 0.2) 45%, transparent 70%);
+    background: linear-gradient(to top, var(--night-scrim), color-mix(in srgb, var(--night-deep) 20%, transparent) 45%, transparent 70%);
     pointer-events: none;
   }
   .caption {
@@ -81,9 +81,9 @@ const lines = (thumbText ?? (cover ? '' : title))
     line-height: 1.12;
     letter-spacing: -0.022em;
     color: #fff;
-    text-shadow: 0 0.35cqw 0 #0b0e1a, 0 0 2.4cqw rgb(0 0 0 / 0.55);
+    text-shadow: 0 0.35cqw 0 var(--night-deep), 0 0 2.4cqw rgb(0 0 0 / 0.55);
   }
-  .caption em { font-style: normal; color: #b9adff; text-shadow: 0 0.35cqw 0 #0b0e1a, 0 0 3cqw rgb(169 155 232 / 0.55); }
+  .caption em { font-style: normal; color: var(--night-lav-hi); text-shadow: 0 0.35cqw 0 var(--night-deep), 0 0 3cqw color-mix(in srgb, var(--night-lav) 55%, transparent); }
   .caption.long { font-size: 7.4cqw; }
   .caption.long .line { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -94,8 +94,8 @@ const lines = (thumbText ?? (cover ? '' : title))
     z-index: 2;
     padding: 3px 7px;
     border-radius: 5px;
-    background: rgb(10 12 22 / 0.82);
-    color: #e7ebf5;
+    background: var(--night-scrim);
+    color: var(--night-text);
     font: 700 11px/1 var(--font-pixel);
     letter-spacing: 0.06em;
   }

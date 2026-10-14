@@ -140,7 +140,7 @@ const places = [...NAV, BOOKMARKS].map((n) => ({ label: n.label, icon: n.icon, h
 
 <style>
   .cmd { width: min(620px, calc(100vw - 24px)); max-width: none; max-height: none; margin: 12vh auto auto; padding: 0; border: 0; background: transparent; color: var(--popover-foreground); overflow: visible; }
-  .cmd::backdrop { background: rgb(4 8 6 / 0.6); backdrop-filter: blur(4px); }
+  .cmd::backdrop { background: color-mix(in srgb, var(--night-deep) 60%, transparent); backdrop-filter: blur(4px); }
   @media (max-width: 599px) { .cmd { margin-top: 12px; } }
   .panel { display: flex; flex-direction: column; max-height: min(560px, 78vh); border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--popover); box-shadow: var(--shadow-lg); overflow: hidden; }
 

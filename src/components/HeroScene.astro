@@ -43,7 +43,7 @@ const outside = [
   .L, .M { position: absolute; inset: 0; will-change: transform; }
   .L :global(svg.scene-layer) { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   /* 창밖: 하늘 그라디언트 위에 캔버스 별, 달, 먼 산, 가까운 지면 */
-  .window { position: absolute; inset: 0; background: linear-gradient(#0b0f1f, #171d38 58%); }
+  .window { position: absolute; inset: 0; background: linear-gradient(var(--night-deep), #171d38 58%); }
   /* ⚠️ 창밖 레이어는 창보다 좌우로 넓게, 지면은 창 아래까지 그려 두었다(scene.mjs).
      그래서 스크롤로는 아래로만, 마우스로는 조금만 움직여야 가장자리에 빈틈이 안 생긴다. */
   .sky { position: absolute; inset: 0; width: 100%; height: 100%; }

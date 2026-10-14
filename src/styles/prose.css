@@ -73,17 +73,17 @@
   margin: 28px 0;
   border-radius: var(--radius-lg);
   background: var(--code-bg) !important;
-  border: 1px solid #1f2c25;
+  border: 1px solid var(--night-line);
   overflow: hidden;
 }
-.prose .code-bar { display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 6px 0 14px; border-bottom: 1px solid #1f2c25; background: #0f1813; }
+.prose .code-bar { display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 6px 0 14px; border-bottom: 1px solid var(--night-line); background: var(--night); }
 .prose .dots { display: flex; gap: 6px; }
-.prose .dots i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
-.prose .dots i:nth-child(2) { background: #febc2e; }
-.prose .dots i:nth-child(3) { background: #28c840; }
-.prose .code-lang { font: 500 12px/1 var(--font-mono); color: #8fa596; }
-.prose .copy { display: grid; place-items: center; width: 30px; height: 30px; margin-left: auto; border: 0; border-radius: var(--radius-sm); background: transparent; color: #8fa596; cursor: pointer; }
-.prose .copy:hover { background: #1c2a21; color: #d7ecc9; }
+.prose .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--night-rose); }
+.prose .dots i:nth-child(2) { background: var(--night-amber); }
+.prose .dots i:nth-child(3) { background: var(--night-mint); }
+.prose .code-lang { font: 500 12px/1 var(--font-mono); color: var(--night-muted); }
+.prose .copy { display: grid; place-items: center; width: 30px; height: 30px; margin-left: auto; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--night-muted); cursor: pointer; }
+.prose .copy:hover { background: var(--night-surface); color: var(--night-text); }
 .prose pre {
   margin: 0;
   padding: 18px 20px;
@@ -128,9 +128,9 @@
 .prose .callout > :last-child { margin-bottom: 0; }
 .prose .callout-title { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--c); }
 .prose .callout-title .icon { flex: none; }
-.prose .callout-note { --c: #5b9bd5; }
-.prose .callout-tip { --c: var(--brand); }
-.prose .callout-important { --c: #a78bfa; }
+.prose .callout-note { --c: var(--sky); }
+.prose .callout-tip { --c: var(--mint); }
+.prose .callout-important { --c: var(--brand); }
 .prose .callout-warning { --c: var(--amber); }
 .prose .callout-caution { --c: var(--destructive); }
 

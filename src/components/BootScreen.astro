@@ -47,12 +47,12 @@ import { pixelJinySvg } from '../lib/pixel-jiny.mjs';
 </script>
 
 <style is:global>
-  .boot { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: #111522; color: #e7ebf5; cursor: pointer; }
+  .boot { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: var(--night); color: var(--night-text); cursor: pointer; }
   .boot-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-  .boot-jiny { width: 72px; image-rendering: pixelated; filter: drop-shadow(0 0 16px rgb(169 155 232 / 0.5)); }
+  .boot-jiny { width: 72px; image-rendering: pixelated; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--night-lav) 50%, transparent)); }
   .boot-jiny svg { width: 100%; height: auto; display: block; }
-  .boot-text { margin: 0; font-size: 14px; letter-spacing: 0.3em; color: #a99be8; }
-  .boot-bar { display: flex; gap: 4px; padding: 4px; border: 2px solid #a99be8; }
-  .boot-bar i { width: 12px; height: 14px; background: #8fd4c1; opacity: 0.15; }
-  .boot-skip { margin: 0; font-size: 10px; letter-spacing: 0.3em; color: #98a0b8; }
+  .boot-text { margin: 0; font-size: 14px; letter-spacing: 0.3em; color: var(--night-lav); }
+  .boot-bar { display: flex; gap: 4px; padding: 4px; border: 2px solid var(--night-lav); }
+  .boot-bar i { width: 12px; height: 14px; background: var(--night-mint); opacity: 0.15; }
+  .boot-skip { margin: 0; font-size: 10px; letter-spacing: 0.3em; color: var(--night-muted); }
 </style>

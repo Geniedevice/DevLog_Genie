@@ -29,7 +29,7 @@ const bars = (g: (typeof games)[number]) => [
         const d = g.data.game;
         return (
           <section class="stage" data-stage={i} data-no={d.order} aria-labelledby={`stage-${i}`}>
-            <div class="screen" data-tilt>
+            <div class="screen">
               <Thumbnail post={g} text={false} eager={i === 0} sizes="(min-width: 1200px) 720px, 100vw" />
               <span class="scan" aria-hidden="true"></span>
               <span class="stage-no pixel-font">STAGE {String(d.order).padStart(2, '0')}</span>
@@ -166,13 +166,11 @@ const bars = (g: (typeof games)[number]) => [
     overflow: hidden;
     border: 2px solid color-mix(in srgb, var(--brand) 55%, var(--border));
     box-shadow: 0 0 0 6px color-mix(in srgb, var(--card) 80%, transparent), 0 0 40px -8px var(--glow), var(--shadow-lg);
-    transform-style: preserve-3d;
   }
-  .screen::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.14), transparent 55%); opacity: var(--glare, 0); transition: opacity 250ms; }
   /* CRT 주사선 + 가장자리 어둡게 */
   .scan { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.16) 0 2px, transparent 2px 4px), radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.45)); mix-blend-mode: multiply; }
-  .stage-no { position: absolute; left: 14px; top: 14px; z-index: 3; padding: 5px 9px; border-radius: 5px; background: rgb(10 12 22 / 0.8); color: var(--mint); font-size: 11px; letter-spacing: 0.18em; }
-  .press { position: absolute; left: 50%; bottom: 18px; z-index: 3; translate: -50% 0; padding: 8px 14px; border-radius: 6px; background: rgb(10 12 22 / 0.78); color: #f2cf7a; font-size: 12px; letter-spacing: 0.22em; white-space: nowrap; }
+  .stage-no { position: absolute; left: 14px; top: 14px; z-index: 3; padding: 5px 9px; border-radius: 5px; background: var(--night-scrim); color: var(--night-mint); font-size: 11px; letter-spacing: 0.18em; }
+  .press { position: absolute; left: 50%; bottom: 18px; z-index: 3; translate: -50% 0; padding: 8px 14px; border-radius: 6px; background: var(--night-scrim); color: var(--night-amber); font-size: 12px; letter-spacing: 0.22em; white-space: nowrap; }
 
   .info > * { margin: 0; }
   .genre { font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--brand); }
@@ -206,6 +204,7 @@ const bars = (g: (typeof games)[number]) => [
     border-radius: 14px 14px 8px 8px;
     background: linear-gradient(180deg, var(--card), color-mix(in srgb, var(--card) 70%, #000));
     color: var(--foreground);
+    font: inherit;
     text-align: left;
     cursor: pointer;
     transition: border-color 200ms, box-shadow 250ms, filter 250ms, translate 300ms var(--ease-out);
@@ -218,6 +217,6 @@ const bars = (g: (typeof games)[number]) => [
   .no { font-size: 11px; letter-spacing: 0.2em; color: var(--mint); }
   .name { font-weight: 800; font-size: 16px; }
   .meta { font-size: 12px; color: var(--muted-foreground); }
-  .cursor { position: absolute; left: 50%; top: -24px; translate: -50% 0; color: #f2cf7a; font-size: 14px; opacity: 0; }
+  .cursor { position: absolute; left: 50%; top: -24px; translate: -50% 0; color: var(--amber); font-size: 14px; opacity: 0; }
   .cart[aria-selected='true'] .cursor { opacity: 1; }
 </style>

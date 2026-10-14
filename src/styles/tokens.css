@@ -67,7 +67,6 @@
   --amber: #c98a12;
   --sky: #3d86d6;
   --glow: rgb(122 104 214 / 0.3);
-  --hero-fade: #f4f5fa;
   --code-bg: var(--night-deep);
   --heat-0: #e6e8f2;
   color-scheme: light;
@@ -110,7 +109,6 @@
     --amber: var(--night-amber);
     --sky: var(--night-sky);
     --glow: rgb(169 155 232 / 0.4);
-    --hero-fade: var(--night);
     --heat-0: #1f2639;
     color-scheme: dark;
   }
@@ -152,7 +150,6 @@
   --amber: var(--night-amber);
   --sky: var(--night-sky);
   --glow: rgb(169 155 232 / 0.4);
-  --hero-fade: var(--night);
   --heat-0: #1f2639;
   color-scheme: dark;
 }

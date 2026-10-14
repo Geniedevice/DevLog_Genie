@@ -10,7 +10,7 @@ const posts = await getPosts();
 ---
 <BaseLayout title="북마크" active="bookmarks">
   <div class="page">
-    <PageHeader eyebrow="Bookmarks" title="북마크" subtitle="저장한 기록은 이 브라우저에만 보관돼요." />
+    <PageHeader title="북마크" subtitle="저장한 기록은 이 브라우저에만 보관돼요." />
     <div class="gallery" data-grid>
       {posts.map((p) => <GalleryCard post={p} hidden />)}
     </div>

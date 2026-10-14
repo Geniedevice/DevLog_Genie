@@ -7,7 +7,7 @@ const tags = tagCounts(await getPosts());
 ---
 <BaseLayout title="태그" active="tags">
   <div class="page">
-    <PageHeader eyebrow="Tags" title="태그" subtitle={`기록에 붙은 태그 ${tags.length}개`} />
+    <PageHeader title="태그" subtitle={`기록에 붙은 태그 ${tags.length}개`} />
     <ul class="cloud" data-reveal-group>
       {tags.map(([t, n]) => (
         <li><a class="tag" href={tagUrl(t)}><span class="hash">#</span>{t}<span class="n">{n}</span></a></li>

@@ -24,7 +24,7 @@ const tags = topTags(posts, 8).map((d) => ({ ...d, href: tagUrl(d.name) }));
 ---
 <BaseLayout title="통계" active="stats" description="DevLog 기록 통계: 월별 추이, 분류·태그 분포, 활동 잔디, 전체 기록 표">
   <div class="page">
-    <PageHeader eyebrow="Dashboard" title="통계" subtitle="모든 수치는 글에서 자동으로 계산돼요." />
+    <PageHeader title="통계" subtitle="모든 수치는 글에서 자동으로 계산돼요." />
 
     <div class="kpis" data-reveal-group>
       <KpiCard label="전체 기록" value={t.posts} unit="개" icon="file-text" hint={`이번 달 ${thisMonth.count}개`} spark={months.map((m) => m.count)} color="var(--chart-1)" />

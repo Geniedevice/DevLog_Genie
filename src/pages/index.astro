@@ -3,11 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import GalleryCard from '../components/GalleryCard.astro';
 import HeroScene from '../components/HeroScene.astro';
-import { getPosts, url } from '../lib/posts';
+import { getPosts, postUrl, url } from '../lib/posts';
 import { totals } from '../lib/stats';
+import { SITE } from '../site.config';
 
 const PAGE = 12;
 const posts = await getPosts();
+const latest = posts[0];
 // 기본 정렬(최신순)에서는 고정 글이 맨 앞
 const ordered = [...posts.filter((p) => p.data.pinned), ...posts.filter((p) => !p.data.pinned)];
 const categories = [...new Set(posts.map((p) => p.data.category))];
@@ -19,11 +21,20 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   <section class="hero" data-hero>
     <div class="hero-art"><HeroScene /></div>
     <div class="hero-text" data-hero-text>
+      {latest && (
+        <a class="news" href={postUrl(latest)} data-hero-in>
+          <span class="news-tag pixel-font">NEW</span><span class="news-title">{latest.data.title}</span><Icon name="chevron-right" size={16} />
+        </a>
+      )}
       <h1 class="headline" data-type>
         <span class="l1">Dev</span><span class="l2">Log</span>
       </h1>
-      <p class="sub" data-reveal>게임 개발 기록</p>
-      <div class="hud pixel-font" data-reveal>
+      <p class="sub" data-hero-in>{SITE.description.replace(' — ', '\n')}</p>
+      <div class="cta" data-hero-in>
+        <a class="btn btn-default btn-lg" href="#feed"><Icon name="book-open" />기록 둘러보기</a>
+        <a class="btn btn-outline btn-lg" href={url('projects/')}><Icon name="gamepad-2" />게임 프로젝트</a>
+      </div>
+      <div class="hud pixel-font" data-hero-in>
         <span class="lv">LV {t.level}</span>
         <span class="seg" data-segs role="progressbar" aria-label="경험치" aria-valuemin="0" aria-valuemax={t.next} aria-valuenow={t.xp}>
           {Array.from({ length: SEGMENTS }, (_, i) => <i class:list={{ on: i < filled }}></i>)}
@@ -35,7 +46,8 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     <a class="scroll-cue pixel-font" href="#feed" aria-label="기록 목록으로"><span>SCROLL</span><i></i></a>
   </section>
 
-  <section class="feed" id="feed" aria-label="기록 목록">
+  <section class="feed" id="feed" aria-labelledby="feed-title">
+    <h2 class="feed-title" id="feed-title">개발 일지</h2>
     <div class="toolbar">
       <div class="chips" role="toolbar" aria-label="분류">
         <button class="chip" type="button" aria-pressed="true" data-filter="">전체</button>
@@ -61,7 +73,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     {posts.length === 0 ? (
       <p class="empty">아직 기록이 없어요.</p>
     ) : (
-      <div class="gallery" data-grid>
+      <div class="gallery has-feature" data-grid>
         {ordered.map((post, i) => <GalleryCard post={post} eager={i < 3} hidden={i >= PAGE} />)}
       </div>
     )}
@@ -74,12 +86,12 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 </BaseLayout>
 
 <script>
-  import { animate, onScroll, splitText, stagger, steps } from 'animejs';
+  import { animate, createTimeline, onScroll, splitText, stagger, steps } from 'animejs';
   import { reduced, cardsIn } from '../scripts/fx';
   import { wireBookmarks } from '../scripts/bookmarks';
   import { markReadCards } from '../scripts/read';
 
-  // 제목: 게임 대사창처럼 한 글자씩 찍히고 끝에 커서가 깜빡인다
+  // 첫 화면 연출은 타임라인 하나: 제목이 대사창처럼 한 글자씩 찍히고 → 소개·버튼·HUD 가 차례로 떠오르고 → XP 칸이 켜진다
   const head = document.querySelector<HTMLElement>('[data-type]');
   if (head && !reduced()) {
     const { chars } = splitText(head, { chars: { class: 'char' } });
@@ -88,13 +100,15 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
     cursor.className = 'cursor';
     cursor.setAttribute('aria-hidden', 'true');
     head.querySelector('.l2')?.append(cursor);
-    animate(chars, { opacity: [0, 1], translateY: ['0.2em', '0em'], duration: 60, delay: stagger(55, { start: 350 }), ease: steps(1) });
     animate(cursor, { opacity: [1, 0], duration: 520, loop: true, alternate: true, ease: steps(1) });
-  }
 
-  // XP 칸이 하나씩 켜진다
-  const segs = [...document.querySelectorAll<HTMLElement>('[data-segs] i.on')];
-  if (segs.length && !reduced()) animate(segs, { opacity: [0, 1], scaleY: [0.3, 1], duration: 120, delay: stagger(90, { start: 1400 }), ease: steps(2) });
+    const segs = document.querySelectorAll<HTMLElement>('[data-segs] i.on');
+    createTimeline({ delay: 250 })
+      .add('[data-hero-in].news', { opacity: [0, 1], translateY: [-8, 0], duration: 500, ease: 'outExpo' })
+      .add(chars, { opacity: [0, 1], translateY: ['0.2em', '0em'], duration: 60, delay: stagger(55), ease: steps(1) }, '-=250')
+      .add('[data-hero-in]:not(.news)', { opacity: [0, 1], translateY: [14, 0], duration: 700, delay: stagger(110), ease: 'outExpo' }, '+=80')
+      .add(segs, { opacity: [0, 1], scaleY: [0.3, 1], duration: 120, delay: stagger(70), ease: steps(2) }, '-=350');
+  }
 
   wireBookmarks();
   markReadCards();
@@ -129,11 +143,13 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   function apply(animateAll: boolean) {
     const before = new Set(cards.filter((c) => !c.hidden));
     const sorted = [...cards].sort(sorters[sortSel?.value ?? 'new']);
-    sorted.forEach((c) => grid?.append(c));
     const matched = sorted.filter((c) => !filter || c.dataset.category === filter);
-    cards.forEach((c) => (c.hidden = true));
     const shown = matched.slice(0, limit);
-    shown.forEach((c) => (c.hidden = false));
+    // 보이는 카드를 앞에 둔다: 격자의 첫 칸(크게 보이는 카드)이 숨은 카드가 되지 않게
+    [...shown, ...sorted.filter((c) => !shown.includes(c))].forEach((c) => {
+      c.hidden = !shown.includes(c);
+      grid?.append(c);
+    });
     if (more) more.hidden = matched.length <= limit;
     if (empty) empty.hidden = matched.length > 0;
     cardsIn(animateAll ? shown : shown.filter((c) => !before.has(c)));
@@ -177,11 +193,25 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 
   .hero-text { position: relative; z-index: 4; padding: 56px 24px 44px; max-width: 640px; color: var(--night-text); }
   @media (min-width: 1024px) { .hero-text { padding: 64px 48px 52px; } }
+  .news { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; margin-bottom: 22px; padding: 4px 12px 4px 4px; border: 1px solid var(--night-line); border-radius: 999px; background: color-mix(in srgb, var(--night) 72%, transparent); backdrop-filter: blur(6px); color: var(--night-text); font-size: 13px; transition: border-color var(--dur), background var(--dur); }
+  .news:hover { border-color: var(--night-lav); background: var(--night-surface); }
+  .news-tag { flex: none; padding: 4px 8px; border-radius: 999px; background: var(--night-lav); color: var(--night); font-size: 10px; letter-spacing: 0.12em; }
+  .news-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .news :global(.icon) { flex: none; color: var(--night-muted); transition: translate var(--dur); }
+  .news:hover :global(.icon) { translate: 2px 0; }
   .headline { margin: 0 0 10px; font-size: clamp(52px, 7.4vw, 104px); font-weight: 900; line-height: 1; letter-spacing: -0.028em; white-space: nowrap; text-shadow: 0 4px 30px rgb(0 0 0 / 0.6); }
   .headline .l2 { color: var(--night-lav); }
   .headline :global(.cursor) { display: inline-block; width: 0.42em; height: 0.9em; margin-left: 6px; vertical-align: -0.08em; background: var(--night-mint); }
   :global(.js-fx) .headline { opacity: 0; }
-  .sub { margin: 0 0 26px; font-size: clamp(15px, 1.5vw, 18px); color: color-mix(in srgb, var(--night-text) 78%, transparent); }
+  .sub { max-width: 30em; margin: 0 0 26px; white-space: pre-line; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.65; color: color-mix(in srgb, var(--night-text) 78%, transparent); }
+
+  /* 히어로는 테마와 상관없이 늘 밤이라 버튼도 밤 색으로 */
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
+  .cta .btn-default { background: var(--night-lav); color: var(--night); }
+  .cta .btn-default:hover { background: var(--night-lav-hi); box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--night-lav) 60%, transparent); }
+  .cta .btn-outline { border-color: var(--night-line); background: color-mix(in srgb, var(--night) 60%, transparent); color: var(--night-text); }
+  .cta .btn-outline:hover { border-color: var(--night-lav); background: var(--night-surface); color: var(--night-text); }
+  :global(.js-fx) [data-hero-in] { opacity: 0; }
 
   .hud { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 14px; border: 1px solid var(--night-line); border-radius: 10px; background: color-mix(in srgb, var(--night) 72%, transparent); backdrop-filter: blur(6px); font-size: 12px; letter-spacing: 0.1em; }
   .lv { color: var(--night-mint); }
@@ -203,8 +233,9 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   }
 
   /* ── Feed ── */
-  .feed { padding: 24px 16px 56px; }
-  @media (min-width: 1024px) { .feed { padding: 28px 40px 64px; } }
+  .feed { padding: 32px 16px 56px; }
+  @media (min-width: 1024px) { .feed { padding: 44px 40px 64px; } }
+  .feed-title { margin: 0 0 18px; font-size: clamp(24px, 2.6vw, 30px); font-weight: 700; letter-spacing: -0.015em; }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
   .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .chips::-webkit-scrollbar { display: none; }

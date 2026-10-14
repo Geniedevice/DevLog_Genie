@@ -77,6 +77,7 @@ h1, h2, h3, h4 { letter-spacing: -0.005em; }
 .btn-ghost { background: transparent; color: var(--foreground); }
 .btn-ghost:hover { background: var(--accent); color: var(--accent-foreground); }
 .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn-lg { height: 46px; padding: 0 20px; font-size: 15px; border-radius: var(--radius-lg); }
 .btn-icon { width: 40px; padding: 0; }
 .btn-icon.btn-sm { width: 32px; }
 
@@ -196,7 +197,7 @@ a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .js-fx [data-reveal], .js-fx [data-reveal-group] > *, .js-fx [data-card], .js-fx [data-headline], .js-fx [data-type] { opacity: 1 !important; transform: none !important; }
+  .js-fx [data-reveal], .js-fx [data-reveal-group] > *, .js-fx [data-card], .js-fx [data-headline], .js-fx [data-type], .js-fx [data-hero-in] { opacity: 1 !important; transform: none !important; }
 }
 
 /* ─── Chart tooltip (shadcn ChartTooltip 모양) ─── */
@@ -264,3 +265,17 @@ input:focus-visible, select:focus-visible { outline: none; box-shadow: 0 0 0 3px
 .gallery { display: grid; gap: 24px 20px; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
 @media (max-width: 1099px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .gallery { grid-template-columns: 1fr; gap: 18px; } }
+
+/* 홈: 첫 카드는 한 줄 전체를 쓴다. 넓은 화면에서는 가로형(16:9 사진 왼쪽, 글 오른쪽) — 사진을 자르지 않고, 카드 높이 = 사진 높이 */
+@media (min-width: 640px) {
+  .gallery.has-feature > .card-post:first-child { grid-column: 1 / -1; }
+  .gallery.has-feature > .card-post:first-child .body { gap: 12px; padding: 22px 26px 16px; }
+  .gallery.has-feature > .card-post:first-child .title { font-size: clamp(21px, 2.2vw, 28px); line-height: 1.35; min-height: 0; }
+  .gallery.has-feature > .card-post:first-child .desc { font-size: 15px; -webkit-line-clamp: 3; min-height: 0; }
+}
+@media (min-width: 1100px) {
+  .gallery.has-feature > .card-post:first-child { flex-direction: row; }
+  .gallery.has-feature > .card-post:first-child .thumb-wrap { flex: 0 0 60%; border-bottom: 0; border-right: 1px solid var(--border); }
+  .gallery.has-feature > .card-post:first-child .body { padding: 30px 32px 18px; }
+  .gallery.has-feature > .card-post:first-child .desc { -webkit-line-clamp: 4; }
+}

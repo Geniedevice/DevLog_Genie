@@ -14,7 +14,7 @@ for (const p of posts) {
 ---
 <BaseLayout title="연대기" active="archive">
   <div class="page">
-    <PageHeader eyebrow="Chronicle" title="연대기" subtitle={`지금까지 남긴 기록 ${posts.length}개`} />
+    <PageHeader title="연대기" subtitle={`지금까지 남긴 기록 ${posts.length}개`} />
     <div class="timeline">
       {[...groups].map(([month, list]) => (
         <section class="era" aria-label={month}>

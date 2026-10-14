@@ -115,6 +115,9 @@
 .prose td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); }
 .prose th { background: var(--secondary); font-weight: 700; }
 .prose tr:last-child td { border-bottom: 0; }
+@media (max-width: 639px) {
+  .prose th, .prose td { padding: 8px 12px; white-space: nowrap; }
+}
 
 /* 콜아웃 */
 .prose .callout {

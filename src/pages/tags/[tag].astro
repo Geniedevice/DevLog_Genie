@@ -19,7 +19,7 @@ const { tag, posts } = Astro.props;
 <BaseLayout title={`#${tag}`} active="tags">
   <div class="page">
     <a class="btn btn-ghost btn-sm back" href={url('tags/')}><Icon name="arrow-left" />모든 태그</a>
-    <PageHeader eyebrow="Tag" title={`#${tag}`} subtitle={`이 태그가 붙은 기록 ${posts.length}개`} />
+    <PageHeader title={`#${tag}`} subtitle={`이 태그가 붙은 기록 ${posts.length}개`} />
     <div class="gallery">
       {posts.map((p, i) => <GalleryCard post={p} eager={i < 3} />)}
     </div>

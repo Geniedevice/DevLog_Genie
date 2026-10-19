@@ -5,3 +5,10 @@ dist/
 .DS_Store
 .taste-skill/
 output/jiny-rig/
+
+# JINY 아바타 빌드 산출물(scripts/rev2d/bundle.mjs 가 public/avatars/jiny 로 굳힌다)
+art/jiny/jiny.r2d.json
+art/jiny/textures/
+art/jiny/work/
+art/jiny/review/
+art/jiny/variant-requests/

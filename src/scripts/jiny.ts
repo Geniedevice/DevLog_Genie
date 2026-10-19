@@ -1,24 +1,32 @@
 import { animate, random } from 'animejs';
 import { mountRig, type ViewBox } from '../vendor/rev2d-player.js';
-import rig from '../lib/jiny.rig.json';
 import { achievement, reduced } from './fx';
 import { sfx } from './sfx';
 
-// JINY: Rev2D 리그(src/lib/jiny.r2d.json)를 WebGL2 로 실시간 구동.
-// 리그의 idle 애니메이션(숨쉬기·몸 흔들림) 위에 커서 시선, 나른한 눈매와 무작위 깜빡임, 풍선껌, 클릭 반응을 파라미터로 얹는다.
-// 머리카락·드릴 포니테일은 리그 물리(진자)가 알아서 따라 흔들린다.
+// JINY: 일러스트 한 장(art/jiny)을 Rev2D 아바타로 리깅한 텍스처 리그를 WebGL2 로 실시간 구동.
+// 리그의 idle 애니메이션(숨쉬기·몸 흔들림) 위에 커서 시선, 무작위 깜빡임, 클릭 반응을 파라미터로 얹는다.
+// 감은 눈·벌린 입은 그려 넣은 스프라이트, 머리카락·드릴 포니테일·리본은 리그 물리(진자)가 따라 흔든다.
 const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
 const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
-const VIEW: ViewBox = [0, 0, 512, 512]; // 버튜버 흉상: 리본 끝~가슴 하트비트
-const LIDS = 0.82; // 은랑식 반쯤 감긴 눈
+const VIEW: ViewBox = [0, 0, 1254, 1254]; // 일러스트 전체(리본 끝~가슴)
 
-export function animateJiny(root: HTMLElement) {
+// 모델·텍스처는 페이지에 JINY 가 여럿(히어로·사이드바)이어도 한 번만 받는다
+let assets: Promise<{ model: never; images: Record<string, ImageBitmap> }> | undefined;
+const load = (base: string) => (assets ??= (async () => {
+  const model = await (await fetch(base + 'jiny.rig.json')).json();
+  const entries = await Promise.all(model.textures.map(async (t: { id: string; path: string }) =>
+    [t.id, await createImageBitmap(await (await fetch(base + t.path)).blob())] as const));
+  return { model, images: Object.fromEntries(entries) };
+})());
+
+export async function animateJiny(root: HTMLElement) {
   const canvas = root.querySelector<HTMLCanvasElement>('canvas')!;
   let jiny: ReturnType<typeof mountRig>;
   try {
-    jiny = mountRig(canvas, rig as never, VIEW);
+    const { model, images } = await load(root.dataset.base!);
+    jiny = mountRig(canvas, model, VIEW, images);
   } catch {
-    return; // WebGL2 없음: 정적 그림(img)이 그대로 보인다
+    return; // WebGL2 없음·로딩 실패: 정지 그림(img)이 그대로 보인다
   }
   root.dataset.live = '';
 
@@ -30,7 +38,7 @@ export function animateJiny(root: HTMLElement) {
   fit();
 
   if (reduced()) {
-    const still = () => jiny.frame({ time: 0, physics: false, params: { EyeLOpen: LIDS, EyeROpen: LIDS } });
+    const still = () => jiny.frame({ time: 0, physics: false });
     still();
     new ResizeObserver(still).observe(canvas);
     return;
@@ -56,21 +64,12 @@ export function animateJiny(root: HTMLElement) {
     return Math.min(1, v);
   };
 
-  // 풍선껌: 9~16초마다 2.4초에 걸쳐 부풀다가 터진다
-  let gumAt = random(4, 7, 2);
-  const gum = (t: number) => {
-    const u = (t - gumAt) / 2.4;
-    if (u > 1) gumAt = t + random(9, 16, 2);
-    return u < 0 || u > 1 ? 0 : 1 - (1 - u) ** 2;
-  };
-
-  // 클릭 반응: 깡충(물리 입력이라 포니테일·머리가 출렁) + 웃음 + 말하기. 껌을 불던 중이면 터진다
+  // 클릭 반응: 깡충 + 고개 갸웃(머리카락·리본이 출렁) + 웃으며 말하기
   let pokedAt = -1e9;
   const poke = root.querySelector<HTMLButtonElement>('[data-poke]');
   poke?.addEventListener('click', () => {
     if (now() - pokedAt < 0.9) return;
     pokedAt = now();
-    gumAt = now() + random(9, 16, 2);
     sfx('jump');
     achievement('poke-jiny', 'JINY와 첫 인사');
     burst(root);
@@ -94,23 +93,22 @@ export function animateJiny(root: HTMLElement) {
     const p = t - pokedAt; // 클릭 뒤 경과 초
     const hop = p < 0.6 ? Math.sin((p / 0.6) * Math.PI) ** 1.5 : 0;
     const happy = p < 1.8 ? Math.min(1, p * 8, (1.8 - p) * 3) : 0;
-    const bubble = happy ? 0 : gum(t);
-    const eyes = eyeOpen(t) * (LIDS + (1 - LIDS) * happy);
+    canvas.style.translate = hop ? `0 ${(-hop * 4).toFixed(2)}%` : '';
+    const eyes = eyeOpen(t);
     jiny.frame({
       time: t,
       animations: ['idle'],
       params: {
         AngleX: look.x * 24 + Math.sin(t * 0.9) * 2,
-        AngleY: look.y * 18 + Math.sin(t * 1.3) * 1.5,
+        AngleY: look.y * 18 + Math.sin(t * 1.3) * 1.5 - hop * 8,
+        AngleZ: Math.sin(t * 0.7) * 2 + happy * 10 * Math.sin(Math.min(p, 1) * Math.PI),
         EyeBallX: look.x * 0.8,
         EyeBallY: look.y * 0.7,
         EyeLOpen: eyes,
         EyeROpen: eyes,
-        Hop: hop,
-        Cheek: Math.max(0.15, happy),
-        MouthForm: bubble ? -0.6 : 0.1 + happy * 0.9,
-        MouthOpen: bubble ? 0.12 : happy * (0.35 + 0.35 * Math.abs(Math.sin(p * 14))),
-        Bubble: bubble,
+        Cheek: happy,
+        MouthForm: happy,
+        MouthOpen: happy * (0.3 + 0.5 * Math.abs(Math.sin(p * 11))),
       },
     });
     requestAnimationFrame(tick);

@@ -8,10 +8,24 @@ import { createPrograms, FLOATS_PER_VERTEX } from 'rev2d/editor/src/gl/shaders.j
 
 export type ViewBox = [number, number, number, number];
 
-export function mountRig(canvas: HTMLCanvasElement, model: Model, viewBox: ViewBox) {
+/** 텍스처 리그면 images 에 텍스처 id → 이미지(디코딩 끝난 것)를 넘긴다. 벡터 리그는 생략. */
+export function mountRig(canvas: HTMLCanvasElement, model: Model, viewBox: ViewBox, images: Record<string, TexImageSource & { width: number; height: number }> = {}) {
   const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: true, depth: false, stencil: false });
   if (!gl) throw new Error('WebGL2 unavailable');
-  const rig = new Rig(model);
+  const rig = new Rig(model, { textures: Object.fromEntries(Object.entries(images).map(([id, im]) => [id, { width: im.width, height: im.height }])) });
+  // 셰이더가 정점 색만 premultiply 하므로 텍스처는 올릴 때 premultiply
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+  const textures = new Map<string, WebGLTexture>();
+  for (const [id, im] of Object.entries(images)) {
+    const t = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, im);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    textures.set(id, t);
+  }
   const player = rig.player();
   const packer = new FramePacker();
   const programs = createPrograms(gl);
@@ -23,7 +37,7 @@ export function mountRig(canvas: HTMLCanvasElement, model: Model, viewBox: ViewB
   gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, stride, 0);
   gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 4, gl.FLOAT, false, stride, 8);
   gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, stride, 24);
-  // 텍스처 없는 벡터 리그라 흰 1x1 텍스처 하나로 충분
+  // 텍스처 없는 파츠(벡터)는 흰 1x1 텍스처로
   const white = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, white);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
@@ -33,6 +47,13 @@ export function mountRig(canvas: HTMLCanvasElement, model: Model, viewBox: ViewB
   gl.disable(gl.CULL_FACE);
   gl.blendEquation(gl.FUNC_ADD);
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  // 파츠마다 텍스처를 바꿔 끼운다(u_useTex 는 프로그램별 uniform)
+  const bindTex = (p: { uniforms: Record<string, WebGLUniformLocation | null> }, id: string | undefined) => {
+    const t = id === undefined ? undefined : textures.get(id);
+    gl!.activeTexture(gl!.TEXTURE0);
+    gl!.bindTexture(gl!.TEXTURE_2D, t ?? white);
+    gl!.uniform1i(p.uniforms.u_useTex, t ? 1 : 0);
+  };
   let cov: { tex: WebGLTexture; fbo: WebGLFramebuffer; w: number; h: number } | null = null;
 
   function coverage(w: number, h: number) {
@@ -83,7 +104,9 @@ export function mountRig(canvas: HTMLCanvasElement, model: Model, viewBox: ViewB
           gl!.useProgram(programs.coverage.program);
           for (const m of item.masks) {
             const r = packed.masks.get(m);
-            if (r && r.count) gl!.drawElements(gl!.TRIANGLES, r.count, gl!.UNSIGNED_INT, r.first * 4);
+            if (!r || !r.count) continue;
+            bindTex(programs.coverage, m.texture);
+            gl!.drawElements(gl!.TRIANGLES, r.count, gl!.UNSIGNED_INT, r.first * 4);
           }
           gl!.bindFramebuffer(gl!.FRAMEBUFFER, null);
           gl!.activeTexture(gl!.TEXTURE1);
@@ -95,6 +118,7 @@ export function mountRig(canvas: HTMLCanvasElement, model: Model, viewBox: ViewB
         maskMode = mode === 'invert' ? 2 : 1;
       }
       gl!.uniform1i(programs.mesh.uniforms.u_maskMode, maskMode);
+      bindTex(programs.mesh, item.texture);
       gl!.drawElements(gl!.TRIANGLES, range.count, gl!.UNSIGNED_INT, range.first * 4);
     }
   }

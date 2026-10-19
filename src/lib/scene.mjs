@@ -108,7 +108,7 @@ export function layerRoom() {
     <g transform="translate(1062 36)">
       <rect class="neon-box" width="112" height="128" rx="6" fill="#0e1322" stroke="${P.lav}" stroke-width="2" filter="url(#lr-glow)"/>
       ${['GOOD', 'GAMES', 'BETTER', 'PEOPLE'].map((t, i) => `<text x="56" y="${30 + i * 20}" text-anchor="middle" font-family="Galmuri11, 'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="${P.lavHi}" letter-spacing="1" class="neon-text">${t}</text>`).join('')}
-      <text x="56" y="116" text-anchor="middle" font-size="12" fill="${P.lav}">♥</text>
+      <path d="M56 116l-5-4.6a3 3 0 0 1 5-3.4 3 3 0 0 1 5 3.4z" fill="${P.lav}"/>
     </g>
     <rect x="800" y="120" width="220" height="8" rx="3" fill="${P.panel}"/>
     ${books(812, 120)}

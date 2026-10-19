@@ -69,7 +69,7 @@ h1, h2, h3, h4 { letter-spacing: -0.005em; }
 }
 
 .btn-default { background: var(--primary); color: var(--primary-foreground); }
-.btn-default:hover { background: color-mix(in srgb, var(--primary) 88%, #fff); box-shadow: 0 6px 20px -6px var(--glow); }
+.btn-default:hover { background: color-mix(in srgb, var(--primary) 88%, #fff); }
 .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
 .btn-secondary:hover { background: var(--accent); }
 .btn-outline { background: transparent; color: var(--foreground); border-color: var(--input); }
@@ -248,7 +248,7 @@ a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
   transition: background var(--dur), border-color var(--dur), color var(--dur), box-shadow var(--dur);
 }
 .chip:hover { border-color: color-mix(in srgb, var(--brand) 60%, var(--border)); background: var(--accent); }
-.chip[aria-pressed='true'] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: 700; box-shadow: 0 0 18px -4px var(--glow); }
+.chip[aria-pressed='true'] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: 700; }
 
 /* 업적 토스트(게임식) */
 .toast.achv { padding: 10px 16px 10px 10px; border-color: color-mix(in srgb, var(--amber) 50%, var(--border)); }
@@ -275,7 +275,7 @@ input:focus-visible, select:focus-visible { outline: none; box-shadow: 0 0 0 3px
 }
 @media (min-width: 1100px) {
   .gallery.has-feature > .card-post:first-child { flex-direction: row; }
-  .gallery.has-feature > .card-post:first-child .thumb-wrap { flex: 0 0 60%; border-bottom: 0; border-right: 1px solid var(--border); }
+  .gallery.has-feature > .card-post:first-child .thumb-wrap { flex: 0 0 60%; }
   .gallery.has-feature > .card-post:first-child .body { padding: 30px 32px 18px; }
   .gallery.has-feature > .card-post:first-child .desc { -webkit-line-clamp: 4; }
 }

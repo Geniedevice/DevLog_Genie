@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import GalleryCard from '../components/GalleryCard.astro';
 import HeroScene from '../components/HeroScene.astro';
-import { getPosts, postUrl, url } from '../lib/posts';
+import { getPosts, url } from '../lib/posts';
 import { totals } from '../lib/stats';
 import { SITE } from '../site.config';
 
@@ -11,7 +11,6 @@ const PAGE = 12;
 // 첫 카드는 크게 보여서(styles/global.css .has-feature) 더 큰 이미지를 받는다
 const FEATURE_SIZES = '(min-width: 1100px) 60vw, 100vw';
 const posts = await getPosts();
-const latest = posts[0];
 // 기본 정렬(최신순)에서는 고정 글이 맨 앞
 const ordered = [...posts.filter((p) => p.data.pinned), ...posts.filter((p) => !p.data.pinned)];
 const categories = [...new Set(posts.map((p) => p.data.category))];
@@ -23,11 +22,6 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   <section class="hero" data-hero>
     <div class="hero-art"><HeroScene /></div>
     <div class="hero-text" data-hero-text>
-      {latest && (
-        <a class="news" href={postUrl(latest)} data-hero-in>
-          <span class="news-tag pixel-font">NEW</span><span class="news-title">{latest.data.title}</span><Icon name="chevron-right" size={16} />
-        </a>
-      )}
       <h1 class="headline" data-type>
         <span class="l1">Dev</span><span class="l2">Log</span>
       </h1>
@@ -45,7 +39,6 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
         <span class="streak"><Icon name="flame" size={14} fill />{t.streak} DAY</span>
       </div>
     </div>
-    <a class="scroll-cue pixel-font" href="#feed" aria-label="기록 목록으로"><span>SCROLL</span><i></i></a>
   </section>
 
   <section class="feed" id="feed" aria-labelledby="feed-title">
@@ -106,9 +99,8 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 
     const segs = document.querySelectorAll<HTMLElement>('[data-segs] i.on');
     createTimeline({ delay: 250 })
-      .add('[data-hero-in].news', { opacity: [0, 1], translateY: [-8, 0], duration: 500, ease: 'outExpo' })
-      .add(chars, { opacity: [0, 1], translateY: ['0.2em', '0em'], duration: 60, delay: stagger(55), ease: steps(1) }, '-=250')
-      .add('[data-hero-in]:not(.news)', { opacity: [0, 1], translateY: [14, 0], duration: 700, delay: stagger(110), ease: 'outExpo' }, '+=80')
+      .add(chars, { opacity: [0, 1], translateY: ['0.2em', '0em'], duration: 60, delay: stagger(55), ease: steps(1) })
+      .add('[data-hero-in]', { opacity: [0, 1], translateY: [14, 0], duration: 700, delay: stagger(110), ease: 'outExpo' }, '+=80')
       .add(segs, { opacity: [0, 1], scaleY: [0.3, 1], duration: 120, delay: stagger(70), ease: steps(2) }, '-=350');
   }
 
@@ -120,7 +112,6 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
   const heroEl = document.querySelector<HTMLElement>('[data-hero]');
   if (heroText && heroEl && !reduced()) {
     animate(heroText, { translateY: [0, -220], opacity: [1, 0], ease: 'linear', autoplay: onScroll({ target: heroEl, enter: 'start start', leave: 'start end', sync: 0.25 }) });
-    animate('.scroll-cue i', { translateY: [0, 8], opacity: [1, 0.3], duration: 800, loop: true, alternate: true, ease: 'inOutSine' });
   }
 
   const grid = document.querySelector<HTMLElement>('[data-grid]');
@@ -188,46 +179,36 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 <style>
   /* ── Hero ── */
   /* ⚠️ 글과 장면을 같은 격자 칸에 겹쳐 둔다: 히어로 높이 = 둘 중 큰 쪽. 장면은 원래 비율을 지켜야 잘리지 않는다 */
-  .hero { position: relative; display: grid; align-items: center; overflow: hidden; border-bottom: 1px solid var(--border); background: var(--night); }
+  .hero { position: relative; display: grid; align-items: center; overflow: hidden; background: var(--night); }
   .hero > .hero-art, .hero > .hero-text { grid-area: 1 / 1; }
   .hero-art { position: relative; justify-self: end; width: min(74%, 1080px); -webkit-mask-image: linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent); }
 
   /* 왼쪽 글자 쪽으로 장면이 스르르 사라지게 */
-  .hero-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--night) 0%, color-mix(in srgb, var(--night) 85%, transparent) 12%, transparent 42%); pointer-events: none; z-index: 3; }
+  .hero-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--night) 0%, color-mix(in srgb, var(--night) 85%, transparent) 22%, transparent 55%); pointer-events: none; z-index: 3; }
 
   .hero-text { position: relative; z-index: 4; padding: 56px 24px 44px; max-width: 640px; color: var(--night-text); }
   @media (min-width: 1024px) { .hero-text { padding: 64px 48px 52px; } }
-  .news { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; margin-bottom: 22px; padding: 4px 12px 4px 4px; border: 1px solid var(--night-line); border-radius: 999px; background: color-mix(in srgb, var(--night) 72%, transparent); backdrop-filter: blur(6px); color: var(--night-text); font-size: 13px; transition: border-color var(--dur), background var(--dur); }
-  .news:hover { border-color: var(--night-lav); background: var(--night-surface); }
-  .news-tag { flex: none; padding: 4px 8px; border-radius: 999px; background: var(--night-lav); color: var(--night); font-size: 10px; letter-spacing: 0.12em; }
-  .news-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .news :global(.icon) { flex: none; color: var(--night-muted); transition: translate var(--dur); }
-  .news:hover :global(.icon) { translate: 2px 0; }
-  .headline { margin: 0 0 10px; font-size: clamp(52px, 7.4vw, 104px); font-weight: 900; line-height: 1; letter-spacing: -0.028em; white-space: nowrap; text-shadow: 0 4px 30px rgb(0 0 0 / 0.6); }
-  .headline .l2 { color: var(--night-lav); }
+  .headline { margin: 0 0 10px; font-size: clamp(52px, 7.4vw, 104px); font-weight: 900; line-height: 1; letter-spacing: -0.028em; white-space: nowrap; }
   .headline :global(.cursor) { display: inline-block; width: 0.42em; height: 0.9em; margin-left: 6px; vertical-align: -0.08em; background: var(--night-mint); }
   :global(.js-fx) .headline { opacity: 0; }
-  .sub { max-width: 30em; margin: 0 0 26px; white-space: pre-line; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.65; color: color-mix(in srgb, var(--night-text) 78%, transparent); }
+  .sub { max-width: 30em; margin: 0 0 26px; white-space: pre-line; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.6; color: var(--night-text); }
 
   /* 히어로는 테마와 상관없이 늘 밤이라 버튼도 밤 색으로 */
   .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
   .cta .btn-default { background: var(--night-lav); color: var(--night); }
-  .cta .btn-default:hover { background: var(--night-lav-hi); box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--night-lav) 60%, transparent); }
+  .cta .btn-default:hover { background: var(--night-lav-hi); }
   .cta .btn-outline { border-color: var(--night-line); background: color-mix(in srgb, var(--night) 60%, transparent); color: var(--night-text); }
   .cta .btn-outline:hover { border-color: var(--night-lav); background: var(--night-surface); color: var(--night-text); }
   :global(.js-fx) [data-hero-in] { opacity: 0; }
 
-  .hud { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 14px; border: 1px solid var(--night-line); border-radius: 10px; background: color-mix(in srgb, var(--night) 72%, transparent); backdrop-filter: blur(6px); font-size: 12px; letter-spacing: 0.1em; }
+  .hud { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 14px; border-radius: 10px; background: var(--night-surface); font-size: 13px; letter-spacing: 0.1em; }
   .lv { color: var(--night-mint); }
   .seg { display: inline-flex; gap: 3px; padding: 2px; border: 1px solid var(--night-line); }
   .seg i { width: 9px; height: 12px; background: var(--night-surface); }
-  .seg i.on { background: linear-gradient(var(--night-lav-hi), var(--night-lav)); box-shadow: 0 0 6px color-mix(in srgb, var(--night-lav) 60%, transparent); }
+  .seg i.on { background: var(--night-lav); }
   .xp { color: var(--night-muted); }
   .streak { display: inline-flex; align-items: center; gap: 4px; color: var(--night-amber); }
 
-  .scroll-cue { position: absolute; left: 50%; bottom: 14px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px; translate: -50% 0; font-size: 9px; letter-spacing: 0.3em; color: var(--night-muted); }
-  .scroll-cue i { width: 2px; height: 14px; border-radius: 2px; background: var(--night-mint); }
-  @media (max-width: 899px) { .scroll-cue { display: none; } }
 
   @media (max-width: 899px) {
     .hero > .hero-art { grid-area: 1 / 1; width: 100%; }

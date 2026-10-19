@@ -67,7 +67,6 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
     padding: 30px 18px 16px;
     background: var(--sidebar);
     color: var(--sidebar-foreground);
-    border-right: 1px solid var(--sidebar-border);
     overflow-y: auto;
     scrollbar-width: none;
   }
@@ -98,7 +97,7 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   }
   .item:hover { background: var(--sidebar-accent); color: var(--sidebar-foreground); translate: 2px 0; }
   /* 레퍼런스: 선택된 메뉴는 라벤더로 꽉 찬 알약 */
-  .item.active { background: var(--sidebar-primary); color: var(--sidebar-primary-foreground); font-weight: 700; box-shadow: 0 0 22px -6px var(--glow), inset 0 1px 0 rgb(255 255 255 / 0.25); }
+  .item.active { background: var(--sidebar-primary); color: var(--sidebar-primary-foreground); font-weight: 700; }
   .item.active:hover { translate: none; }
   .kbds { display: flex; gap: 2px; margin-left: auto; }
 

@@ -5,7 +5,6 @@ import { url } from '../lib/posts';
 const year = new Date().getFullYear();
 ---
 <footer class="footer">
-  <hr class="separator" />
   <div class="inner">
     <p>© {year} {SITE.author} · Developer Journal</p>
     <nav class="links">
@@ -17,9 +16,9 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  .footer { max-width: 1280px; width: 100%; margin: 0 auto; padding: 32px 24px 28px; }
-  .inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 16px; color: var(--muted-foreground); font-size: 13px; }
+  .footer { max-width: 1280px; width: 100%; margin: 0 auto; padding: 64px 24px 28px; }
+  .inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted-foreground); font-size: 13px; }
   p { margin: 0; }
   .links { display: flex; flex-wrap: wrap; }
-  @media (min-width: 1024px) { .footer { padding: 32px 40px 28px; } }
+  @media (min-width: 1024px) { .footer { padding: 80px 40px 28px; } }
 </style>

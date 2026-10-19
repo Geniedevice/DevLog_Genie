@@ -29,7 +29,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(path.join(out, 'textures'), { recursive: true });
 for (const t of r.model.textures) {
   const webp = t.path.replace(/\.png$/, '.webp');
-  await sharp(path.join(avatar, t.path)).webp({ quality: 90, alphaQuality: 100, effort: 6 }).toFile(path.join(out, webp));
+  await sharp(path.join(avatar, t.path)).webp({ quality: 95, alphaQuality: 100, effort: 6 }).toFile(path.join(out, webp));
   t.path = webp;
 }
 fs.writeFileSync(path.join(out, 'jiny.rig.json'), JSON.stringify(r.model));

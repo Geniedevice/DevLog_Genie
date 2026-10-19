@@ -1,25 +1,26 @@
-// JINY 일러스트 한 장 → Live2D 식 파츠 레이어 PNG. 좌표는 art/jiny/parts.json.
-//   node scripts/live2d/layers.mjs masks <출력 폴더>
-//       인페인팅용 편집 마스크(eyes.mask.png, mouth.mask.png — 불투명 = 유지, 투명 = 다시 그림)
-//   node scripts/live2d/layers.mjs split <배경 뺀 원본.png> <SAM 마스크 폴더> <변형 폴더> <출력 폴더>
-//       → <출력>/<레이어>.png(크롭) + layers.json(크롭 위치). 변형 폴더: eyes_closed.png, eyes_half.png, mouth_a.png(인페인팅 결과)
+// JINY 일러스트 → Live2D 식 파츠 레이어. 좌표는 art/jiny/parts.json, 가려진 곳은 파츠별로 따로 그린 그림(인페인팅)에서 가져온다.
+//   node scripts/live2d/layers.mjs masks <배경 뺀 원본.png> <SAM 마스크 폴더> <출력 폴더>
+//       파츠별로 따로 그릴 영역의 편집 마스크(불투명 = 유지, 투명 = 다시 그림):
+//       face(앞머리·장식 밑 이마) · body(옆머리 밑 몸, 턱 밑 목) · hairBack(얼굴 자리를 뒷머리로) · sclera(홍채 뺀 흰자) · eyes · mouth
+//   node scripts/live2d/layers.mjs split <원본.png> <SAM 마스크 폴더> <그린 파츠 폴더> <출력 폴더>
+//       그린 파츠 폴더: face.png body.png sclera.png eyes_closed.png eyes_half.png mouth_a.png (원본과 같은 크기)
+//       hairBack.png 는 선택 — 없으면 머리카락 대표색(밝은 회색 중앙값) 단색. 고개를 돌릴 때 가장자리에만 보이는 곳이라 셀 화풍엔 단색이 깔끔하다
+//       → <출력>/<레이어>.png(크롭) + layers.json
 //
-// 레이어(뒤→앞): hairBack, body, pony, ribbon, face, eyeMaskL/R, irisL/R, eyesClosedL/R, eyesHalfL/R, mouthOpen, sideL, sideR, front, glasses
-// 가려졌던 곳(앞머리 밑 이마, 머리카락 밑 몸, 홍채 밑 흰자, 턱 밑 목, 머리 뒤)은 주변 색을 번지게 채운다(push-pull).
+// 레이어(뒤→앞): hairBack, body, face, eyeMaskL/R, irisL/R, eyesHalfL/R, eyesClosedL/R, mouthOpen, sideL, sideR, front, orn
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 
 const spec = JSON.parse(fs.readFileSync('art/jiny/parts.json', 'utf8'));
 const N = spec.size, P = N * N;
-const [cmd, ...args] = process.argv.slice(2);
+const [cmd, fullP, maskDir, a3, a4] = process.argv.slice(2);
 
-// ── 기하 도우미
-const inEllipse = ([cx, cy, rx, ry]) => (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
 const ellipseSoft = ([cx, cy, rx, ry], feather = 6) => (x, y) => {
-  const d = Math.sqrt(((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2); // 1 = 경계
+  const d = Math.sqrt(((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2);
   return Math.max(0, Math.min(1, (1 - d) * Math.min(rx, ry) / feather + 0.5));
 };
+const inEllipse = ([cx, cy, rx, ry]) => (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
 function inPoly(pts) {
   const xs = [], ys = [];
   for (let i = 0; i < pts.length; i += 2) xs.push(pts[i]), ys.push(pts[i + 1]);
@@ -35,171 +36,114 @@ const jawY = (x) => {
   return j.at(-1)[1];
 };
 const each = (fn) => { for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) fn(i, x, y); };
-
-async function maskImage(fn, file) {
-  const a = Buffer.alloc(P * 4);
-  each((i, x, y) => { a[i * 4 + 3] = Math.round(255 * (1 - fn(x, y))); }); // 바꿀 곳 = 투명
-  await sharp(a, { raw: { width: N, height: N, channels: 4 } }).png().toFile(file);
+const mask = (fn) => { const m = new Float32Array(P); each((i, x, y) => { m[i] = fn(i, x, y); }); return m; };
+const rgba = (p) => sharp(p).ensureAlpha().raw().toBuffer();
+const gray = (p) => sharp(p).greyscale().raw().toBuffer();
+function grow(m, r) { // 이진 마스크를 r px 넓힌다(가로·세로 최대 필터)
+  const t = new Float32Array(P), o = new Float32Array(P);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { let v = 0; for (let d = -r; d <= r && !v; d++) { const xx = x + d; if (xx >= 0 && xx < N && m[y * N + xx] > 0.5) v = 1; } t[y * N + x] = v; }
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { let v = 0; for (let d = -r; d <= r && !v; d++) { const yy = y + d; if (yy >= 0 && yy < N && t[yy * N + x] > 0.5) v = 1; } o[y * N + x] = v; }
+  return o;
 }
 
-if (cmd === 'masks') {
-  const [out] = args;
-  fs.mkdirSync(out, { recursive: true });
-  const eL = ellipseSoft(spec.eyes.L.region), eR = ellipseSoft(spec.eyes.R.region), m = ellipseSoft(spec.mouth.region);
-  await maskImage((x, y) => Math.max(eL(x, y), eR(x, y)), path.join(out, 'eyes.mask.png'));
-  await maskImage(m, path.join(out, 'mouth.mask.png'));
-  console.log('wrote', out);
-  process.exit(0);
-}
-if (cmd !== 'split') throw new Error('usage: layers.mjs masks <out> | split <full.png> <masks> <variants> <out>');
-
-const [fullP, maskDir, varDir, out] = args;
-fs.mkdirSync(out, { recursive: true });
-const rgba = async (p) => (await sharp(p).ensureAlpha().raw().toBuffer());
-const gray = async (p) => (await sharp(p).greyscale().blur(0.8).raw().toBuffer()); // SAM 마스크 가장자리 1px 부드럽게
+// ── 원본 픽셀을 파츠로 나눈다(장식 > 머리카락 > 얼굴 / 몸)
 const src = await rgba(fullP);
-const [H, R, G] = await Promise.all(['hair', 'ribbon', 'glasses'].map((id) => gray(path.join(maskDir, `${id}.png`))));
-const A = new Float32Array(P);
-each((i) => { A[i] = src[i * 4 + 3] / 255; });
-
-// ── 픽셀마다 레이어 가중치(선글라스 > 리본 > 머리카락 > 얼굴/몸)
-const w = Object.fromEntries(['glasses', 'ribbon', 'front', 'sideL', 'sideR', 'pony', 'face', 'body'].map((k) => [k, new Float32Array(P)]));
-const hs = spec.hairSplit;
-const hullSoft = ellipseSoft([...spec.faceHull.center, ...spec.faceHull.radius], 4);
-const ears = (spec.ears ?? []).map((e) => ellipseSoft(e, 4));
+const [H, O] = await Promise.all(['hair', 'orn'].map((id) => gray(path.join(maskDir, `${id}.png`))));
+const A = new Float32Array(P); each((i) => { A[i] = src[i * 4 + 3] / 255; });
+const w = Object.fromEntries(['orn', 'front', 'sideL', 'sideR', 'face', 'body'].map((k) => [k, new Float32Array(P)]));
+const hullSoft = ellipseSoft([...spec.faceHull.center, ...spec.faceHull.radius], 3);
+const sd = spec.side;
 each((i, x, y) => {
-  const g = G[i] / 255, r = (R[i] / 255) * (1 - g), h = (H[i] / 255) * (1 - g) * (1 - r), rest = 1 - g - r - h;
-  w.glasses[i] = g; w.ribbon[i] = r;
-  const hk = x >= hs.ponyXMin ? 'pony' : y >= hs.sideL.yMin && x < hs.sideL.xMax ? 'sideL' : y >= hs.sideR.yMin && x > hs.sideR.xMin && x < hs.sideR.xMax ? 'sideR' : 'front';
-  w[hk][i] = h;
-  const head = Math.max(0, Math.min(1, jawY(x) + 2 - y)); // 턱선 아래 = 몸(1px 페더)
-  const inFace = Math.max(hullSoft(x, y), ...ears.map((e) => e(x, y)));
+  const o = O[i] / 255, h = (H[i] / 255) * (1 - o), rest = 1 - o - h;
+  w.orn[i] = o;
+  const side = y >= sd.yMin || (y >= sd.frameYMin && (x < sd.frameX[0] || x > sd.frameX[1]));
+  w[side ? (x < sd.splitX ? 'sideL' : 'sideR') : 'front'][i] = h;
+  const head = Math.max(0, Math.min(1, jawY(x) + 1.5 - y)), inFace = hullSoft(x, y);
   w.face[i] = rest * head * inFace; w.front[i] += rest * head * (1 - inFace); w.body[i] = rest * (1 - head);
 });
+const hairAll = (i) => Math.max(w.front[i], w.sideL[i], w.sideR[i], w.orn[i]);
+const hull = inEllipse([...spec.faceHull.center, ...spec.faceHull.radius]);
+const eyeOpen = {}, irisIn = {};
+for (const s of ['L', 'R']) { eyeOpen[s] = inPoly(spec.eyes[s].opening); const [cx, cy, rx, ry] = spec.eyes[s].iris; irisIn[s] = inEllipse([cx, cy, rx + 2, ry + 2]); }
 
-// ── push-pull 채우기: src 가중치가 있는 곳의 색을 피라미드로 번져 target 에 채운다
-function pushPull(weight, target) {
-  const levels = [];
-  let lw = N, lh = N, c = new Float32Array(P * 3), wt = new Float32Array(P);
-  each((i) => { const k = weight[i] * A[i] > 0.95 ? 1 : 0; wt[i] = k; for (let j = 0; j < 3; j++) c[i * 3 + j] = (src[i * 4 + j] / 255) * k; });
-  levels.push({ w: lw, h: lh, c, wt });
-  while (lw > 1 || lh > 1) {
-    const nw = Math.ceil(lw / 2), nh = Math.ceil(lh / 2), nc = new Float32Array(nw * nh * 3), nwt = new Float32Array(nw * nh);
-    for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) {
-      const i = y * lw + x, o = (y >> 1) * nw + (x >> 1);
-      nwt[o] += wt[i]; for (let j = 0; j < 3; j++) nc[o * 3 + j] += c[i * 3 + j];
-    }
-    levels.push({ w: (lw = nw), h: (lh = nh), c: (c = nc), wt: (wt = nwt) });
-  }
-  // 거친 단계부터: 가중치 없는 곳은 위 단계 색
-  let up = null;
-  for (let l = levels.length - 1; l >= 0; l--) {
-    const L = levels[l], col = new Float32Array(L.w * L.h * 3);
-    for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
-      const i = y * L.w + x, k = Math.min(1, L.wt[i]);
-      for (let j = 0; j < 3; j++) {
-        const own = L.wt[i] > 0 ? L.c[i * 3 + j] / L.wt[i] : 0;
-        const par = up ? bilinear(up, (x + 0.5) / 2 - 0.5, (y + 0.5) / 2 - 0.5, j) : own;
-        col[i * 3 + j] = own * k + par * (1 - k);
-      }
-    }
-    up = { w: L.w, h: L.h, col };
-  }
-  const outc = new Uint8Array(P * 3);
-  each((i) => { if (target[i]) for (let j = 0; j < 3; j++) outc[i * 3 + j] = Math.round(up.col[i * 3 + j] * 255); });
-  return outc;
+// 파츠별로 다시 그릴 영역(= 다른 파츠에 가려져 원본에 없는 곳)
+const nf = spec.neckFill, tx = spec.torsoX;
+const targets = {
+  face: grow(mask((i, x, y) => (hull(x, y) && y < jawY(x) + 2 && hairAll(i) > 0.3 ? 1 : 0)), 3),
+  body: grow(mask((i, x, y) => ((y >= jawY(x) - 2 && x >= tx[0] && x <= tx[1] && hairAll(i) > 0.3) || (x >= nf.x[0] && x <= nf.x[1] && y >= nf.y[0] && y <= nf.y[1]) ? 1 : 0)), 3),
+  hairBack: mask((i, x, y) => ((w.face[i] + w.front[i] + w.orn[i]) * A[i] > 0.5 && y < jawY(x) + 4 ? 1 : 0)),
+  sclera: grow(mask((i, x, y) => (['L', 'R'].some((s) => eyeOpen[s](x, y) && irisIn[s](x, y)) ? 1 : 0)), 2),
+};
+
+async function writeMask(m, file) { // m = 다시 그릴 곳(1) → 투명
+  const a = Buffer.alloc(P * 4); each((i) => { a[i * 4 + 3] = Math.round(255 * (1 - m[i])); });
+  await sharp(a, { raw: { width: N, height: N, channels: 4 } }).png().toFile(file);
+}
+if (cmd === 'masks') {
+  const out = a3; fs.mkdirSync(out, { recursive: true });
+  for (const [id, m] of Object.entries(targets)) await writeMask(m, path.join(out, `${id}.mask.png`));
+  const eL = ellipseSoft(spec.eyes.L.region), eR = ellipseSoft(spec.eyes.R.region), mo = ellipseSoft(spec.mouth.region);
+  await writeMask(mask((i, x, y) => Math.max(eL(x, y), eR(x, y))), path.join(out, 'eyes.mask.png'));
+  await writeMask(mask((i, x, y) => mo(x, y)), path.join(out, 'mouth.mask.png'));
+  console.log('masks:', [...Object.keys(targets), 'eyes', 'mouth'].join(' '));
+  process.exit(0);
+}
+if (cmd !== 'split') throw new Error('usage: layers.mjs masks <full.png> <masks> <out> | split <full.png> <masks> <drawn> <out>');
+
+const drawnDir = a3, out = a4;
+fs.mkdirSync(out, { recursive: true });
+const drawn = Object.fromEntries(await Promise.all(['face', 'body', 'sclera', 'eyes_closed', 'eyes_half', 'mouth_a'].map(async (id) => [id, await rgba(path.join(drawnDir, `${id}.png`))])));
+if (fs.existsSync(path.join(drawnDir, 'hairBack.png'))) drawn.hairBack = await rgba(path.join(drawnDir, 'hairBack.png'));
+else {
+  const vals = [[], [], []];
+  each((i) => { if (w.front[i] * A[i] > 0.95) { const L = src[i * 4] * 0.3 + src[i * 4 + 1] * 0.59 + src[i * 4 + 2] * 0.11; if (L > 120) for (let j = 0; j < 3; j++) vals[j].push(src[i * 4 + j]); } });
+  const med = vals.map((v) => v.sort((a, b) => a - b)[v.length >> 1] ?? 180);
+  drawn.hairBack = Buffer.alloc(P * 4); each((i) => { for (let j = 0; j < 3; j++) drawn.hairBack[i * 4 + j] = med[j]; drawn.hairBack[i * 4 + 3] = 255; });
 }
 
-function bilinear(u, fx, fy, j) {
-  const x0 = Math.max(0, Math.min(u.w - 1, Math.floor(fx))), y0 = Math.max(0, Math.min(u.h - 1, Math.floor(fy)));
-  const x1 = Math.min(u.w - 1, x0 + 1), y1 = Math.min(u.h - 1, y0 + 1), tx = Math.max(0, Math.min(1, fx - x0)), ty = Math.max(0, Math.min(1, fy - y0));
-  const g = (x, y) => u.col[(y * u.w + x) * 3 + j];
-  return (g(x0, y0) * (1 - tx) + g(x1, y0) * tx) * (1 - ty) + (g(x0, y1) * (1 - tx) + g(x1, y1) * tx) * ty;
-}
-
-// ── 레이어 합성: 원본 픽셀(가중치 × 알파) + 채운 영역(fill, 불투명)
+// 레이어 = 원본 픽셀(가중치 × 알파) 위에, 가려졌던 곳은 따로 그린 그림의 픽셀(불투명)
 const layers = {};
-function layer(id, weight, fill = null, fillTarget = null, fromImage = src) {
+function layer(id, weight, fillImg, fillMask) {
   const buf = Buffer.alloc(P * 4);
   each((i) => {
-    const a = (weight ? weight[i] : 0) * (fromImage[i * 4 + 3] / 255);
-    const f = fillTarget ? fillTarget[i] : 0;
-    const alpha = Math.max(a, f);
-    if (alpha <= 0) return;
-    for (let j = 0; j < 3; j++) buf[i * 4 + j] = Math.round((fromImage[i * 4 + j] * a + (fill ? fill[i * 3 + j] : 0) * Math.max(0, f - a)) / Math.max(a + Math.max(0, f - a), 1e-6));
-    buf[i * 4 + 3] = Math.round(alpha * 255);
+    const a = (weight ? weight[i] : 0) * A[i], f = fillMask ? fillMask[i] * (1 - a) : 0, al = a + f;
+    if (al <= 0) return;
+    for (let j = 0; j < 3; j++) buf[i * 4 + j] = Math.round((src[i * 4 + j] * a + (fillImg ? fillImg[i * 4 + j] : 0) * f) / al);
+    buf[i * 4 + 3] = Math.round(Math.min(1, al) * 255);
   });
   layers[id] = buf;
 }
-const mask = (fn) => { const m = new Float32Array(P); each((i, x, y) => { m[i] = fn(i, x, y); }); return m; };
-
-// 얼굴: 앞머리·옆머리 밑 피부, 홍채 밑 흰자를 채운다
-const hull = inEllipse([...spec.faceHull.center, ...spec.faceHull.radius]);
-const faceFillT = mask((i, x, y) => (hull(x, y) && y < jawY(x) + 2 && w.face[i] < 0.95 ? 1 : 0));
-const eyeRegion = ['L', 'R'].map((s) => inEllipse(spec.eyes[s].region));
-const skinSrc = mask((i, x, y) => {
-  const r = src[i * 4], g = src[i * 4 + 1], b = src[i * 4 + 2];
-  return w.face[i] > 0.95 && (r + g + b) / 765 > 0.72 && r >= b && !eyeRegion.some((e) => e(x, y)) ? 1 : 0;
+// 얼굴: 이마는 face.png, 홍채 자리는 sclera.png
+const faceW = new Float32Array(w.face), faceFill = Buffer.alloc(P * 4), faceT = new Float32Array(P);
+each((i) => {
+  if (targets.sclera[i]) { faceW[i] = 0; faceT[i] = 1; for (let j = 0; j < 4; j++) faceFill[i * 4 + j] = drawn.sclera[i * 4 + j]; }
+  else if (targets.face[i]) { faceT[i] = 1; for (let j = 0; j < 4; j++) faceFill[i * 4 + j] = drawn.face[i * 4 + j]; }
 });
-const faceFill = pushPull(skinSrc, faceFillT);
-const eyeOpen = {}, irisIn = {};
-for (const s of ['L', 'R']) { eyeOpen[s] = inPoly(spec.eyes[s].opening); const [cx, cy, r] = spec.eyes[s].iris; irisIn[s] = inEllipse([cx, cy, r + 2, r + 2]); }
-const scleraSrc = mask((i, x, y) => { for (const s of ['L', 'R']) if (eyeOpen[s](x, y) && !irisIn[s](x, y)) { const l = (src[i * 4] + src[i * 4 + 1] + src[i * 4 + 2]) / 765; return l > 0.75 ? 1 : 0; } return 0; });
-const scleraT = mask((i, x, y) => (['L', 'R'].some((s) => eyeOpen[s](x, y) && irisIn[s](x, y)) ? 1 : 0));
-const sclera = pushPull(scleraSrc, scleraT);
-{
-  const fw = new Float32Array(w.face), ft = new Float32Array(P), fc = new Uint8Array(P * 3);
-  each((i) => {
-    if (scleraT[i]) { fw[i] = 0; ft[i] = 1; for (let j = 0; j < 3; j++) fc[i * 3 + j] = sclera[i * 3 + j]; }
-    else if (faceFillT[i]) { ft[i] = 1; for (let j = 0; j < 3; j++) fc[i * 3 + j] = faceFill[i * 3 + j]; }
-  });
-  layer('face', fw, fc, ft);
-}
-// 눈 마스크(홍채를 눈 안쪽으로 자르는 용도 — 얼굴과 같은 픽셀이라 겹쳐 그려도 안 보인다)
+layer('face', faceW, faceFill, faceT);
 for (const s of ['L', 'R']) {
-  const m = mask((i, x, y) => (eyeOpen[s](x, y) ? 1 : 0));
   const buf = Buffer.alloc(P * 4);
-  each((i) => { if (!m[i]) return; for (let j = 0; j < 4; j++) buf[i * 4 + j] = layers.face[i * 4 + j]; });
+  each((i, x, y) => { if (eyeOpen[s](x, y)) for (let j = 0; j < 4; j++) buf[i * 4 + j] = layers.face[i * 4 + j]; });
   layers[`eyeMask${s}`] = buf;
-  layer(`iris${s}`, mask((i, x, y) => (eyeOpen[s](x, y) && irisIn[s](x, y) ? 1 - Math.max(w.front[i], w.sideL[i], w.sideR[i]) : 0)));
+  layer(`iris${s}`, mask((i, x, y) => (eyeOpen[s](x, y) && irisIn[s](x, y) ? (1 - hairAll(i)) * (1 - w.body[i]) : 0)));
 }
-// 몸: 옆머리·포니테일 밑, 턱 밑 목을 채운다(행마다 몸이 있는 x 범위 안쪽만)
-const span = new Int32Array(N * 2).fill(-1);
-each((i, x, y) => { if (w.body[i] * A[i] > 0.5) { if (span[y * 2] < 0) span[y * 2] = x; span[y * 2 + 1] = x; } });
-const nf = spec.neckFill;
-const bodyFillT = mask((i, x, y) => {
-  const hair = Math.max(w.sideL[i], w.sideR[i], w.pony[i], w.front[i]);
-  if (hair > 0.05 && y >= jawY(x) && span[y * 2] >= 0 && x >= span[y * 2] && x <= span[y * 2 + 1]) return 1;
-  return x >= nf.x[0] && x <= nf.x[1] && y >= nf.y[0] && y < jawY(x) + 4 ? 1 : 0;
-});
-layer('body', w.body, pushPull(w.body, bodyFillT), bodyFillT);
-// 뒷머리: 머리 실루엣(앞머리·옆머리·얼굴·선글라스) 안쪽을 머리카락 색으로 — 앞 파츠가 움직여 생기는 틈을 메운다.
-// 실루엣 밖으로는 칠하지 않는다(가만히 있을 때 테두리가 비치지 않게).
-{
-  const hairSrc = new Float32Array(P); each((i) => { hairSrc[i] = Math.max(w.front[i], w.sideL[i], w.sideR[i]); });
-  const sil = mask((i) => ((w.front[i] + w.sideL[i] + w.sideR[i] + w.face[i] + w.glasses[i]) * A[i] > 0.5 ? 1 : 0));
-  layer('hairBack', null, pushPull(hairSrc, sil), sil);
-}
-for (const id of ['pony', 'ribbon', 'sideL', 'sideR', 'front', 'glasses']) layer(id, w[id]);
+layer('body', w.body, drawn.body, targets.body);
+layer('hairBack', null, drawn.hairBack, targets.hairBack);
+for (const id of ['sideL', 'sideR', 'front', 'orn']) layer(id, w[id]);
 
-// 그려 넣은 변형(인페인팅 결과)을 눈·입 영역만 잘라 스프라이트로. 머리카락 픽셀은 빼서 머리카락 레이어가 위를 덮게.
-const hairW = (i) => Math.max(w.front[i], w.sideL[i], w.sideR[i]);
-for (const [id, file, regions] of [['eyesClosed', 'eyes_closed.png', ['L', 'R']], ['eyesHalf', 'eyes_half.png', ['L', 'R']], ['mouthOpen', 'mouth_a.png', ['M']]]) {
-  const img = await rgba(path.join(varDir, file));
-  for (const s of regions) {
-    const soft = ellipseSoft(s === 'M' ? spec.mouth.region : spec.eyes[s].region, 8);
-    const buf = Buffer.alloc(P * 4);
+// 그려 넣은 표정: 눈·입 영역만, 머리카락 픽셀은 빼서 머리카락 레이어가 위를 덮게
+for (const [id, file, regs] of [['eyesClosed', 'eyes_closed', ['L', 'R']], ['eyesHalf', 'eyes_half', ['L', 'R']], ['mouthOpen', 'mouth_a', ['M']]]) {
+  for (const s of regs) {
+    const soft = ellipseSoft(s === 'M' ? spec.mouth.region : spec.eyes[s].region, 8), buf = Buffer.alloc(P * 4);
     each((i, x, y) => {
-      const a = soft(x, y) * (1 - hairW(i));
+      const a = soft(x, y) * (1 - hairAll(i));
       if (a <= 0) return;
-      for (let j = 0; j < 3; j++) buf[i * 4 + j] = img[i * 4 + j];
+      for (let j = 0; j < 3; j++) buf[i * 4 + j] = drawn[file][i * 4 + j];
       buf[i * 4 + 3] = Math.round(a * 255);
     });
     layers[s === 'M' ? id : id + s] = buf;
   }
 }
 
-// ── 크롭해서 저장
 const meta = {};
 for (const [id, buf] of Object.entries(layers)) {
   let x0 = N, y0 = N, x1 = -1, y1 = -1;

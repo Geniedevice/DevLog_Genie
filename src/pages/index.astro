@@ -188,7 +188,7 @@ const filled = Math.round((t.xp / t.next) * SEGMENTS);
 
   .hero-text { position: relative; z-index: 4; padding: 56px 24px 44px; max-width: 640px; color: var(--night-text); }
   @media (min-width: 1024px) { .hero-text { padding: 64px 48px 52px; } }
-  .headline { margin: 0 0 10px; font-size: clamp(52px, 7.4vw, 104px); font-weight: 900; line-height: 1; letter-spacing: -0.028em; white-space: nowrap; }
+  .headline { margin: 0 0 clamp(18px, 2.2vw, 30px); font-size: clamp(52px, 7.4vw, 104px); font-weight: 900; line-height: 1; letter-spacing: -0.028em; white-space: nowrap; }
   .headline :global(.cursor) { display: inline-block; width: 0.42em; height: 0.9em; margin-left: 6px; vertical-align: -0.08em; background: var(--night-mint); }
   :global(.js-fx) .headline { opacity: 0; }
   .sub { max-width: 30em; margin: 0 0 26px; white-space: pre-line; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.6; color: var(--night-text); }

@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import Jiny from './Jiny.astro';
 
 import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
@@ -32,7 +33,7 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   </nav>
 
   <div class="me">
-    <img class="mascot" src={url('images/jiny-redesign.png')} alt="JINY" width="112" height="112" />
+    <div class="mascot"><Jiny interactive={false} /></div>
     <p class="me-name pixel-font">JINY</p>
     <p class="me-role">Game Developer · Lv.{level}</p>
   </div>

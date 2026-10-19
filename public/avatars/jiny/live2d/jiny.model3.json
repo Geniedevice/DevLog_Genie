@@ -1,0 +1,31 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Physics": "jiny.physics3.json",
+    "DisplayInfo": "jiny.cdi3.json",
+    "Motions": {
+      "Idle": [
+        { "File": "motions/idle.motion3.json" }
+      ],
+      "blink": [
+        { "File": "motions/blink.motion3.json" }
+      ],
+      "talk": [
+        { "File": "motions/talk.motion3.json" }
+      ],
+      "nod": [
+        { "File": "motions/nod.motion3.json" }
+      ],
+      "look_around": [
+        { "File": "motions/look_around.motion3.json" }
+      ],
+      "sweep": [
+        { "File": "motions/sweep.motion3.json" }
+      ]
+    }
+  },
+  "Groups": [
+    { "Target": "Parameter", "Name": "EyeBlink", "Ids": ["ParamEyeLOpen", "ParamEyeROpen"] },
+    { "Target": "Parameter", "Name": "LipSync", "Ids": ["ParamMouthOpenY"] }
+  ]
+}

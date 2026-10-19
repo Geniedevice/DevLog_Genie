@@ -1,0 +1,30 @@
+﻿import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { mkdir } from 'node:fs/promises';
+const root = process.env.REV2D_ROOT || join(homedir(),'Desktop','Rev2D-main');
+const { chromium } = await import(pathToFileURL(join(root,'node_modules/playwright-core/index.mjs')).href);
+const browser = await chromium.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--use-angle=swiftshader','--enable-webgl']});
+const page = await browser.newPage({viewport:{width:1440,height:1000}});
+const errors=[];
+page.on('pageerror',e=>errors.push(e.message));
+page.on('console',m=>{if(m.type()==='warning' || m.type()==='error')errors.push(m.text());});
+await mkdir('output/jiny-rig/review',{recursive:true});
+try {
+ await page.goto('http://127.0.0.1:4321/DevLog_Genie/',{waitUntil:'networkidle'});
+ await page.waitForFunction(()=>document.querySelectorAll('[data-jiny][data-live]').length===2,{timeout:30000});
+ await page.screenshot({path:'output/jiny-rig/review/website-desktop.png'});
+ await page.locator('[data-poke]').click();
+ await page.waitForSelector('[data-jiny] .bubble');
+ await page.screenshot({path:'output/jiny-rig/review/website-reaction.png'});
+ await page.mouse.move(1100,180);
+ await page.waitForTimeout(1000);
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.waitForTimeout(200);
+ await page.setViewportSize({width:390,height:844});
+ await page.waitForTimeout(300);
+ await page.screenshot({path:'output/jiny-rig/review/website-mobile.png'});
+ await page.goto('http://127.0.0.1:4321/DevLog_Genie/about/',{waitUntil:'networkidle'});
+ console.log(JSON.stringify({errors,desktopAvatars:2,mobile:true,reducedMotion:true,clickReaction:true}));
+ if(errors.length)process.exitCode=1;
+} finally { await browser.close(); }

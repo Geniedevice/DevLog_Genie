@@ -1,0 +1,39 @@
+{
+  "Version": 3,
+  "Parameters": [
+    { "Id": "ParamAngleX", "GroupId": "ParamGroupHead", "Name": "Angle X" },
+    { "Id": "ParamAngleY", "GroupId": "ParamGroupHead", "Name": "Angle Y" },
+    { "Id": "ParamAngleZ", "GroupId": "ParamGroupHead", "Name": "Angle Z" },
+    { "Id": "ParamEyeLOpen", "GroupId": "ParamGroupEyes", "Name": "Left eye Open/Close" },
+    { "Id": "ParamEyeROpen", "GroupId": "ParamGroupEyes", "Name": "Right eye Open/Close" },
+    { "Id": "ParamEyeBallX", "GroupId": "ParamGroupEyes", "Name": "Eyeball X" },
+    { "Id": "ParamEyeBallY", "GroupId": "ParamGroupEyes", "Name": "Eyeball Y" },
+    { "Id": "ParamMouthOpenY", "GroupId": "ParamGroupMouth", "Name": "Mouth Open/Close" },
+    { "Id": "ParamMouthForm", "GroupId": "ParamGroupMouth", "Name": "Mouth Deformation" },
+    { "Id": "ParamBodyAngleX", "GroupId": "ParamGroupBody", "Name": "Body rotation X" },
+    { "Id": "ParamBreath", "GroupId": "ParamGroupBody", "Name": "Breath" },
+    { "Id": "Hair_bang_left", "GroupId": "ParamGroupHair", "Name": "Hair_bang_left" },
+    { "Id": "Hair_bang_center", "GroupId": "ParamGroupHair", "Name": "Hair_bang_center" },
+    { "Id": "Hair_bang_right", "GroupId": "ParamGroupHair", "Name": "Hair_bang_right" },
+    { "Id": "Hair_side_left", "GroupId": "ParamGroupHair", "Name": "Hair_side_left" },
+    { "Id": "Hair_side_right", "GroupId": "ParamGroupHair", "Name": "Hair_side_right" },
+    { "Id": "Hair_ponytail", "GroupId": "ParamGroupHair", "Name": "Hair_ponytail" },
+    { "Id": "Hair_outer_left", "GroupId": "ParamGroupHair", "Name": "Hair_outer_left" },
+    { "Id": "Hair_outer_right", "GroupId": "ParamGroupHair", "Name": "Hair_outer_right" },
+    { "Id": "Sway_brooch", "GroupId": "ParamGroupAttachments", "Name": "Sway_brooch" },
+    { "Id": "Sway_cape_left", "GroupId": "ParamGroupAttachments", "Name": "Sway_cape_left" },
+    { "Id": "Sway_cape_right", "GroupId": "ParamGroupAttachments", "Name": "Sway_cape_right" },
+    { "Id": "Sway_ribbon_top", "GroupId": "ParamGroupAttachments", "Name": "Sway_ribbon_top" },
+    { "Id": "Sway_ribbon_right", "GroupId": "ParamGroupAttachments", "Name": "Sway_ribbon_right" },
+    { "Id": "Sway_ribbon_tail", "GroupId": "ParamGroupAttachments", "Name": "Sway_ribbon_tail" }
+  ],
+  "ParameterGroups": [
+    { "Id": "ParamGroupHead", "GroupId": "", "Name": "Head" },
+    { "Id": "ParamGroupEyes", "GroupId": "", "Name": "Eyes" },
+    { "Id": "ParamGroupMouth", "GroupId": "", "Name": "Mouth" },
+    { "Id": "ParamGroupBody", "GroupId": "", "Name": "Body" },
+    { "Id": "ParamGroupHair", "GroupId": "", "Name": "Hair" },
+    { "Id": "ParamGroupAttachments", "GroupId": "", "Name": "Attachments" }
+  ],
+  "Parts": []
+}

@@ -3,7 +3,7 @@ title: 데브로그를 시작합니다
 description: 무엇을 만들었는지보다 왜 그렇게 만들었는지를 남기는 곳. 이 블로그에서 다룰 이야기와 기록 방식을 정리합니다.
 date: 2026-09-30
 cover: ./cover.png
-coverAlt: 보라 헤드폰을 쓰고 키보드를 두드리는 흰 토끼 JINY
+coverAlt: 보라 헤드폰을 쓰고 키보드를 두드리는 JINY
 thumbText: "개발 일지 *시작*"
 category: Devlog
 tags: [devlog, 회고]

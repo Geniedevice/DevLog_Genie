@@ -1,10 +1,13 @@
 ---
-import { jinySvg } from '../lib/jiny.mjs';
-interface Props { id?: string; class?: string; desk?: boolean; interactive?: boolean }
-const { id = 'jiny', class: className, desk = true, interactive = true } = Astro.props;
+import { url } from '../lib/posts';
+interface Props { class?: string; interactive?: boolean }
+const { class: className, interactive = true } = Astro.props;
 ---
-<div class:list={['jiny-wrap', className]} data-jiny={id} data-interactive={interactive ? '' : undefined}>
-  <Fragment set:html={jinySvg({ id, desk })} />
+<div class:list={['jiny-wrap', className]} data-jiny>
+  <div class="aura"></div>
+  <!-- WebGL2 가 없거나 스크립트 전에는 같은 리그를 CLI 로 렌더한 정지 그림 -->
+  <img class="still" src={url('images/jiny-rig.png')} alt="" width="480" height="480" />
+  <canvas role="img" aria-label="토끼귀 헤드폰을 쓴 은발 소녀 JINY"></canvas>
   {interactive && <button class="poke" type="button" data-poke aria-label="JINY 쓰다듬기"></button>}
 </div>
 
@@ -15,16 +18,13 @@ const { id = 'jiny', class: className, desk = true, interactive = true } = Astro
 
 <style>
   .jiny-wrap { position: relative; width: 100%; aspect-ratio: 1; }
-  .jiny-wrap :global(.jiny) { width: 100%; height: 100%; overflow: visible; }
-  /* SVG 부위를 viewBox 좌표 기준으로 돌리기 위해 */
-  .jiny-wrap :global(.jiny g), .jiny-wrap :global(.jiny .spark), .jiny-wrap :global(.jiny .twinkle) { transform-box: view-box; }
-  .jiny-wrap :global(.spark), .jiny-wrap :global(.twinkle), .jiny-wrap :global(.blush) { transform-box: fill-box; transform-origin: center; }
-  /* ⚠️ view-box 기준 그룹은 기본 원점이 (0,0)이라 크기·회전이 왼쪽 위에서 일어난다. 부위마다 축을 잡아 준다. */
-  .jiny-wrap :global(.bunny) { transform-origin: 200px 360px; }
-  .jiny-wrap :global(.head) { transform-origin: 200px 270px; }
-  .jiny-wrap :global(.body) { transform-origin: 200px 400px; }
-  .jiny-wrap :global(.aura) { transform-box: fill-box; transform-origin: center; }
-  .poke { position: absolute; inset: 12% 22% 10%; border: 0; border-radius: 45%; background: transparent; cursor: pointer; }
+  /* 흉상이라 아래가 잘린다: 책상이 없는 자리(404)에서도 자연스럽게 페이드 */
+  .jiny-wrap canvas, .still { position: absolute; inset: 0; width: 100%; height: 100%; mask-image: linear-gradient(#000 78%, transparent 98%); }
+  .jiny-wrap[data-live] .still { display: none; }
+  .aura { position: absolute; inset: 2%; border-radius: 50%; background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--night-lav) 32%, transparent), transparent 62%); animation: aura 2.6s ease-in-out infinite alternate; }
+  @keyframes aura { to { scale: 1.06; opacity: 0.8; } }
+  @media (prefers-reduced-motion: reduce) { .aura { animation: none; } }
+  .poke { position: absolute; inset: 6% 24% 18%; border: 0; border-radius: 45%; background: transparent; cursor: pointer; }
   .poke:focus-visible { outline: 2px dashed var(--ring); outline-offset: 4px; }
   .jiny-wrap :global(.confetti) { position: absolute; left: 50%; top: 45%; width: 8px; height: 14px; border-radius: 3px; pointer-events: none; }
   .jiny-wrap :global(.bubble) {

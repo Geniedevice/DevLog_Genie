@@ -138,7 +138,7 @@ export function layerRoom() {
   );
 }
 
-/** ⑦ 책상 앞면: 스탠드, 키보드, 앞발, 마우스, 머그, 명판, 화분 */
+/** ⑦ 책상 앞면: 스탠드, 키보드, 손, 마우스, 머그, 명판, 화분 */
 export function sceneFront() {
   let keys = '';
   for (let r = 0; r < 3; r++) for (let c = 0; c < 14; c++) keys += `<rect class="fkey" x="${694 + c * 12.5}" y="${432 + r * 8}" width="9.5" height="5.5" rx="1.2" fill="#3d4768"/>`;
@@ -154,8 +154,8 @@ export function sceneFront() {
     <rect x="-120" y="408" width="1440" height="5" fill="${P.deskEdge}"/>
     <rect x="684" y="424" width="192" height="36" rx="7" fill="#262e46" stroke="#11172a" stroke-width="3"/>
     ${keys}
-    <g class="fpaw fpaw-l"><ellipse cx="742" cy="426" rx="26" ry="14" fill="#f7f6fb" stroke="#16141f" stroke-width="3.5"/><path d="M734 431v5M742 432v5M750 431v5" stroke="#c6bfdc" stroke-width="2" stroke-linecap="round"/></g>
-    <g class="fpaw fpaw-r"><ellipse cx="820" cy="426" rx="26" ry="14" fill="#f7f6fb" stroke="#16141f" stroke-width="3.5"/><path d="M812 431v5M820 432v5M828 431v5" stroke="#c6bfdc" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="fpaw fpaw-l"><path d="M712 446 Q714 418 734 414 L756 416 Q764 430 758 446 Z" fill="#2b2842" stroke="#0f0e18" stroke-width="3"/><ellipse cx="742" cy="424" rx="17" ry="10" fill="#fde7dc" stroke="#c98a78" stroke-width="2.5"/><path d="M734 418h16" stroke="${P.lav}" stroke-width="3" stroke-linecap="round"/></g>
+    <g class="fpaw fpaw-r"><path d="M790 446 Q792 418 812 414 L834 416 Q842 430 836 446 Z" fill="#2b2842" stroke="#0f0e18" stroke-width="3" transform="scale(-1 1) translate(-1640 0)"/><ellipse cx="820" cy="424" rx="17" ry="10" fill="#fde7dc" stroke="#c98a78" stroke-width="2.5"/><path d="M812 418h16" stroke="${P.lav}" stroke-width="3" stroke-linecap="round"/></g>
     <ellipse cx="920" cy="440" rx="16" ry="10" fill="#262e46" stroke="#11172a" stroke-width="3"/>
     <g transform="translate(990 392)">
       <path class="steam" d="M10 -8 q-6 -10 0 -20 q6 -10 0 -20" stroke="#e7ebf5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/>

@@ -13,7 +13,7 @@ Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github
 | 배경 | 페이지 전체에 깊이 3단 별 + 성운 캔버스(`src/scripts/backdrop.ts`) — 먼 층일수록 느리게 흐른다 |
 | 마이크로 인터랙션 | `src/scripts/micro.ts`: 자석 버튼, 누른 자리 물결. 글 끝의 "다 읽었어요" 체크박스(체크 그리기·+XP) |
 | 카운터·진행률 | 글 읽기 진행률 링(% · 남은 분), 사이드바 탐험률(다 읽은 글 비율) |
-| 캐릭터 | 은랑 컨셉의 정면 버튜버 아바타. Codex 로 생성한 일러스트 한 장(`art/jiny/`)을 [Rev2D](https://github.com/RevStudio/Rev2D) 아바타로 리깅한 텍스처 리그(`public/avatars/jiny/`)를 WebGL2 로 실시간 구동(`src/scripts/jiny.ts`): 숨쉬기, 커서 시선·고개, 깜빡임(그려 넣은 감은 눈), 머리카락·드릴 포니테일·리본 물리. 클릭하면 깡충 + 고개 갸웃 + 웃으며 말하기 + 색종이 + 말풍선. 히어로에서는 책상 앞 오버레이. 메인·사이드바·404에 적용 |
+| 캐릭터 | 은랑 컨셉의 정면 버튜버 아바타. 로컬 ComfyUI(스타레일 화풍 LoRA)로 그린 일러스트를 **Live2D 식 파츠 18장**(앞머리·옆머리·뒷머리·포니테일·리본·선글라스·얼굴·눈·입·몸)으로 나눠 [Rev2D](https://github.com/RevStudio/Rev2D) 리그로 구동(`public/avatars/jiny/`, `src/scripts/jiny.ts`): 파츠별 깊이로 고개 돌리기, 숨쉬기, 커서 시선, 깜빡임, 머리카락·리본 물리. 클릭하면 깡충 + 갸웃 + 웃으며 말하기 + 볼터치. 원본·빌드 방법은 [`art/jiny/`](art/jiny/README.md) |
 | 게임 요소 | 픽셀 HUD(레벨·XP 칸·연속 기록), 업적 알림, 8비트 효과음(`src/scripts/sfx.ts`, Web Audio 합성, **기본 꺼짐**) |
 | 컴포넌트 | shadcn 구조(Button, Badge, Card, Chip, Breadcrumb, Kbd, Command 팔레트, Data Table)를 순수 CSS/TS 로. 아이콘은 **lucide**(shadcn 기본 세트) — `<Icon name="…" />` |
 | 차트 | `src/components/charts/` — KPI(스파크라인), 영역·막대·도넛·가로막대, 레벨 게이지, 기록 잔디. 수치는 `src/lib/stats.ts` 가 빌드 때 계산 |
@@ -79,7 +79,7 @@ http://localhost:4321/DevLog_Genie/ 에서 확인. 초안도 보입니다.
 
 ### JINY 리그 고치기
 
-원본과 다시 빌드하는 방법은 [`art/jiny/README.md`](art/jiny/README.md). 요약: `avatar.json` 수정 → `node scripts/rev2d/cli.mjs avatar build art/jiny` → `avatar poses` 로 확인 → `node scripts/rev2d/bundle.mjs <Rev2D 폴더>` 로 사이트용(WebP)으로 굳혀 커밋.
+원본과 다시 빌드하는 방법은 [`art/jiny/README.md`](art/jiny/README.md). 요약: `parts.json` 수정 → `scripts/live2d/layers.mjs split` → `scripts/live2d/rig.mjs` → `scripts/rev2d/bundle.mjs <Rev2D 폴더>` 로 사이트용(WebP)으로 굳혀 커밋.
 
 ## 설정
 

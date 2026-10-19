@@ -8,7 +8,18 @@ const HOST = 'http://127.0.0.1:8188';
 const CKPT = 'Illustrious-XL-v0.1.safetensors';
 const LORA = fs.existsSync('C:/Users/start/AI/ComfyUI_windows_portable/ComfyUI/models/loras/hsr_style_illustrious.safetensors') ? 'hsr_style_illustrious.safetensors' : null;
 
-const POS = [
+const STYLE = process.env.STYLE === 'v6';
+const POS = STYLE ? [
+  'masterpiece, best quality, very aware, absurdres, newest',
+  'Honkai: Star Rail style, official art, game cg, splash art',
+  '1girl, solo, upper body, front view, looking at viewer, symmetrical, straight-on, centered',
+  'grey hair, silver hair, side ponytail, drill hair, ringlets, gradient hair, blue hair tips, purple hair tips, short bangs, eyes visible, sidelocks',
+  'dark blue hair ribbon with halftone pattern, eyewear on head, purple-tinted rectangular sunglasses, x hair clip',
+  'aqua eyes, detailed eyes, glossy eyes, half-closed eyes, smug, light smile, closed mouth, blush, stud earrings',
+  'black cropped jacket, off shoulder, white fur collar, black turtleneck crop top, zipper, neon trim',
+  'sharp lineart, thick outlines, cel shading, hard shadows, rim lighting, cool color palette, high contrast, vivid colors, glossy hair highlights, comic style',
+  'simple background, white background',
+].join(', ') : [
   'masterpiece, best quality, very aware, absurdres, newest',
   LORA ? 'Honkai: Star Rail style,' : 'honkai: star rail, official art, game cg,',
   '1girl, solo, upper body, front view, looking at viewer, symmetrical, straight-on',
@@ -52,7 +63,7 @@ for (;;) {
   const img = h.outputs?.['8']?.images?.[0];
   if (!img) continue;
   const buf = Buffer.from(await (await fetch(`${HOST}/view?filename=${encodeURIComponent(img.filename)}&type=output`)).arrayBuffer());
-  const out = `${outPrefix}-d${denoise}-s${seed}${LORA ? `-l${loraStrength}` : '-nolora'}.png`;
+  const out = `${outPrefix}${STYLE ? '-v6' : ''}-d${denoise}-s${seed}${LORA ? `-l${loraStrength}` : '-nolora'}.png`;
   fs.writeFileSync(out, buf);
   console.log('wrote', out);
   break;

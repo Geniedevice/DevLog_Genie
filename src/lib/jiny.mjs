@@ -11,8 +11,8 @@ const C = {
   hoodie: '#1c1a2a',
   hoodieHi: '#2b2842',
   band: '#2e2a47',
-  glow: '#a594ff',
-  glowHi: '#d8d0ff',
+  glow: '#7d8dff',
+  glowHi: '#d0d7ff',
   eye: '#15131d',
   blush: '#f4a3bf',
   nose: '#e98aa8',
@@ -47,9 +47,9 @@ export function jinySvg(o = {}) {
   </defs>
   <circle class="aura" cx="200" cy="200" r="190" fill="url(#${id}-aura)"/>
   ${sparks ? `<g class="sparks">
-    ${star(58, 250, 9, '#5ad1ff')}${star(340, 240, 10, '#5ad1ff')}${star(356, 150, 6, '#a594ff')}${star(46, 160, 5, '#ff6fae')}${star(330, 312, 6, '#b6f36b')}
+    ${star(58, 250, 9, '#5ad1ff')}${star(340, 240, 10, '#5ad1ff')}${star(356, 150, 6, '#7d8dff')}${star(46, 160, 5, '#ff6fae')}${star(330, 312, 6, '#b6f36b')}
     ${bar(74, 300, 6, 22, 30, '#ffd84a')}${bar(92, 262, 5, 16, -20, '#ff6fae')}${bar(318, 280, 6, 22, -25, '#ffd84a')}${bar(342, 206, 5, 14, 40, '#ff6fae')}${bar(60, 206, 5, 14, -40, '#b6f36b')}
-    <circle class="spark" cx="84" cy="228" r="4" fill="#b6f36b"/><circle class="spark" cx="356" cy="268" r="3.5" fill="#a594ff"/><circle class="spark" cx="318" cy="176" r="3" fill="#b6f36b"/>
+    <circle class="spark" cx="84" cy="228" r="4" fill="#b6f36b"/><circle class="spark" cx="356" cy="268" r="3.5" fill="#7d8dff"/><circle class="spark" cx="318" cy="176" r="3" fill="#b6f36b"/>
   </g>` : ''}
   <g class="chair"><rect x="96" y="70" width="208" height="270" rx="70" fill="${C.chair}"/><rect x="112" y="84" width="176" height="240" rx="60" fill="${C.chairHi}" opacity=".55"/></g>
   <g class="bunny">
@@ -66,7 +66,7 @@ export function jinySvg(o = {}) {
       <path d="M146 290C168 282 232 282 254 290" stroke="${C.hoodieHi}" stroke-width="10" stroke-linecap="round" fill="none"/>
       <path d="M188 290 187 297M212 290 213 297" stroke="#cfcbe0" stroke-width="3.5" stroke-linecap="round"/>
       <circle cx="187" cy="299" r="3" fill="#cfcbe0"/><circle cx="213" cy="299" r="3" fill="#cfcbe0"/>
-      <text x="200" y="321" text-anchor="middle" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="20" font-weight="700" letter-spacing="4" fill="#9d8fff">JINY</text>
+      <text x="200" y="321" text-anchor="middle" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="20" font-weight="700" letter-spacing="4" fill="#7584ff">JINY</text>
     </g>
     <g class="head">
       <path d="M200 272C122 272 86 236 86 188C86 132 136 104 200 104C264 104 314 132 314 188C314 236 278 272 200 272Z" fill="${C.fur}" stroke="${C.line}" stroke-width="4"/>
@@ -87,11 +87,11 @@ export function jinySvg(o = {}) {
         <g class="eyes">
           <g class="eye" style="transform-origin:151px 202px">
             <path d="M128 196Q151 186 174 196Q174 218 151 218Q128 218 128 196Z" fill="${C.eye}"/>
-            ${star(156, 206, 7, '#8f7dff', 'twinkle')}<circle cx="142" cy="199" r="3" fill="#fff"/>
+            ${star(156, 206, 7, '#6676ff', 'twinkle')}<circle cx="142" cy="199" r="3" fill="#fff"/>
           </g>
           <g class="eye" style="transform-origin:249px 202px">
             <path d="M226 196Q249 186 272 196Q272 218 249 218Q226 218 226 196Z" fill="${C.eye}"/>
-            ${star(254, 206, 7, '#8f7dff', 'twinkle')}<circle cx="240" cy="199" r="3" fill="#fff"/>
+            ${star(254, 206, 7, '#6676ff', 'twinkle')}<circle cx="240" cy="199" r="3" fill="#fff"/>
           </g>
           <path class="lids" d="M124 193Q151 180 178 193M222 193Q249 180 276 193" stroke="${C.line}" stroke-width="5" fill="none" stroke-linecap="round"/>
         </g>
@@ -126,7 +126,7 @@ export function jinyHeadSvg() {
   <rect x="74" y="166" width="12" height="58" rx="6" fill="${C.glow}"/><rect x="314" y="166" width="12" height="58" rx="6" fill="${C.glow}"/>
   <ellipse cx="136" cy="228" rx="20" ry="10" fill="${C.blush}"/><ellipse cx="264" cy="228" rx="20" ry="10" fill="${C.blush}"/>
   <path d="M126 196Q151 184 176 196Q176 220 151 220Q126 220 126 196Z" fill="${C.eye}"/><path d="M224 196Q249 184 274 196Q274 220 249 220Q224 220 224 196Z" fill="${C.eye}"/>
-  <circle cx="158" cy="206" r="6" fill="#8f7dff"/><circle cx="256" cy="206" r="6" fill="#8f7dff"/>
+  <circle cx="158" cy="206" r="6" fill="#6676ff"/><circle cx="256" cy="206" r="6" fill="#6676ff"/>
   <path d="M120 192Q151 176 182 192M218 192Q249 176 280 192" stroke="${C.line}" stroke-width="7" fill="none" stroke-linecap="round"/>
   <path d="M188 238Q194 245 200 238Q206 245 212 238" stroke="#5c3a4c" stroke-width="5" fill="none" stroke-linecap="round"/>
 </svg>`;

@@ -5,7 +5,7 @@ import { reduced } from './fx';
 type Star = { x: number; y: number; z: number; r: number; phase: number; speed: number; color: string };
 type Shoot = { x: number; y: number; vx: number; vy: number; life: number };
 
-const COLORS = ['255,255,255', '214,206,255', '169,155,232', '143,212,193'];
+const COLORS = ['255,255,255', '214,206,255', '123,140,255', '143,212,193'];
 
 export function startSky(canvas: HTMLCanvasElement, host: HTMLElement) {
   const ctx = canvas.getContext('2d');
@@ -88,7 +88,7 @@ export function startSky(canvas: HTMLCanvasElement, host: HTMLElement) {
         for (let j = i + 1; j < near.length; j++) {
           const d = Math.hypot(near[i][0] - near[j][0], near[i][1] - near[j][1]);
           if (d > 70) continue;
-          ctx!.strokeStyle = `rgba(169,155,232,${(0.55 * (1 - d / 70)).toFixed(3)})`;
+          ctx!.strokeStyle = `rgba(123,140,255,${(0.55 * (1 - d / 70)).toFixed(3)})`;
           ctx!.beginPath();
           ctx!.moveTo(near[i][0], near[i][1]);
           ctx!.lineTo(near[j][0], near[j][1]);
@@ -98,8 +98,8 @@ export function startSky(canvas: HTMLCanvasElement, host: HTMLElement) {
     }
     if (mouse.on) {
       const g = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 90);
-      g.addColorStop(0, 'rgba(169,155,232,0.18)');
-      g.addColorStop(1, 'rgba(169,155,232,0)');
+      g.addColorStop(0, 'rgba(123,140,255,0.18)');
+      g.addColorStop(1, 'rgba(123,140,255,0)');
       ctx!.fillStyle = g;
       ctx!.fillRect(mouse.x - 90, mouse.y - 90, 180, 180);
     }
@@ -110,7 +110,7 @@ export function startSky(canvas: HTMLCanvasElement, host: HTMLElement) {
       s.x += s.vx; s.y += s.vy; s.life -= 1;
       const tail = ctx!.createLinearGradient(s.x, s.y, s.x - s.vx * 14, s.y - s.vy * 14);
       tail.addColorStop(0, `rgba(255,255,255,${Math.min(1, s.life / 30)})`);
-      tail.addColorStop(1, 'rgba(169,155,232,0)');
+      tail.addColorStop(1, 'rgba(123,140,255,0)');
       ctx!.strokeStyle = tail;
       ctx!.lineWidth = 1.6;
       ctx!.beginPath();

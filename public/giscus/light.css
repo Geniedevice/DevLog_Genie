@@ -12,10 +12,10 @@ main {
   --color-border-default: #e0e3ef;
   --color-border-muted: #e0e3ef;
   --color-neutral-muted: #e0e3ef;
-  --color-accent-fg: #7a68d6;
-  --color-accent-emphasis: #7a68d6;
-  --color-accent-muted: #ebe7fb;
-  --color-accent-subtle: #ebe7fb;
+  --color-accent-fg: #1f2de6;
+  --color-accent-emphasis: #1f2de6;
+  --color-accent-muted: #e6e9fd;
+  --color-accent-subtle: #e6e9fd;
   --color-success-fg: #2f9d84;
   --color-attention-fg: #c98a12;
   --color-danger-fg: #d04a63;
@@ -32,13 +32,13 @@ main {
   --color-btn-active-border: transparent;
   --color-btn-selected-bg: #eceef6;
   --color-btn-primary-text: #ffffff;
-  --color-btn-primary-bg: #7a68d6;
+  --color-btn-primary-bg: #1f2de6;
   --color-btn-primary-border: transparent;
   --color-btn-primary-shadow: none;
   --color-btn-primary-inset-shadow: none;
-  --color-btn-primary-hover-bg: #7a68d6;
+  --color-btn-primary-hover-bg: #1f2de6;
   --color-btn-primary-hover-border: transparent;
-  --color-btn-primary-selected-bg: #7a68d6;
+  --color-btn-primary-selected-bg: #1f2de6;
   --color-btn-primary-disabled-text: #626a85;
   --color-btn-primary-disabled-bg: #e0e3ef;
   --color-btn-primary-disabled-border: transparent;
@@ -47,9 +47,9 @@ main {
   --color-segmented-control-button-selected-border: #e0e3ef;
   --color-action-list-item-default-hover-bg: #eceef6;
   --color-scale-gray-1: #eceef6;
-  --color-scale-blue-1: #ebe7fb;
+  --color-scale-blue-1: #e6e9fd;
   --color-social-reaction-bg-hover: #eceef6;
-  --color-social-reaction-bg-reacted-hover: #ebe7fb;
+  --color-social-reaction-bg-reacted-hover: #e6e9fd;
   --color-primer-shadow-inset: none;
 
   font-family: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
@@ -67,4 +67,4 @@ main .gsc-social-reaction-summary-item { border-radius: 8px; }
 main .gsc-social-reaction-summary-item.has-reacted { background: #eceef6; color: #1f2640; }
 main .gsc-comment-author-avatar img,
 main .gsc-reply-author-avatar img { border-radius: 999px; }
-main a:not(.btn) { color: #7a68d6; }
+main a:not(.btn) { color: #1f2de6; }

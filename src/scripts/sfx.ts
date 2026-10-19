@@ -1,7 +1,7 @@
 // 8비트 효과음. 파일 없이 Web Audio 로 즉석 합성한다.
 // 기본은 꺼짐(방문자가 사이드바 스피커 버튼으로 켠다). 켜짐 여부는 이 브라우저에만 저장.
 const KEY = 'devlog:sound';
-type Sound = 'hover' | 'click' | 'select' | 'coin' | 'jump' | 'achievement' | 'boot';
+type Sound = 'hover' | 'click' | 'select' | 'coin' | 'jump' | 'achievement';
 
 let ctx: AudioContext | null = null;
 
@@ -31,7 +31,6 @@ const NOTES: Record<Sound, [number, number, OscillatorType][]> = {
   coin: [[988, 0.07, 'square'], [1319, 0.16, 'square']],
   jump: [[330, 0.05, 'square'], [494, 0.05, 'square'], [659, 0.09, 'square']],
   achievement: [[523, 0.08, 'triangle'], [659, 0.08, 'triangle'], [784, 0.08, 'triangle'], [1047, 0.22, 'triangle']],
-  boot: [[262, 0.06, 'square'], [392, 0.06, 'square'], [523, 0.12, 'square']],
 };
 
 export function sfx(name: Sound, force = false) {

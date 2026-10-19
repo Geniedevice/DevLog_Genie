@@ -3,7 +3,7 @@ import { achievement, reduced } from './fx';
 import { sfx } from './sfx';
 
 // JINY 애니메이션(anime.js v4). 부위 class 는 src/lib/jiny.mjs 참고.
-const NEON = ['#a99be8', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
+const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
 const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
 const KEY = '#3d3959';
 
@@ -41,7 +41,7 @@ export function animateJiny(root: HTMLElement) {
   if (pawL && pawR && keys.length) {
     const flash = () => {
       const k = keys[Math.floor(Math.random() * keys.length)];
-      animate(k, { fill: ['#b8aaff', KEY], duration: 380, ease: 'outQuad' });
+      animate(k, { fill: ['#a3afff', KEY], duration: 380, ease: 'outQuad' });
     };
     const tl = createTimeline({ loop: true });
     tl.add(pawL, { translateY: [0, -5, 0], duration: 220, ease: 'inOutQuad', onBegin: flash })

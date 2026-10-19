@@ -60,7 +60,7 @@ export function animateScene(root: HTMLElement) {
   // ── 책상: 김, 앞발 타자 + 눌린 키 불빛
   $$('.steam').forEach((s, i) => animate(s, { translateY: [4, -10], opacity: [0, 0.5, 0], scaleY: [0.8, 1.1], duration: 2400, delay: i * 1000, loop: true, ease: 'outSine' }));
   const keys = $$('.fkey');
-  const flash = () => animate(keys[Math.floor(Math.random() * keys.length)], { fill: ['#c9bdff', '#3d4768'], duration: 360, ease: 'outQuad' });
+  const flash = () => animate(keys[Math.floor(Math.random() * keys.length)], { fill: ['#bcc5ff', '#3d4768'], duration: 360, ease: 'outQuad' });
   const pl = $('.fpaw-l'), pr = $('.fpaw-r');
   if (pl && pr && keys.length) {
     createTimeline({ loop: true })

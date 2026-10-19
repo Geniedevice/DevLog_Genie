@@ -4,7 +4,6 @@ import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'; // 
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '../styles/global.css';
-import BootScreen from '../components/BootScreen.astro';
 import Sidebar from '../components/Sidebar.astro';
 import MobileBar from '../components/MobileBar.astro';
 import BottomNav from '../components/BottomNav.astro';
@@ -71,7 +70,6 @@ const { level } = levelOf(published);
     </script>
   </head>
   <body>
-    <BootScreen />
     <!-- 페이지 전체 배경: 깊이 3단 별 + 성운(스크롤 시차). 내용보다 뒤에 깔린다 -->
     <canvas class="backdrop" data-backdrop aria-hidden="true"></canvas>
     <a class="skip sr-only" href="#main">본문으로 건너뛰기</a>

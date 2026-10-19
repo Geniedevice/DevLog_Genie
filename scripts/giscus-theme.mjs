@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 
 const schemes = {
   light: {
-    primary: '#7a68d6', onPrimary: '#ffffff', primaryContainer: '#ebe7fb', onPrimaryContainer: '#3e3290',
+    primary: '#1f2de6', onPrimary: '#ffffff', primaryContainer: '#e6e9fd', onPrimaryContainer: '#16209e',
     secondaryContainer: '#eceef6', onSecondaryContainer: '#1f2640', tertiary: '#2f9d84',
     error: '#d04a63', errorContainer: '#fbe3e8',
     surface: '#f4f5fa', onSurface: '#151a2b', onSurfaceVariant: '#626a85',
@@ -12,7 +12,7 @@ const schemes = {
     outline: '#8b92aa', outlineVariant: '#e0e3ef', success: '#2f9d84', attention: '#c98a12',
   },
   dark: {
-    primary: '#a99be8', onPrimary: '#111522', primaryContainer: '#262d45', onPrimaryContainer: '#d9d2ff',
+    primary: '#7b8cff', onPrimary: '#111522', primaryContainer: '#262d45', onPrimaryContainer: '#d4daff',
     secondaryContainer: '#232b40', onSecondaryContainer: '#e7ebf5', tertiary: '#8fd4c1',
     error: '#f07a8e', errorContainer: '#4a1d2a',
     surface: '#111522', onSurface: '#e7ebf5', onSurfaceVariant: '#98a0b8',

@@ -76,7 +76,7 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   .brand :global(.logo) { color: var(--brand); filter: drop-shadow(0 0 10px var(--glow)); margin-bottom: 6px; transition: rotate 600ms var(--ease-out); }
   .brand:hover :global(.logo) { rotate: -25deg; }
   .brand-name { font-size: 34px; font-weight: 800; letter-spacing: -0.015em; line-height: 1; }
-  .brand-sub { font-size: 10px; line-height: 1.7; letter-spacing: 0.32em; color: var(--muted-foreground); }
+  .brand-sub { font-size: 13px; line-height: 1.5; letter-spacing: 0.04em; color: var(--muted-foreground); }
 
   .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
   .item {
@@ -103,10 +103,10 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
 
   .me { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: auto; padding-top: 12px; text-align: center; }
   .me :global(.pj) { margin-bottom: 10px; }
-  .me-name { margin: 0; font-size: 15px; letter-spacing: 0.24em; }
+  .me-name { margin: 0; font-size: 15px; letter-spacing: 0.04em; }
   .me-role { margin: 0; font-size: 13px; color: var(--muted-foreground); }
   .explore { padding: 0 10px; }
-  .ex-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 10px; letter-spacing: 0.2em; color: var(--muted-foreground); }
+  .ex-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; letter-spacing: 0.02em; color: var(--muted-foreground); }
   .ex-head b { color: var(--mint); font-weight: 700; }
   .ex-bar { height: 6px; border-radius: 99px; background: var(--sidebar-accent); overflow: hidden; }
   .ex-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--brand)); box-shadow: 0 0 8px var(--glow); }

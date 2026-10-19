@@ -12,8 +12,8 @@ main {
   --color-border-default: #283048;
   --color-border-muted: #283048;
   --color-neutral-muted: #283048;
-  --color-accent-fg: #a99be8;
-  --color-accent-emphasis: #a99be8;
+  --color-accent-fg: #7b8cff;
+  --color-accent-emphasis: #7b8cff;
   --color-accent-muted: #262d45;
   --color-accent-subtle: #262d45;
   --color-success-fg: #8fd4c1;
@@ -32,13 +32,13 @@ main {
   --color-btn-active-border: transparent;
   --color-btn-selected-bg: #232b40;
   --color-btn-primary-text: #111522;
-  --color-btn-primary-bg: #a99be8;
+  --color-btn-primary-bg: #7b8cff;
   --color-btn-primary-border: transparent;
   --color-btn-primary-shadow: none;
   --color-btn-primary-inset-shadow: none;
-  --color-btn-primary-hover-bg: #a99be8;
+  --color-btn-primary-hover-bg: #7b8cff;
   --color-btn-primary-hover-border: transparent;
-  --color-btn-primary-selected-bg: #a99be8;
+  --color-btn-primary-selected-bg: #7b8cff;
   --color-btn-primary-disabled-text: #98a0b8;
   --color-btn-primary-disabled-bg: #283048;
   --color-btn-primary-disabled-border: transparent;
@@ -67,4 +67,4 @@ main .gsc-social-reaction-summary-item { border-radius: 8px; }
 main .gsc-social-reaction-summary-item.has-reacted { background: #232b40; color: #e7ebf5; }
 main .gsc-comment-author-avatar img,
 main .gsc-reply-author-avatar img { border-radius: 999px; }
-main a:not(.btn) { color: #a99be8; }
+main a:not(.btn) { color: #7b8cff; }

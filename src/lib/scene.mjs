@@ -9,7 +9,7 @@ export const WINDOW = { x: 44, y: 34, w: 712, h: 292, r: 14 };
 
 const P = {
   wall: '#151b2c', wall2: '#11172a', panel: '#1b2236', frame: '#0b0f1a',
-  sky0: '#0b0f1f', sky1: '#171d38', lav: '#a99be8', lavHi: '#d6ceff', mint: '#8fd4c1', text: '#e7ebf5',
+  sky0: '#0b0f1f', sky1: '#171d38', lav: '#7b8cff', lavHi: '#ccd3ff', mint: '#8fd4c1', text: '#e7ebf5',
   far: '#2b3150', ground: '#262c45', ground2: '#1c2137', desk: '#1f2639', deskEdge: '#3a4466',
 };
 
@@ -32,7 +32,7 @@ function staticStars() {
 }
 
 function books(x, y) {
-  const cols = ['#a99be8', '#8fd4c1', '#e7ebf5', '#6c63b5', '#f29cc8', '#3f4a70', '#8fd4c1', '#a99be8'];
+  const cols = ['#7b8cff', '#8fd4c1', '#e7ebf5', '#4f5cc4', '#f29cc8', '#3f4a70', '#8fd4c1', '#7b8cff'];
   let s = '', cx = x;
   cols.forEach((c, i) => {
     const w = 10 + (i % 3) * 3, h = 46 + (i % 4) * 6;
@@ -58,10 +58,10 @@ export function layerMoon() {
     'layer-moon',
     `<circle class="moon-halo" cx="600" cy="120" r="140" fill="url(#lm-halo)"/>
     <g class="moon"><circle cx="600" cy="120" r="66" fill="url(#lm-moon)"/>
-    <circle cx="578" cy="104" r="11" fill="#8676d4" opacity=".55"/><circle cx="622" cy="140" r="15" fill="#8676d4" opacity=".45"/><circle cx="628" cy="96" r="6" fill="#8676d4" opacity=".5"/>
+    <circle cx="578" cy="104" r="11" fill="#5f72e6" opacity=".55"/><circle cx="622" cy="140" r="15" fill="#5f72e6" opacity=".45"/><circle cx="628" cy="96" r="6" fill="#5f72e6" opacity=".5"/>
     <g clip-path="url(#lm-clip)"><circle cx="638" cy="104" r="66" fill="${P.sky0}" opacity=".6"/></g></g>
     <g class="planet" transform="translate(170 92)"><circle r="17" fill="${P.mint}" opacity=".85"/><ellipse rx="30" ry="7" fill="none" stroke="${P.mint}" stroke-width="2" opacity=".6" transform="rotate(-18)"/></g>`,
-    `<radialGradient id="lm-moon" cx="35%" cy="35%"><stop offset="0" stop-color="${P.lavHi}"/><stop offset="1" stop-color="#8676d4"/></radialGradient>
+    `<radialGradient id="lm-moon" cx="35%" cy="35%"><stop offset="0" stop-color="${P.lavHi}"/><stop offset="1" stop-color="#5f72e6"/></radialGradient>
     <radialGradient id="lm-halo"><stop offset="0" stop-color="${P.lav}" stop-opacity=".42"/><stop offset="1" stop-color="${P.lav}" stop-opacity="0"/></radialGradient>
     <clipPath id="lm-clip"><circle cx="600" cy="120" r="66"/></clipPath>`,
   );
@@ -161,9 +161,9 @@ export function sceneFront() {
       <path class="steam" d="M10 -8 q-6 -10 0 -20 q6 -10 0 -20" stroke="#e7ebf5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/>
       <path class="steam" d="M22 -6 q-6 -10 0 -20 q6 -10 0 -20" stroke="#e7ebf5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>
       <rect x="0" y="0" width="34" height="32" rx="6" fill="#e7ebf5"/><path d="M34 8 h6 a7 7 0 0 1 0 14 h-6" stroke="#e7ebf5" stroke-width="5" fill="none"/>
-      <rect x="9" y="10" width="16" height="10" rx="3" fill="#a99be8"/>
+      <rect x="9" y="10" width="16" height="10" rx="3" fill="#7b8cff"/>
     </g>
-    <g transform="translate(1150 410)"><path d="M-18 0h36l-5 -30h-26z" fill="#6c63b5"/><path class="leaf" d="M0 -30 C-6 -60 -26 -66 -30 -54 M0 -30 C6 -64 22 -72 28 -58 M0 -30 C0 -66 8 -80 14 -74" stroke="${P.mint}" stroke-width="6" fill="none" stroke-linecap="round"/></g>`,
+    <g transform="translate(1150 410)"><path d="M-18 0h36l-5 -30h-26z" fill="#4f5cc4"/><path class="leaf" d="M0 -30 C-6 -60 -26 -66 -30 -54 M0 -30 C6 -64 22 -72 28 -58 M0 -30 C0 -66 8 -80 14 -74" stroke="${P.mint}" stroke-width="6" fill="none" stroke-linecap="round"/></g>`,
     `<radialGradient id="sf-lamp" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#ffe7b0" stop-opacity=".28"/><stop offset="1" stop-color="#ffe7b0" stop-opacity="0"/></radialGradient>
     <linearGradient id="sf-desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.desk}"/><stop offset="1" stop-color="#151b2b"/></linearGradient>`,
   );

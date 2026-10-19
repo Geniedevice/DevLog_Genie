@@ -49,7 +49,7 @@ h1, h2, h3, h4 { letter-spacing: -0.005em; }
 .icon { display: inline-block; flex-shrink: 0; vertical-align: middle; }
 
 /* 픽셀 폰트: 영문 HUD 전용(서브셋 2.6KB) */
-.pixel-font { font-family: var(--font-pixel); letter-spacing: 0.08em; -webkit-font-smoothing: none; }
+.pixel-font { font-family: var(--font-pixel); letter-spacing: 0.02em; -webkit-font-smoothing: none; }
 
 /* ─── Button (shadcn: default · secondary · outline · ghost) ─── */
 .btn {
@@ -153,7 +153,6 @@ a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
 
 .separator { border: 0; border-top: 1px solid var(--border); margin: 0; }
 
-.eyebrow { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted-foreground); }
 .section-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 20px; font-weight: 700; }
 .section-title .icon { color: var(--brand); }
 
@@ -253,7 +252,7 @@ a.badge-outline:hover { border-color: var(--brand); background: var(--accent); }
 /* 업적 토스트(게임식) */
 .toast.achv { padding: 10px 16px 10px 10px; border-color: color-mix(in srgb, var(--amber) 50%, var(--border)); }
 .toast.achv .badge-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); }
-.toast.achv small { display: block; font: 700 10px/1.2 var(--font-pixel); letter-spacing: 0.14em; color: var(--amber); }
+.toast.achv small { display: block; font: 700 13px/1.2 var(--font-pixel); letter-spacing: 0.02em; color: var(--amber); }
 
 /* ─── 마이크로 인터랙션 ─── */
 /* 누른 자리에서 퍼지는 물결(src/scripts/micro.ts) */

@@ -39,7 +39,7 @@ export function startBackdrop(canvas: HTMLCanvasElement) {
 
     // 성운: 가장 느리게 움직이는 큰 빛덩이
     const blobs = [
-      { x: 0.78, y: 0.25, r: 0.5, c: isDark ? '169,155,232' : '122,104,214', a: isDark ? 0.09 : 0.06, speed: 0.08 },
+      { x: 0.78, y: 0.25, r: 0.5, c: isDark ? '123,140,255' : '122,104,214', a: isDark ? 0.09 : 0.06, speed: 0.08 },
       { x: 0.25, y: 0.85, r: 0.45, c: isDark ? '143,212,193' : '47,157,132', a: isDark ? 0.06 : 0.045, speed: 0.16 },
     ];
     for (const b of blobs) {

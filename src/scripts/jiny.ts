@@ -6,10 +6,10 @@ import { sfx } from './sfx';
 
 // JINY: Rev2D 리그(src/lib/jiny.r2d.json)를 WebGL2 로 실시간 구동.
 // 리그의 idle 애니메이션(숨쉬기·몸 흔들림·헤드폰 불빛) 위에 커서 시선, 무작위 눈 깜빡임, 클릭 반응을 파라미터로 얹는다.
-// 머리카락·토끼귀는 리그 물리(진자)가 알아서 따라 흔들린다.
+// 머리카락·드릴 포니테일은 리그 물리(진자)가 알아서 따라 흔들린다.
 const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
 const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
-const VIEW: ViewBox = [16, -30, 480, 480]; // 머리~가슴. 위쪽 여유는 깡충 뛸 때 귀 끝 자리
+const VIEW: ViewBox = [16, 0, 480, 480]; // 머리~가슴. 위쪽 여유는 깡충 뛸 때 리본 끝 자리
 
 export function animateJiny(root: HTMLElement) {
   const canvas = root.querySelector<HTMLCanvasElement>('canvas')!;
@@ -54,7 +54,7 @@ export function animateJiny(root: HTMLElement) {
     return Math.min(1, v);
   };
 
-  // 클릭 반응: 깡충(물리 입력이라 귀·머리가 출렁) + 웃음 + 말하기
+  // 클릭 반응: 깡충(물리 입력이라 포니테일·머리가 출렁) + 웃음 + 말하기
   let pokedAt = -1e9;
   const poke = root.querySelector<HTMLButtonElement>('[data-poke]');
   poke?.addEventListener('click', () => {
@@ -96,7 +96,7 @@ export function animateJiny(root: HTMLElement) {
         EyeROpen: eyes,
         Hop: hop,
         Cheek: Math.max(0.15, happy),
-        MouthForm: 0.3 + happy * 0.7,
+        MouthForm: 0.1 + happy * 0.9,
         MouthOpen: happy * (0.35 + 0.35 * Math.abs(Math.sin(p * 14))),
       },
     });

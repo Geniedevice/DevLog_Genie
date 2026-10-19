@@ -2,7 +2,7 @@
 
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
-**GENIE LAB** 콘셉트(달 기지 작업실)의 게임 개발 블로그. 대표 캐릭터 **JINY**(토끼귀·보라 네온 헤드폰을 쓴 은발 소녀)가 주인공인 Astro 정적 사이트입니다.
+**GENIE LAB** 콘셉트(달 기지 작업실)의 게임 개발 블로그. 대표 캐릭터 **JINY**(드릴 사이드 포니테일에 선글라스를 올린 은발 소녀)가 주인공인 Astro 정적 사이트입니다.
 글 목록은 유튜브식 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성, **통계** 페이지에는 차트와 데이터 표가 있습니다.
 `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
 
@@ -13,7 +13,7 @@ Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github
 | 배경 | 페이지 전체에 깊이 3단 별 + 성운 캔버스(`src/scripts/backdrop.ts`) — 먼 층일수록 느리게 흐른다 |
 | 마이크로 인터랙션 | `src/scripts/micro.ts`: 자석 버튼, 누른 자리 물결. 글 끝의 "다 읽었어요" 체크박스(체크 그리기·+XP) |
 | 카운터·진행률 | 글 읽기 진행률 링(% · 남은 분), 사이드바 탐험률(다 읽은 글 비율) |
-| 캐릭터 | [Rev2D](https://github.com/RevStudio/Rev2D)(Live2D 식 리깅) 리그 `src/lib/jiny.r2d.json` 을 WebGL2 로 실시간 구동(`src/scripts/jiny.ts`): 숨쉬기, 커서 시선, 눈 깜빡임, 머리카락·토끼귀 물리. 클릭하면 깡충 + 웃음 + 색종이 + 말풍선. 픽셀 스프라이트는 `src/lib/pixel-jiny.mjs` |
+| 캐릭터 | [Rev2D](https://github.com/RevStudio/Rev2D)(Live2D 식 리깅) 리그 `src/lib/jiny.r2d.json` 을 WebGL2 로 실시간 구동(`src/scripts/jiny.ts`): 숨쉬기, 커서 시선, 눈 깜빡임, 머리카락·포니테일 물리. 클릭하면 깡충 + 웃음 + 색종이 + 말풍선. 픽셀 스프라이트는 `src/lib/pixel-jiny.mjs` |
 | 게임 요소 | 픽셀 HUD(레벨·XP 칸·연속 기록), 업적 알림, 8비트 효과음(`src/scripts/sfx.ts`, Web Audio 합성, **기본 꺼짐**) |
 | 컴포넌트 | shadcn 구조(Button, Badge, Card, Chip, Breadcrumb, Kbd, Command 팔레트, Data Table)를 순수 CSS/TS 로. 아이콘은 **lucide**(shadcn 기본 세트) — `<Icon name="…" />` |
 | 차트 | `src/components/charts/` — KPI(스파크라인), 영역·막대·도넛·가로막대, 레벨 게이지, 기록 잔디. 수치는 `src/lib/stats.ts` 가 빌드 때 계산 |
@@ -83,7 +83,7 @@ http://localhost:4321/DevLog_Genie/ 에서 확인. 초안도 보입니다.
 
 ```bash
 node scripts/rev2d/bundle.mjs <Rev2D 폴더>   # → src/vendor/rev2d-player.js, src/lib/jiny.rig.json (둘 다 커밋)
-node <Rev2D 폴더>/bin/rev2d.js render src/lib/jiny.r2d.json -o public/images/jiny-rig.png --viewbox 16,-30,480,480 --bg transparent  # WebGL2 없을 때 정지 그림
+node <Rev2D 폴더>/bin/rev2d.js render src/lib/jiny.r2d.json -o public/images/jiny-rig.png --viewbox 16,0,480,480 --bg transparent  # WebGL2 없을 때 정지 그림
 ```
 
 ## 설정

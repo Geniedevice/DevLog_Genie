@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import PixelJiny from './PixelJiny.astro';
+
 import { NAV, BOOKMARKS, type NavKey } from '../lib/nav';
 import { url } from '../lib/posts';
 import { SITE } from '../site.config';
@@ -32,7 +32,7 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   </nav>
 
   <div class="me">
-    <PixelJiny />
+    <img class="mascot" src={url('images/jiny-redesign.png')} alt="JINY" width="112" height="112" />
     <p class="me-name pixel-font">JINY</p>
     <p class="me-role">Game Developer · Lv.{level}</p>
   </div>
@@ -102,7 +102,7 @@ const cur = (key: NavKey) => (active === key ? 'page' : undefined);
   .kbds { display: flex; gap: 2px; margin-left: auto; }
 
   .me { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: auto; padding-top: 12px; text-align: center; }
-  .me :global(.pj) { margin-bottom: 10px; }
+  .mascot { width: 112px; height: 112px; object-fit: contain; margin-bottom: 6px; mask-image: linear-gradient(#000 82%, transparent); filter: drop-shadow(0 0 12px var(--glow)); }
   .me-name { margin: 0; font-size: 15px; letter-spacing: 0.04em; }
   .me-role { margin: 0; font-size: 13px; color: var(--muted-foreground); }
   .explore { padding: 0 10px; }

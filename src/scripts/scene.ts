@@ -57,17 +57,6 @@ export function animateScene(root: HTMLElement) {
       .add(mini, { rotate: [0, 360], duration: 520, ease: 'inOutQuad' }, 1100);
   }
 
-  // ── 책상: 김, 손 타자 + 눌린 키 불빛
+  // ── 책상: 머그잔 김
   $$('.steam').forEach((s, i) => animate(s, { translateY: [4, -10], opacity: [0, 0.5, 0], scaleY: [0.8, 1.1], duration: 2400, delay: i * 1000, loop: true, ease: 'outSine' }));
-  const keys = $$('.fkey');
-  const flash = () => animate(keys[Math.floor(Math.random() * keys.length)], { fill: ['#bcc5ff', '#3d4768'], duration: 360, ease: 'outQuad' });
-  const pl = $('.fpaw-l'), pr = $('.fpaw-r');
-  if (pl && pr && keys.length) {
-    createTimeline({ loop: true })
-      .add(pl, { translateY: [0, -5, 0], duration: 200, onBegin: flash })
-      .add(pr, { translateY: [0, -5, 0], duration: 200, onBegin: flash })
-      .add(pl, { translateY: [0, -4, 0], duration: 180, onBegin: flash })
-      .add(pr, { translateY: [0, -6, 0], duration: 240, onBegin: flash })
-      .add(pl, { translateY: 0, duration: 380 });
-  }
 }

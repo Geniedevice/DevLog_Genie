@@ -1,96 +1,122 @@
 import { animate, random } from 'animejs';
-import { mountAvatar } from '../vendor/rev2d-avatar.js';
+import { mountRig, type ViewBox } from '../vendor/rev2d-player.js';
+import rig from '../lib/jiny.rig.json';
 import { achievement, reduced } from './fx';
 import { sfx } from './sfx';
 
-export async function animateJiny(root: HTMLElement) {
-  const canvas = root.querySelector<HTMLCanvasElement>('canvas.rig');
-  if (!canvas || root.dataset.mounted) return;
-  root.dataset.mounted = '';
-  let avatar: Awaited<ReturnType<typeof mountAvatar>>;
+// JINY: Rev2D 리그(src/lib/jiny.r2d.json)를 WebGL2 로 실시간 구동.
+// 리그의 idle 애니메이션(숨쉬기·몸 흔들림) 위에 커서 시선, 나른한 눈매와 무작위 깜빡임, 풍선껌, 클릭 반응을 파라미터로 얹는다.
+// 머리카락·드릴 포니테일은 리그 물리(진자)가 알아서 따라 흔들린다.
+const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
+const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
+const VIEW: ViewBox = [0, 0, 512, 512]; // 버튜버 흉상: 리본 끝~가슴 하트비트
+const LIDS = 0.82; // 은랑식 반쯤 감긴 눈
+
+export function animateJiny(root: HTMLElement) {
+  const canvas = root.querySelector<HTMLCanvasElement>('canvas')!;
+  let jiny: ReturnType<typeof mountRig>;
   try {
-    avatar = await mountAvatar(canvas, new URL(root.dataset.model!, location.href).href);
-  } catch (error) {
-    console.warn('JINY avatar could not load; keeping the portrait.', error);
-    delete root.dataset.mounted;
+    jiny = mountRig(canvas, rig as never, VIEW);
+  } catch {
+    return; // WebGL2 없음: 정적 그림(img)이 그대로 보인다
+  }
+  root.dataset.live = '';
+
+  const fit = () => {
+    const s = Math.round(canvas.clientWidth * Math.min(devicePixelRatio, 2));
+    if (s && canvas.width !== s) canvas.width = canvas.height = s;
+  };
+  new ResizeObserver(fit).observe(canvas);
+  fit();
+
+  if (reduced()) {
+    const still = () => jiny.frame({ time: 0, physics: false, params: { EyeLOpen: LIDS, EyeROpen: LIDS } });
+    still();
+    new ResizeObserver(still).observe(canvas);
     return;
   }
-  let visible = false, frameId = 0, lastFrame = 0, clock = 0;
-  let pokedAt = -Infinity, blinkAt = 2 + Math.random() * 3;
-  let gazeX = 0, gazeY = 0, aimX = 0, aimY = 0, lastPointer = -Infinity;
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  const controller = new AbortController();
+
+  // 시선: 커서를 향해(부드럽게 따라감). 커서가 한동안 없으면 정면으로 돌아온다
+  const look = { x: 0, y: 0 }, aim = { x: 0, y: 0 };
+  let lastMove = -1e9;
+  addEventListener('pointermove', (e) => {
+    const r = canvas.getBoundingClientRect();
+    aim.x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width * 1.2)));
+    aim.y = Math.max(-1, Math.min(1, -(e.clientY - (r.top + r.height * 0.4)) / (r.height * 1.2)));
+    lastMove = performance.now();
+  }, { passive: true });
+
+  // 눈 깜빡임: 2.5~5.5초마다, 가끔 두 번
+  let blinkAt = 1.5, blinkTwice = false;
+  const eyeOpen = (t: number) => {
+    const d = t - blinkAt;
+    const one = (u: number) => (u < 0 || u > 0.22 ? 1 : Math.abs(u - 0.08) / (u < 0.08 ? 0.08 : 0.14));
+    const v = Math.min(one(d), blinkTwice ? one(d - 0.26) : 1);
+    if (d > 0.6) { blinkAt = t + random(2.5, 5.5, 2); blinkTwice = Math.random() < 0.25; }
+    return Math.min(1, v);
+  };
+
+  // 풍선껌: 9~16초마다 2.4초에 걸쳐 부풀다가 터진다
+  let gumAt = random(4, 7, 2);
+  const gum = (t: number) => {
+    const u = (t - gumAt) / 2.4;
+    if (u > 1) gumAt = t + random(9, 16, 2);
+    return u < 0 || u > 1 ? 0 : 1 - (1 - u) ** 2;
+  };
+
+  // 클릭 반응: 깡충(물리 입력이라 포니테일·머리가 출렁) + 웃음 + 말하기. 껌을 불던 중이면 터진다
+  let pokedAt = -1e9;
   const poke = root.querySelector<HTMLButtonElement>('[data-poke]');
-  const draw = (time: number) => {
-    frameId = 0;
-    if (!visible || document.hidden || !root.isConnected) return;
-    const dt = lastFrame ? Math.min((time - lastFrame) / 1000, 0.05) : 0;
-    if (dt && dt < 1 / 32) { frameId = requestAnimationFrame(draw); return; }
-    lastFrame = time;
-    clock += dt;
-    const quiet = motion.matches;
-    const idle = time - lastPointer > 4000;
-    const k = 1 - Math.exp(-dt * 5);
-    gazeX += ((idle ? 0 : aimX) - gazeX) * k;
-    gazeY += ((idle ? 0 : aimY) - gazeY) * k;
-    const blink = clock - blinkAt;
-    const eye = blink < 0 || blink > 0.23 ? 1 : Math.min(1, Math.abs(blink - 0.08) / (blink < 0.08 ? 0.08 : 0.15));
-    if (blink > 0.23) blinkAt = clock + 2.5 + Math.random() * 3;
-    const p = Number.isFinite(pokedAt) ? clock - pokedAt : 10;
-    const happy = !quiet && p < 1.6 ? Math.max(0, Math.min(1, p * 8, (1.6 - p) * 3)) : 0;
-    avatar.frame({time: quiet ? 0 : clock, physics: !quiet, params: {
-      AngleX: quiet ? 0 : gazeX * 20 + Math.sin(clock * 0.65) * 3,
-      AngleY: quiet ? 0 : -gazeY * 14 + Math.sin(clock * 0.8) * 2,
-      AngleZ: quiet ? 0 : Math.sin(clock * 0.7) * 5 + happy * 5,
-      EyeBallX: quiet ? 0 : gazeX * 0.7, EyeBallY: quiet ? 0 : -gazeY * 0.6,
-      EyeLOpen: quiet ? 1 : eye, EyeROpen: quiet ? 1 : eye,
-      BodyAngleX: quiet ? 0 : Math.sin(clock * 0.5) * 3,
-      Breath: quiet ? 0 : 0.5 + Math.sin(clock * 1.4) * 0.5,
-      MouthForm: happy * 0.7, MouthOpen: happy * (0.1 + 0.3 * Math.abs(Math.sin(p * 12))),
-    }});
-    root.dataset.live = '';
-    if (!quiet) frameId = requestAnimationFrame(draw);
-  };
-  const resume = () => {
-    lastFrame = 0;
-    if (visible && !document.hidden && !frameId) frameId = requestAnimationFrame(draw);
-  };
-  const observer = new IntersectionObserver(([entry]) => {
-    visible = entry.isIntersecting;
-    if (!visible) { cancelAnimationFrame(frameId); frameId = 0; }
-    else resume();
-  });
-  observer.observe(root);
-  const resize = new ResizeObserver(resume);
-  resize.observe(root);
-  document.addEventListener('visibilitychange', resume, {signal:controller.signal});
-  motion.addEventListener('change', resume, {signal:controller.signal});
-  window.addEventListener('pointermove', event => {
-    if (!visible || motion.matches || event.pointerType === 'touch') return;
-    const rect = root.getBoundingClientRect();
-    aimX = Math.max(-1, Math.min(1, (event.clientX - rect.left - rect.width / 2) / rect.width));
-    aimY = Math.max(-1, Math.min(1, (event.clientY - rect.top - rect.height * 0.38) / rect.height));
-    lastPointer = performance.now();
-  }, {passive:true,signal:controller.signal});
   poke?.addEventListener('click', () => {
-    if (clock - pokedAt < 0.9 && !motion.matches) return;
-    pokedAt = clock;
+    if (now() - pokedAt < 0.9) return;
+    pokedAt = now();
+    gumAt = now() + random(9, 16, 2);
     sfx('jump');
-    achievement('poke-jiny', 'JINY');
+    achievement('poke-jiny', 'JINY와 첫 인사');
+    burst(root);
     say(root);
-    if (!reduced()) burst(root);
-    resume();
-  }, {signal:controller.signal});
-  window.addEventListener('pagehide', event => {
-    if (event.persisted) return;
-    controller.abort(); observer.disconnect(); resize.disconnect();
-    cancelAnimationFrame(frameId); avatar.dispose();
-  }, {once:true});
+  });
+
+  const t0 = performance.now();
+  const now = () => (performance.now() - t0) / 1000;
+  let visible = true;
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) requestAnimationFrame(tick); }).observe(canvas);
+
+  let prev = 0;
+  function tick() {
+    if (!visible) return;
+    const t = now(), dt = Math.min(0.05, t - prev);
+    prev = t;
+    const idle = performance.now() - lastMove > 4000;
+    const k = 1 - Math.exp(-dt * 5);
+    look.x += ((idle ? 0 : aim.x) - look.x) * k;
+    look.y += ((idle ? 0 : aim.y) - look.y) * k;
+    const p = t - pokedAt; // 클릭 뒤 경과 초
+    const hop = p < 0.6 ? Math.sin((p / 0.6) * Math.PI) ** 1.5 : 0;
+    const happy = p < 1.8 ? Math.min(1, p * 8, (1.8 - p) * 3) : 0;
+    const bubble = happy ? 0 : gum(t);
+    const eyes = eyeOpen(t) * (LIDS + (1 - LIDS) * happy);
+    jiny.frame({
+      time: t,
+      animations: ['idle'],
+      params: {
+        AngleX: look.x * 24 + Math.sin(t * 0.9) * 2,
+        AngleY: look.y * 18 + Math.sin(t * 1.3) * 1.5,
+        EyeBallX: look.x * 0.8,
+        EyeBallY: look.y * 0.7,
+        EyeLOpen: eyes,
+        EyeROpen: eyes,
+        Hop: hop,
+        Cheek: Math.max(0.15, happy),
+        MouthForm: bubble ? -0.6 : 0.1 + happy * 0.9,
+        MouthOpen: bubble ? 0.12 : happy * (0.35 + 0.35 * Math.abs(Math.sin(p * 14))),
+        Bubble: bubble,
+      },
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
-
-const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
-const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!'];
-
 
 function burst(root: HTMLElement) {
   const pieces = Array.from({ length: 22 }, (_, i) => {

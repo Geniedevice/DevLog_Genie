@@ -4,7 +4,7 @@
 // 모든 레이어는 같은 viewBox(1200×520). 창밖 레이어는 페이지에서 창 모양으로 잘린 틀 안에 들어가
 // 스크롤·마우스에 따라 제각각 다른 속도로 움직인다(src/scripts/scene.ts). 이미지 생성은 sceneBack() 한 장으로.
 
-export const SCENE = { w: 1200, h: 520, jiny: { x: 620, y: 132, size: 330 } };
+export const SCENE = { w: 1200, h: 520, jiny: { x: 590, y: 110, size: 410 } };
 export const WINDOW = { x: 44, y: 34, w: 712, h: 292, r: 14 };
 
 const P = {
@@ -138,7 +138,7 @@ export function layerRoom() {
   );
 }
 
-/** ⑦ 책상 앞면: 스탠드, 키보드, 손, 마우스, 머그, 명판, 화분 */
+/** ⑦ 책상 앞면: 스탠드, 키보드, 마우스, 머그, 명판, 화분 */
 export function sceneFront() {
   let keys = '';
   for (let r = 0; r < 3; r++) for (let c = 0; c < 14; c++) keys += `<rect class="fkey" x="${694 + c * 12.5}" y="${432 + r * 8}" width="9.5" height="5.5" rx="1.2" fill="#3d4768"/>`;
@@ -154,8 +154,6 @@ export function sceneFront() {
     <rect x="-120" y="408" width="1440" height="5" fill="${P.deskEdge}"/>
     <rect x="684" y="424" width="192" height="36" rx="7" fill="#262e46" stroke="#11172a" stroke-width="3"/>
     ${keys}
-    <g class="fpaw fpaw-l"><path d="M712 446 Q714 418 734 414 L756 416 Q764 430 758 446 Z" fill="#2b2842" stroke="#0f0e18" stroke-width="3"/><ellipse cx="742" cy="424" rx="17" ry="10" fill="#fde7dc" stroke="#c98a78" stroke-width="2.5"/><path d="M734 418h16" stroke="${P.lav}" stroke-width="3" stroke-linecap="round"/></g>
-    <g class="fpaw fpaw-r"><path d="M790 446 Q792 418 812 414 L834 416 Q842 430 836 446 Z" fill="#2b2842" stroke="#0f0e18" stroke-width="3" transform="scale(-1 1) translate(-1640 0)"/><ellipse cx="820" cy="424" rx="17" ry="10" fill="#fde7dc" stroke="#c98a78" stroke-width="2.5"/><path d="M812 418h16" stroke="${P.lav}" stroke-width="3" stroke-linecap="round"/></g>
     <ellipse cx="920" cy="440" rx="16" ry="10" fill="#262e46" stroke="#11172a" stroke-width="3"/>
     <g transform="translate(990 392)">
       <path class="steam" d="M10 -8 q-6 -10 0 -20 q6 -10 0 -20" stroke="#e7ebf5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/>

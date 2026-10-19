@@ -48,7 +48,8 @@ const outside = [
      그래서 스크롤로는 아래로만, 마우스로는 조금만 움직여야 가장자리에 빈틈이 안 생긴다. */
   .sky { position: absolute; inset: 0; width: 100%; height: 100%; }
   .room { z-index: 1; }
-  .jiny-layer { z-index: 2; pointer-events: none; }
+  /* 버튜버 오버레이처럼 책상보다 앞에 */
+  .jiny-layer { z-index: 4; pointer-events: none; }
   .jiny-slot { position: absolute; pointer-events: auto; }
   .front { z-index: 3; pointer-events: none; }
   /* 움직이는 SVG 부위의 축 */

@@ -3,12 +3,11 @@ import { url } from '../lib/posts';
 interface Props { class?: string; interactive?: boolean }
 const { class: className, interactive = true } = Astro.props;
 ---
-<div class:list={['jiny-wrap', className]} data-jiny data-model={url('avatars/jiny/jiny.r2d.json')}>
+<div class:list={['jiny-wrap', className]} data-jiny>
   <div class="aura"></div>
-  <div class="portrait-motion">
-    <img class="portrait" src={url('images/jiny-redesign.png')} alt="보라색 리본과 선글라스, 별 장식 망토를 착용한 은발의 JINY" width="1024" height="1024" fetchpriority="high" />
-  </div>
-  <canvas class="rig" aria-hidden="true"></canvas>
+  <!-- WebGL2 가 없거나 스크립트 전에는 같은 리그를 CLI 로 렌더한 정지 그림 -->
+  <img class="still" src={url('images/jiny-rig.png')} alt="" width="512" height="512" />
+  <canvas role="img" aria-label="은발 드릴 포니테일에 선글라스를 올리고 퍼 칼라 재킷을 입은 JINY"></canvas>
   {interactive && <button class="poke" type="button" data-poke aria-label="JINY 쓰다듬기"></button>}
 </div>
 
@@ -20,15 +19,11 @@ const { class: className, interactive = true } = Astro.props;
 <style>
   .jiny-wrap { position: relative; width: 100%; aspect-ratio: 1; }
   /* 흉상이라 아래가 잘린다: 책상이 없는 자리(404)에서도 자연스럽게 페이드 */
-  .portrait-motion { position: absolute; inset: 0; transform-origin: 50% 85%; }
-  .rig { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; mask-image: linear-gradient(#000 82%, transparent 100%); }
-  .jiny-wrap[data-live] .rig { opacity: 1; }
-  .jiny-wrap[data-live] .portrait-motion { visibility: hidden; }
-  .portrait { width: 100%; height: 100%; object-fit: contain; mask-image: linear-gradient(#000 82%, transparent 100%); animation: breathe 4.5s ease-in-out infinite; }
-  @keyframes breathe { 50% { transform: translateY(-3px) rotate(0.4deg); } }
+  .jiny-wrap canvas, .still { position: absolute; inset: 0; width: 100%; height: 100%; mask-image: linear-gradient(#000 78%, transparent 98%); }
+  .jiny-wrap[data-live] .still { display: none; }
   .aura { position: absolute; inset: 2%; border-radius: 50%; background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--night-lav) 32%, transparent), transparent 62%); animation: aura 2.6s ease-in-out infinite alternate; }
   @keyframes aura { to { scale: 1.06; opacity: 0.8; } }
-  @media (prefers-reduced-motion: reduce) { .aura, .portrait { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .aura { animation: none; } }
   .poke { position: absolute; inset: 6% 24% 18%; border: 0; border-radius: 45%; background: transparent; cursor: pointer; }
   .poke:focus-visible { outline: 2px dashed var(--ring); outline-offset: 4px; }
   .jiny-wrap :global(.confetti) { position: absolute; left: 50%; top: 45%; width: 8px; height: 14px; border-radius: 3px; pointer-events: none; }

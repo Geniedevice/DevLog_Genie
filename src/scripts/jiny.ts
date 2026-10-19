@@ -8,10 +8,9 @@ import { sfx } from './sfx';
 // 감은 눈·벌린 입은 그려 넣은 스프라이트, 머리카락·드릴 포니테일·리본은 리그 물리(진자)가 따라 흔든다.
 const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
 const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
-const VIEW: ViewBox = [0, 0, 1254, 1254]; // 일러스트 전체(리본 끝~가슴)
 
 // 모델·텍스처는 페이지에 JINY 가 여럿(히어로·사이드바)이어도 한 번만 받는다
-let assets: Promise<{ model: never; images: Record<string, ImageBitmap> }> | undefined;
+let assets: Promise<{ model: { meta: { width: number; height: number } }; images: Record<string, ImageBitmap> }> | undefined;
 const load = (base: string) => (assets ??= (async () => {
   const model = await (await fetch(base + 'jiny.rig.json')).json();
   const entries = await Promise.all(model.textures.map(async (t: { id: string; path: string }) =>
@@ -24,7 +23,8 @@ export async function animateJiny(root: HTMLElement) {
   let jiny: ReturnType<typeof mountRig>;
   try {
     const { model, images } = await load(root.dataset.base!);
-    jiny = mountRig(canvas, model, VIEW, images);
+    const view: ViewBox = [0, 0, model.meta.width, model.meta.height]; // 일러스트 전체(리본 끝~가슴)
+    jiny = mountRig(canvas, model as never, view, images);
   } catch {
     return; // WebGL2 없음·로딩 실패: 정지 그림(img)이 그대로 보인다
   }

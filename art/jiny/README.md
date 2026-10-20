@@ -43,7 +43,7 @@ node scripts/rev2d/bundle.mjs <Rev2D 폴더>                                   #
   | 파츠 | 태그 | 부정 | seed |
   | --- | --- | --- | --- |
   | face | `chibi, (bare forehead:1.4), (no bangs:1.5), forehead, skin, eyebrows` | `hair, bangs, fringe, hair strands, headband, hat` | 7 |
-  | body | `chibi, (pale neck:1.3), skin, collarbone, black choker, black dress, white frills` | `hair, hair strand, grey hair, mouth, chin, face, dark smear` | 35 |
+  | body | `chibi, (pale neck:1.3), skin, collarbone, black choker, black dress, white frills, white sleeves, bare shoulders` | `hair, hair strand, grey hair, long hair, mouth, chin, face, dark smear` | 35 |
   | sclera | `chibi, (blank white eyes:1.5), (empty eyes:1.4), no pupils, white sclera` | `purple eyes, pupils, iris, eye highlights, colored eyes` | 7 |
   | eyes_closed | `chibi, (closed eyes:1.5), (eyes closed:1.3), eyelashes, light smile` | `open eyes, iris, pupils, purple eyes, eye highlights` | 7 |
   | eyes_half | `chibi, purple eyes, (half-closed eyes:1.4), sleepy, droopy eyelids` (d 0.95) | `wide eyes, closed eyes` | 7 |

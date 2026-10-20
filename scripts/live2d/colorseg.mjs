@@ -21,7 +21,7 @@ const ribbons = cs.ribbons.map(inBox), brows = (cs.brows ?? []).map(inBox);
 
 // 0 = 투명, 1 = 얼굴, 2 = 머리카락, 3 = 장식, 4 = 몸, 9 = 미정(검정 선)
 const FACE = 1, HAIR = 2, ORN = 3, BODY = 4, TBD = 9;
-const lab = new Uint8Array(P);
+const lab = new Uint8Array(P), cand = new Uint8Array(P); // cand: 턱 아래 회색(머리카락 후보) — 검은 선은 포함하지 않는다
 for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) {
   if (src[i * 4 + 3] < 8) continue;
   const r = src[i * 4], g = src[i * 4 + 1], b = src[i * 4 + 2];
@@ -30,7 +30,9 @@ for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) {
   const grey = !skin && !white && !sat && !dark && S < 45;
   const head = y < jawY(x);
   let c;
-  if (head) {
+  // 리본·꽃은 턱선 위아래 상관없이 장식(턱 밑까지 늘어진 리본이 몸으로 잡히면 그 뒤 머리 가닥이 끊긴다)
+  if ((ribbons.some((f) => f(x, y)) && sat) || (flower(x, y) && !grey && !dark)) c = ORN;
+  else if (head) {
     if (brows.some((b) => b(x, y)) && !grey) c = FACE; // 눈썹은 통째로 얼굴(앞머리와 나뉘면 움직일 때 두 줄)
     else if (eyes.some((e) => e(x, y)) || mouth(x, y)) c = dark ? TBD : FACE;
     else if (hull(x, y)) c = skin || white ? FACE : grey ? HAIR : sat ? FACE : TBD;
@@ -39,8 +41,11 @@ for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) {
     else if (ribbons.some((f) => f(x, y)) && (sat || dark)) c = ORN;
     else c = dark ? TBD : HAIR;
   } else {
-    const hairCol = x < cs.hairX[0] || x > cs.hairX[1] || cs.strands.some((s) => inBox(s)(x, y));
-    c = grey && hairCol && r >= b - 20 ? HAIR : dark ? TBD : BODY;
+    // 턱 아래는 위치로 정하지 않는다: 회색이면 후보로 두고, 아래에서 머리와 이어진 가닥만 남긴다
+    // 그늘진 머리카락은 밝기 70 대까지 어둡다 → 진짜 검은 선(밝기 < 60)만 빼고 채도 낮은 색을 후보로
+    const hairish = !skin && !white && !sat && S < 45 && L >= 60 && r >= b - 20;
+    c = hairish ? HAIR : dark ? TBD : BODY;
+    if (hairish) cand[i] = 1;
   }
   lab[i] = c;
 }
@@ -79,17 +84,21 @@ for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) if (lab[i] =
     }
     return o;
   };
-  const hair = new Uint8Array(P); for (let i = 0; i < P; i++) hair[i] = lab[i] === HAIR ? 1 : 0;
+  // 턱 위는 머리카락 라벨, 턱 아래는 회색 후보만(투표로 머리카락이 된 검은 선은 다리 역할을 못 하게)
+  const hair = new Uint8Array(P); for (let i = 0; i < P; i++) hair[i] = below(i) ? cand[i] : lab[i] === HAIR ? 1 : 0;
+  for (let i = 0; i < P; i++) if (below(i) && lab[i] === HAIR && !cand[i]) lab[i] = BODY;
   const opened = morph(morph(hair, false), true);
   for (let i = 0; i < P; i++) if (below(i) && hair[i] && !opened[i]) { hair[i] = 0; lab[i] = BODY; }
   // 머리에서 이어진 것만(8-이웃 범람)
+  const ribbonZone = (j) => ribbons.some((f) => f(j % N, (j / N) | 0)); // 리본 테두리 선도 통과
   const seen = new Uint8Array(P), stack = [];
   for (let i = 0; i < P; i++) if (hair[i] && !below(i)) { seen[i] = 1; stack.push(i); }
   while (stack.length) {
     const i = stack.pop(), x = i % N, y = (i / N) | 0;
-    for (let d = -1; d <= 1; d++) for (let e = -1; e <= 1; e++) {
+    for (const [e, d] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const xx = x + e, yy = y + d, j = yy * N + xx;
-      if (xx >= 0 && yy >= 0 && xx < N && yy < N && hair[j] && !seen[j]) { seen[j] = 1; stack.push(j); }
+      // 장식(리본 등)은 머리카락 앞에 얹힌 것 — 그 밑으로 가닥이 이어지므로 통과는 하되 머리카락으로 칠하지는 않는다
+      if (xx >= 0 && yy >= 0 && xx < N && yy < N && (hair[j] || lab[j] === ORN || ribbonZone(j)) && !seen[j]) { seen[j] = 1; stack.push(j); }
     }
   }
   for (let i = 0; i < P; i++) if (hair[i] && !seen[i]) lab[i] = BODY;

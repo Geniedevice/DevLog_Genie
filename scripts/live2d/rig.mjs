@@ -47,6 +47,7 @@ const sphere = (p, k, ax, ay) => {
   return [dx, dy];
 };
 const r1 = (v) => Math.round(v * 100) / 100;
+const smooth = (t) => { const u = Math.max(0, Math.min(1, t)); return u * u * (3 - 2 * u); };
 
 // ── 텍스처·워프·파츠
 for (const [id, cfg] of Object.entries(L)) {
@@ -60,9 +61,18 @@ for (const [id, cfg] of Object.entries(L)) {
     parent = wid;
     const pts = lattice(wr.map(Math.round), n, n);
     if (cfg.depth !== undefined) {
+      // depth: 숫자, 또는 [위, 아래, y시작, y끝] — y 를 따라 부드럽게 바뀐다(한 장 안에서 앞머리는 더, 아래 머리는 덜)
+      const dAt = (p) => typeof cfg.depth === 'number' ? cfg.depth : cfg.depth[0] + (cfg.depth[1] - cfg.depth[0]) * smooth((p[1] - cfg.depth[2]) / (cfg.depth[3] - cfg.depth[2]));
       const keys = [];
-      for (const ay of [-30, 0, 30]) for (const ax of [-30, 0, 30]) keys.push({ at: [ax, ay], value: ax || ay ? pts.flatMap((p) => sphere(p, cfg.depth, ax, ay).map(r1)) : {} });
+      for (const ay of [-30, 0, 30]) for (const ax of [-30, 0, 30]) keys.push({ at: [ax, ay], value: ax || ay ? pts.flatMap((p) => sphere(p, dAt(p), ax, ay).map(r1)) : {} });
       m.bindings.push({ target: `warp:${wid}.offsets`, params: ['AngleX', 'AngleY'], keys });
+    }
+    for (const sw of cfg.sways ?? []) {
+      // 영역별 흔들림: x 범위 안에서(가장자리 40px 에 걸쳐 줄어듦) y[0] 에서 0 → y[1] 에서 최대
+      const amp = SWAY[sw.param].amp;
+      const wgt = (p) => { const fx = Math.min(1, Math.max(0, Math.min(p[0] - sw.x[0], sw.x[1] - p[0]) / 40 + 0.5)); return fx * smooth((p[1] - sw.y[0]) / (sw.y[1] - sw.y[0])) ** 1.4; };
+      const off = (k) => pts.flatMap((p) => { const s = amp * k * wgt(p); return [r1(s), r1(Math.abs(s) * 0.12)]; });
+      m.bindings.push({ target: `warp:${wid}.offsets`, params: [sw.param], keys: [{ at: [-1], value: off(-1) }, { at: [0], value: {} }, { at: [1], value: off(1) }] });
     }
     if (cfg.sway) {
       // 뿌리(위쪽)는 고정, 아래로 갈수록 크게(끝 흔들림 px 은 rig.sway)

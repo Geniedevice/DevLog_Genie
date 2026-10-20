@@ -316,6 +316,10 @@
     "z": 7,
     "parent": "face"
    },
+   "mouthOpen": {
+    "z": 7,
+    "parent": "face"
+   },
    "eyesClosedL": {
     "z": 8,
     "parent": "face"
@@ -324,30 +328,40 @@
     "z": 8,
     "parent": "face"
    },
-   "mouthOpen": {
-    "z": 7,
-    "parent": "face"
-   },
-   "sideL": {
+   "hair": {
     "z": 10,
-    "depth": 0.88,
     "parent": "head",
-    "grid": 8,
-    "sway": "HairSide"
-   },
-   "sideR": {
-    "z": 10,
-    "depth": 0.88,
-    "parent": "head",
-    "grid": 8,
-    "sway": "HairSide"
-   },
-   "front": {
-    "z": 11,
-    "depth": 1.05,
-    "parent": "head",
-    "grid": 12,
-    "sway": "HairFront"
+    "grid": 18,
+    "depth": [
+     1.05,
+     0.88,
+     440,
+     640
+    ],
+    "sways": [
+     {
+      "param": "HairFront",
+      "x": [
+       320,
+       710
+      ],
+      "y": [
+       300,
+       445
+      ]
+     },
+     {
+      "param": "HairSide",
+      "x": [
+       0,
+       1024
+      ],
+      "y": [
+       540,
+       1024
+      ]
+     }
+    ]
    },
    "orn": {
     "z": 12,

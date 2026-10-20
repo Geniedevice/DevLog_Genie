@@ -7,7 +7,8 @@
 //       hairBack.png 는 선택 — 없으면 머리카락 대표색(밝은 회색 중앙값) 단색. 고개를 돌릴 때 가장자리에만 보이는 곳이라 셀 화풍엔 단색이 깔끔하다
 //       → <출력>/<레이어>.png(크롭) + layers.json
 //
-// 레이어(뒤→앞): hairBack, body, face, eyeMaskL/R, irisL/R, eyesHalfL/R, eyesClosedL/R, mouthOpen, sideL, sideR, front, orn
+// 레이어(뒤→앞): hairBack, body, face, eyeMaskL/R, irisL/R, eyesHalfL/R, eyesClosedL/R, mouthOpen, hair, orn
+// 머리카락(앞머리·옆머리)은 한 장 — 직선으로 자르면 한 가닥이 둘로 끊겨 움직일 때 잘린 자리가 벌어진다. 부위별 움직임 차이는 리그의 워프가 부드럽게 준다
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -136,7 +137,8 @@ const bodyFill = Buffer.from(drawn.body), bodyT = new Float32Array(targets.body)
 each((i) => { if (neckT[i]) { bodyT[i] = 1; for (let j = 0; j < 3; j++) bodyFill[i * 4 + j] = skin[j]; } });
 layer('body', w.body, bodyFill, bodyT);
 layer('hairBack', null, drawn.hairBack, targets.hairBack);
-for (const id of ['sideL', 'sideR', 'front', 'orn']) layer(id, w[id]);
+layer('hair', mask((i) => w.front[i] + w.sideL[i] + w.sideR[i]));
+layer('orn', w.orn);
 
 // 그려 넣은 표정: 눈·입 영역만, 머리카락 픽셀은 빼서 머리카락 레이어가 위를 덮게
 for (const [id, file, regs] of [['eyesClosed', 'eyes_closed', ['L', 'R']], ['eyesHalf', 'eyes_half', ['L', 'R']], ['mouthOpen', 'mouth_a', ['M']]]) {

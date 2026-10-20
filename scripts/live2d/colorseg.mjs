@@ -40,7 +40,7 @@ for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) {
     else c = dark ? TBD : HAIR;
   } else {
     const hairCol = x < cs.hairX[0] || x > cs.hairX[1] || cs.strands.some((s) => inBox(s)(x, y));
-    c = grey && hairCol && r >= b - 6 ? HAIR : dark ? TBD : BODY;
+    c = grey && hairCol && r >= b - 20 ? HAIR : dark ? TBD : BODY;
   }
   lab[i] = c;
 }

@@ -1,7 +1,6 @@
 import { animate, random } from 'animejs';
 import { mountRig, type ViewBox } from '../vendor/rev2d-player.js';
 import { achievement, reduced } from './fx';
-import { sfx } from './sfx';
 
 // JINY: 일러스트 한 장(art/jiny)을 Rev2D 아바타로 리깅한 텍스처 리그를 WebGL2 로 실시간 구동.
 // 리그의 idle 애니메이션(숨쉬기·몸 흔들림) 위에 커서 시선, 무작위 깜빡임, 클릭 반응을 파라미터로 얹는다.
@@ -67,10 +66,14 @@ export async function animateJiny(root: HTMLElement) {
   // 클릭 반응: 깡충 + 고개 갸웃(머리카락·리본이 출렁) + 웃으며 말하기
   let pokedAt = -1e9;
   const poke = root.querySelector<HTMLButtonElement>('[data-poke]');
+  // 클릭 목소리: 방문자가 직접 누른 것이라 사이트 효과음 설정(기본 꺼짐)과 상관없이 재생. 처음 누를 때 받는다
+  let voice: HTMLAudioElement | undefined;
   poke?.addEventListener('click', () => {
     if (now() - pokedAt < 0.9) return;
     pokedAt = now();
-    sfx('jump');
+    voice ??= Object.assign(new Audio(root.dataset.voice), { volume: 0.6 });
+    voice.currentTime = 0;
+    void voice.play().catch(() => {});
     achievement('poke-jiny', 'JINY와 첫 인사');
     burst(root);
     say(root);

@@ -3,11 +3,11 @@ import { url } from '../lib/posts';
 interface Props { class?: string; interactive?: boolean }
 const { class: className, interactive = true } = Astro.props;
 ---
-<div class:list={['jiny-wrap', className]} data-jiny data-base={url('avatars/jiny/')}>
+<div class:list={['jiny-wrap', className]} data-jiny data-base={url('avatars/jiny/')} data-voice={url('sounds/kuru-kuru.mp3')}>
   <div class="aura"></div>
   <!-- WebGL2 가 없거나 리그를 받기 전에는 원본 일러스트 -->
   <img class="still" src={url('avatars/jiny/still.webp')} alt="" width="640" height="640" />
-  <canvas role="img" aria-label="은발 드릴 포니테일에 선글라스를 올리고 퍼 칼라 재킷을 입은 JINY"></canvas>
+  <canvas role="img" aria-label="보라 꽃 머리장식을 한 회색 긴 머리의 데포르메 소녀 JINY"></canvas>
   {interactive && <button class="poke" type="button" data-poke aria-label="JINY 쓰다듬기"></button>}
 </div>
 

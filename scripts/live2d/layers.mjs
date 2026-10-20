@@ -52,13 +52,13 @@ const [H, O] = await Promise.all(['hair', 'orn'].map((id) => gray(path.join(mask
 const A = new Float32Array(P); each((i) => { A[i] = src[i * 4 + 3] / 255; });
 const w = Object.fromEntries(['orn', 'front', 'sideL', 'sideR', 'face', 'body'].map((k) => [k, new Float32Array(P)]));
 const hullSoft = ellipseSoft([...spec.faceHull.center, ...spec.faceHull.radius], 3);
-const sd = spec.side;
+const sd = spec.side, JAW_LINE = 6;
 each((i, x, y) => {
   const o = O[i] / 255, h = (H[i] / 255) * (1 - o), rest = 1 - o - h;
   w.orn[i] = o;
   const side = y >= sd.yMin || (y >= sd.frameYMin && (x < sd.frameX[0] || x > sd.frameX[1]));
   w[side ? (x < sd.splitX ? 'sideL' : 'sideR') : 'front'][i] = h;
-  const head = Math.max(0, Math.min(1, jawY(x) + 1.5 - y)), inFace = hullSoft(x, y);
+  const head = Math.max(0, Math.min(1, jawY(x) + JAW_LINE - y)), inFace = hullSoft(x, y); // 턱 외곽선까지 얼굴(몸에 남으면 움직일 때 턱선이 두 줄)
   w.face[i] = rest * head * inFace; w.front[i] += rest * head * (1 - inFace); w.body[i] = rest * (1 - head);
 });
 const hairAll = (i) => Math.max(w.front[i], w.sideL[i], w.sideR[i], w.orn[i]);
@@ -70,7 +70,7 @@ for (const s of ['L', 'R']) { eyeOpen[s] = inPoly(spec.eyes[s].opening); const [
 const nf = spec.neckFill, tx = spec.torsoX;
 const targets = {
   face: grow(mask((i, x, y) => (hull(x, y) && y < jawY(x) + 2 && hairAll(i) > 0.3 ? 1 : 0)), 3),
-  body: grow(mask((i, x, y) => ((y >= jawY(x) - 2 && x >= tx[0] && x <= tx[1] && hairAll(i) > 0.3) || (x >= nf.x[0] && x <= nf.x[1] && y >= nf.y[0] && y <= nf.y[1]) ? 1 : 0)), 3),
+  body: grow(mask((i, x, y) => (y >= jawY(x) - 2 && x >= tx[0] && x <= tx[1] && hairAll(i) > 0.3 ? 1 : 0)), 3),
   hairBack: mask((i, x, y) => ((w.face[i] + w.front[i] + w.orn[i]) * A[i] > 0.5 && y < jawY(x) + 4 ? 1 : 0)),
   sclera: grow(mask((i, x, y) => (['L', 'R'].some((s) => eyeOpen[s](x, y) && irisIn[s](x, y)) ? 1 : 0)), 2),
 };
@@ -124,9 +124,17 @@ for (const s of ['L', 'R']) {
   const buf = Buffer.alloc(P * 4);
   each((i, x, y) => { if (eyeOpen[s](x, y)) for (let j = 0; j < 4; j++) buf[i * 4 + j] = layers.face[i * 4 + j]; });
   layers[`eyeMask${s}`] = buf;
-  layer(`iris${s}`, mask((i, x, y) => (eyeOpen[s](x, y) && irisIn[s](x, y) ? (1 - hairAll(i)) * (1 - w.body[i]) : 0)));
+  // 흰자로 바꿔 칠한 영역(sclera, 홍채보다 조금 넓다)과 똑같이 덮어야 가만히 있을 때 흰 테두리가 안 보인다
+  layer(`iris${s}`, mask((i, x, y) => (eyeOpen[s](x, y) && targets.sclera[i] ? (1 - hairAll(i)) * (1 - w.body[i]) : 0)));
 }
-layer('body', w.body, drawn.body, targets.body);
+// 턱 밑 목: 얼굴이 움직이면 드러나는 곳. 턱 곡선을 따라 위로 NECK px 를 피부 단색으로(각진 사각형·턱선 잔상 없이)
+const NECK = 40, skinVals = [[], [], []];
+each((i, x, y) => { if (w.face[i] * A[i] > 0.95 && y > jawY(x) - 60 && y < jawY(x) - 10 && x >= nf.x[0] && x <= nf.x[1]) { const r = src[i * 4], g = src[i * 4 + 1], b = src[i * 4 + 2]; if (r > 225 && g > 195) for (let j = 0; j < 3; j++) skinVals[j].push(src[i * 4 + j]); } });
+const skin = skinVals.map((v) => v.sort((a, b) => a - b)[v.length >> 1] ?? 245);
+const neckT = mask((i, x, y) => (hull(x, y) && y >= jawY(x) - NECK && y < jawY(x) + JAW_LINE + 2 && w.body[i] * A[i] < 0.5 ? 1 : 0));
+const bodyFill = Buffer.from(drawn.body), bodyT = new Float32Array(targets.body);
+each((i) => { if (neckT[i]) { bodyT[i] = 1; for (let j = 0; j < 3; j++) bodyFill[i * 4 + j] = skin[j]; } });
+layer('body', w.body, bodyFill, bodyT);
 layer('hairBack', null, drawn.hairBack, targets.hairBack);
 for (const id of ['sideL', 'sideR', 'front', 'orn']) layer(id, w[id]);
 

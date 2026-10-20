@@ -17,7 +17,7 @@ const hull = inE([...spec.faceHull.center, ...spec.faceHull.radius]);
 const eyes = ['L', 'R'].map((s) => inE(spec.eyes[s].region)), mouth = inE(spec.mouth.region);
 const flower = inE(cs.flower), headband = [inE(cs.headband.outer), inE(cs.headband.inner)];
 const inBox = (b) => (x, y) => x >= b[0] && y >= b[1] && x < b[0] + b[2] && y < b[1] + b[3];
-const ribbons = cs.ribbons.map(inBox);
+const ribbons = cs.ribbons.map(inBox), brows = (cs.brows ?? []).map(inBox);
 
 // 0 = 투명, 1 = 얼굴, 2 = 머리카락, 3 = 장식, 4 = 몸, 9 = 미정(검정 선)
 const FACE = 1, HAIR = 2, ORN = 3, BODY = 4, TBD = 9;
@@ -31,7 +31,8 @@ for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) {
   const head = y < jawY(x);
   let c;
   if (head) {
-    if (eyes.some((e) => e(x, y)) || mouth(x, y)) c = dark ? TBD : FACE;
+    if (brows.some((b) => b(x, y)) && !grey) c = FACE; // 눈썹은 통째로 얼굴(앞머리와 나뉘면 움직일 때 두 줄)
+    else if (eyes.some((e) => e(x, y)) || mouth(x, y)) c = dark ? TBD : FACE;
     else if (hull(x, y)) c = skin || white ? FACE : grey ? HAIR : sat ? FACE : TBD;
     else if (headband[0](x, y) && !headband[1](x, y) && !grey) c = ORN;
     else if (flower(x, y) && !grey) c = ORN;
@@ -59,6 +60,51 @@ for (let pass = 0; pass < 12; pass++) {
   if (!changed) break;
 }
 for (let y = 0, i = 0; y < N; y++) for (let x = 0; x < N; x++, i++) if (lab[i] === TBD) lab[i] = y < jawY(x) ? HAIR : BODY;
+
+// 턱 아래 머리카락 정리: 옷 위 회색 그림자·주름이 머리카락으로 잡혀 따로 흔들리면 몸에서 떨어져 보인다.
+// ① 턱 아래 머리카락을 R px 깎았다 되살려(열기) 가는 조각을 없애고 ② 머리(턱 위)와 이어진 덩어리만 남긴다.
+{
+  const R = 3, below = (i) => Math.floor(i / N) >= jawY(i % N);
+  const isH = (m, x, y) => x >= 0 && y >= 0 && x < N && y < N && m[y * N + x];
+  const morph = (m, keep) => { // keep = true: 이웃이 하나라도 있으면(팽창), false: 이웃이 모두 있어야(침식)
+    const o = new Uint8Array(P);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      let v = keep ? 0 : 1;
+      for (let d = -R; d <= R && v === (keep ? 0 : 1); d++) for (let e = -R; e <= R; e++) {
+        const h = isH(m, x + e, y + d);
+        if (keep && h) { v = 1; break; }
+        if (!keep && !h) { v = 0; break; }
+      }
+      o[y * N + x] = v;
+    }
+    return o;
+  };
+  const hair = new Uint8Array(P); for (let i = 0; i < P; i++) hair[i] = lab[i] === HAIR ? 1 : 0;
+  const opened = morph(morph(hair, false), true);
+  for (let i = 0; i < P; i++) if (below(i) && hair[i] && !opened[i]) { hair[i] = 0; lab[i] = BODY; }
+  // 머리에서 이어진 것만(8-이웃 범람)
+  const seen = new Uint8Array(P), stack = [];
+  for (let i = 0; i < P; i++) if (hair[i] && !below(i)) { seen[i] = 1; stack.push(i); }
+  while (stack.length) {
+    const i = stack.pop(), x = i % N, y = (i / N) | 0;
+    for (let d = -1; d <= 1; d++) for (let e = -1; e <= 1; e++) {
+      const xx = x + e, yy = y + d, j = yy * N + xx;
+      if (xx >= 0 && yy >= 0 && xx < N && yy < N && hair[j] && !seen[j]) { seen[j] = 1; stack.push(j); }
+    }
+  }
+  for (let i = 0; i < P; i++) if (hair[i] && !seen[i]) lab[i] = BODY;
+  // ③ 머리카락 테두리의 검은 선은 머리카락을 따라간다(안 그러면 머리카락만 움직여 선이 제자리에 남는다): 4px 안의 어두운 픽셀
+  const dark = (i) => 0.299 * src[i * 4] + 0.587 * src[i * 4 + 1] + 0.114 * src[i * 4 + 2] < 110 && src[i * 4 + 3] > 8;
+  for (let pass = 0; pass < 4; pass++) {
+    const add = [];
+    for (let y = 1; y < N - 1; y++) for (let x = 1; x < N - 1; x++) {
+      const i = y * N + x;
+      if (lab[i] !== BODY || !below(i) || !dark(i)) continue;
+      if (lab[i - 1] === HAIR || lab[i + 1] === HAIR || lab[i - N] === HAIR || lab[i + N] === HAIR) add.push(i);
+    }
+    for (const i of add) lab[i] = HAIR;
+  }
+}
 
 const save = (k, f) => { const m = Buffer.alloc(P); for (let i = 0; i < P; i++) m[i] = lab[i] === k ? 255 : 0; return sharp(m, { raw: { width: N, height: N, channels: 1 } }).png().toFile(path.join(out, f)); };
 await Promise.all([save(HAIR, 'hair.png'), save(ORN, 'orn.png')]);

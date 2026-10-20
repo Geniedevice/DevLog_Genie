@@ -82,8 +82,10 @@ for (const [id, cfg] of Object.entries(L)) {
 }
 // 눈동자: 얼굴 워프 안의 작은 워프로 시선
 const eyesRect = RG.eyesRect;
-m.warps.push({ id: 'eyeBallWarp', parent: 'faceWarp', rect: eyesRect, cols: 1, rows: 1 });
-const eb = (dx, dy) => Array.from({ length: 4 }, () => [dx, dy]).flat();
+// 칸이 촘촘해야 얼굴 워프의 휘어짐을 그대로 따라간다(1×1 이면 고개를 돌릴 때 홍채가 눈 밖으로 어긋난다)
+const EB = [12, 3];
+m.warps.push({ id: 'eyeBallWarp', parent: 'faceWarp', rect: eyesRect, cols: EB[0], rows: EB[1] });
+const eb = (dx, dy) => Array.from({ length: (EB[0] + 1) * (EB[1] + 1) }, () => [dx, dy]).flat();
 m.bindings.push(
   { target: 'warp:eyeBallWarp.offsets', params: ['EyeBallX'], keys: [{ at: [-1], value: eb(-9, 0) }, { at: [0], value: {} }, { at: [1], value: eb(9, 0) }] },
   { target: 'warp:eyeBallWarp.offsets', params: ['EyeBallY'], keys: [{ at: [-1], value: eb(0, 5) }, { at: [0], value: {} }, { at: [1], value: eb(0, -5) }] },

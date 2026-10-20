@@ -215,14 +215,28 @@
    [
     330,
     580,
-    120,
-    330
+    55,
+    220
    ],
    [
     640,
     580,
     80,
     200
+   ]
+  ],
+  "brows": [
+   [
+    330,
+    395,
+    140,
+    34
+   ],
+   [
+    555,
+    395,
+    150,
+    34
    ]
   ]
  },
@@ -236,8 +250,8 @@
    250
   ],
   "phi": {
-   "x": 0.17,
-   "y": 0.12
+   "x": 0.14,
+   "y": 0.1
   },
   "neck": [
    512,
@@ -261,7 +275,7 @@
   "layers": {
    "hairBack": {
     "z": 0,
-    "depth": 0.35,
+    "depth": 0.6,
     "parent": "head",
     "grid": 10
    },
@@ -316,28 +330,28 @@
    },
    "sideL": {
     "z": 10,
-    "depth": 0.75,
+    "depth": 0.88,
     "parent": "head",
     "grid": 8,
     "sway": "HairSide"
    },
    "sideR": {
     "z": 10,
-    "depth": 0.75,
+    "depth": 0.88,
     "parent": "head",
     "grid": 8,
     "sway": "HairSide"
    },
    "front": {
     "z": 11,
-    "depth": 1.12,
+    "depth": 1.05,
     "parent": "head",
     "grid": 12,
     "sway": "HairFront"
    },
    "orn": {
     "z": 12,
-    "depth": 1.05,
+    "depth": 1.03,
     "parent": "head",
     "grid": 8,
     "sway": "HairOrn"
@@ -345,19 +359,19 @@
   },
   "sway": {
    "HairFront": {
-    "amp": 9,
+    "amp": 6,
     "len": 22,
     "stiff": 40,
     "damp": 0.08
    },
    "HairSide": {
-    "amp": 30,
+    "amp": 16,
     "len": 50,
     "stiff": 10,
     "damp": 0.06
    },
    "HairOrn": {
-    "amp": 8,
+    "amp": 6,
     "len": 26,
     "stiff": 22,
     "damp": 0.07

@@ -99,9 +99,9 @@ export async function animateJiny(root: HTMLElement) {
       time: t,
       animations: ['idle'],
       params: {
-        AngleX: look.x * 24 + Math.sin(t * 0.9) * 2,
-        AngleY: look.y * 18 + Math.sin(t * 1.3) * 1.5 - hop * 8,
-        AngleZ: Math.sin(t * 0.7) * 2 + happy * 10 * Math.sin(Math.min(p, 1) * Math.PI),
+        AngleX: look.x * 18 + Math.sin(t * 0.9) * 2, // ±20 안: 파츠가 벌어지지 않는 범위
+        AngleY: look.y * 14 + Math.sin(t * 1.3) * 1.5 - hop * 6,
+        AngleZ: Math.sin(t * 0.7) * 2 + happy * 7 * Math.sin(Math.min(p, 1) * Math.PI),
         EyeBallX: look.x * 0.8,
         EyeBallY: look.y * 0.7,
         EyeLOpen: eyes,

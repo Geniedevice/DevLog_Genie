@@ -62,10 +62,20 @@ const ogImage = new URL(image ?? url('images/og.png'), Astro.site).href;
         // 등장 연출용 초기 숨김은 JS 가 돌고 모션을 허용할 때만 건다
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('js-fx');
       })();
-      // 페이지 이동(View Transitions): 앞으로 가면 왼쪽으로 흐르고, 뒤로 가기면 반대로 — 방향에 원인이 있을 때만 바꾼다
+      // 페이지 이동(View Transitions): 앞으로 가면 왼쪽으로 흐르고, 뒤로 가기면 반대로 — 방향에 원인이 있을 때만 바꾼다.
+      // 시작 메뉴 · 스테이지([data-iris])를 눌러 왔으면 누른 자리에서 다음 화면이 원으로 열린다(아이리스 와이프)
       addEventListener('pagereveal', (e) => {
+        let iris = null;
+        try { iris = JSON.parse(sessionStorage.getItem('iris') || 'null'); sessionStorage.removeItem('iris'); } catch {}
+        if (!e.viewTransition) return;
+        if (iris && Date.now() - iris.t < 5000) {
+          document.documentElement.style.setProperty('--iris-x', iris.x + '%');
+          document.documentElement.style.setProperty('--iris-y', iris.y + '%');
+          e.viewTransition.types.add('iris');
+          return;
+        }
         const a = window.navigation && navigation.activation;
-        if (!e.viewTransition || !a || !a.from || !a.entry) return;
+        if (!a || !a.from || !a.entry) return;
         if (a.navigationType === 'traverse' && a.entry.index < a.from.index) e.viewTransition.types.add('back');
       });
     </script>
@@ -86,6 +96,16 @@ const ogImage = new URL(image ?? url('images/og.png'), Astro.site).href;
       import { wireMicro } from '../scripts/micro';
 
       wireMicro();
+
+      // 아이리스 와이프의 중심: 누른 자리(키보드로 눌렀으면 링크 가운데)를 다음 페이지에 넘긴다
+      document.addEventListener('click', (e) => {
+        const a = (e.target as Element).closest?.<HTMLElement>('a[data-iris]');
+        if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        const r = a.getBoundingClientRect();
+        const x = e.detail ? e.clientX : r.left + r.width / 2;
+        const y = e.detail ? e.clientY : r.top + r.height / 2;
+        try { sessionStorage.setItem('iris', JSON.stringify({ x: (x / innerWidth) * 100, y: (y / innerHeight) * 100, t: Date.now() })); } catch {}
+      });
 
       wireUiSounds();
       document.querySelectorAll('[data-sound-toggle]').forEach((b) => b.addEventListener('click', () => setSound(!soundOn())));

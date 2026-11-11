@@ -1,0 +1,82 @@
+---
+// 스크롤로 읽어 내려가는 문장: 스크롤한 만큼 단어에 불이 들어온다.
+// 아래 숫자는 화면에 들어오면 슬롯처럼 한 바퀴 돌고 제 숫자에 선다.
+interface Props { text: string; numbers: { label: string; value: number; unit: string }[] }
+const { text, numbers } = Astro.props;
+const words = text.split(' ');
+const DIGITS = [...'01234567890123456789'];
+---
+<section class="statement wrap" aria-label="이 블로그" data-statement>
+  <p class="lede" data-lede>
+    {words.map((w, i) => <><span class="w">{w}</span>{i < words.length - 1 ? ' ' : ''}</>)}
+  </p>
+  <dl class="nums" data-nums>
+    {numbers.map((n) => (
+      <div class="num">
+        <dt>{n.label}</dt>
+        <dd>
+          <span class="sr-only">{n.value}{n.unit}</span>
+          <span class="roll" aria-hidden="true">
+            {[...String(n.value)].map((d, k) => (
+              <span class="dg"><span class="col" style={`--d:${10 + Number(d)};--k:${k}`}>{DIGITS.map((x) => <span>{x}</span>)}</span></span>
+            ))}
+          </span>
+          <span class="unit" aria-hidden="true">{n.unit}</span>
+        </dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<script>
+  import { onScroll, animate } from 'animejs';
+  import { reduced } from '../scripts/fx';
+
+  const root = document.querySelector<HTMLElement>('[data-statement]');
+  const lede = root?.querySelector<HTMLElement>('[data-lede]');
+  const words = [...(lede?.querySelectorAll<HTMLElement>('.w') ?? [])];
+  if (root && lede && !reduced()) {
+    // 문단 위가 화면 85% 지점에 닿을 때 0, 문단 아래가 화면 45% 지점에 닿을 때 1
+    let lit = -1;
+    const state = { p: 0 };
+    animate(state, {
+      p: [0, 1],
+      ease: 'linear',
+      autoplay: onScroll({ target: lede, enter: '85% top', leave: '45% bottom', sync: 0.25 }),
+      onUpdate: () => {
+        const n = Math.round(state.p * words.length);
+        if (n === lit) return;
+        lit = n;
+        words.forEach((w, i) => w.classList.toggle('on', i < n));
+      },
+    });
+    // 숫자: 한 번만 돈다
+    const nums = root.querySelector('[data-nums]');
+    if (nums) new IntersectionObserver(([e], io) => {
+      if (!e.isIntersecting) return;
+      nums.classList.add('go');
+      io.disconnect();
+    }, { rootMargin: '0px 0px -15% 0px' }).observe(nums);
+  }
+</script>
+
+<style>
+  .statement { padding-top: clamp(72px, 12vw, 160px); padding-bottom: clamp(72px, 10vw, 140px); }
+  .lede { max-width: 22em; margin: 0; font-size: clamp(30px, 4.4vw, 60px); font-weight: 700; line-height: 1.28; letter-spacing: -0.025em; text-wrap: pretty; }
+  .w { transition: color 260ms var(--ease-out); }
+  :global(.js-fx) .w { color: color-mix(in srgb, var(--foreground) 18%, transparent); }
+  :global(.js-fx) .w.on { color: var(--foreground); }
+
+  .nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 28px 32px; margin: clamp(56px, 8vw, 96px) 0 0; padding-top: 28px; border-top: 1px solid var(--border); }
+  .num { margin: 0; }
+  .num dt { margin-bottom: 10px; font-size: 15px; color: var(--muted-foreground); }
+  .num dd { display: flex; align-items: baseline; gap: 6px; margin: 0; }
+  .roll { display: inline-flex; font-size: clamp(56px, 7vw, 96px); font-weight: 700; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .dg { display: inline-block; height: 1em; overflow: hidden; }
+  .col { display: flex; flex-direction: column; transform: translateY(calc(var(--d) * -5%)); }
+  .col span { height: 1em; }
+  /* 화면에 들어오기 전에는 0 에 서 있다가, 들어오면 자리마다 조금씩 늦게 돌아 선다 */
+  :global(.js-fx) .nums:not(.go) .col { transform: none; }
+  :global(.js-fx) .nums.go .col { transition: transform 1700ms var(--ease-out) calc(var(--k) * 110ms); }
+  .unit { font-size: 20px; font-weight: 700; color: var(--brand); }
+</style>

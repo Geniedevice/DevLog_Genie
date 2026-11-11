@@ -3,9 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import GalleryCard from '../components/GalleryCard.astro';
 import HeroScene from '../components/HeroScene.astro';
+import Kinetic from '../components/Kinetic.astro';
+import Statement from '../components/Statement.astro';
+import StageRail from '../components/StageRail.astro';
 import { getPosts, url } from '../lib/posts';
 import { getGames } from '../lib/games';
-import { totals } from '../lib/stats';
+import { totals, topTags } from '../lib/stats';
 import { SITE } from '../site.config';
 
 const PAGE = 12;
@@ -27,10 +30,22 @@ const MENU = [
   { label: '통계', href: url('stats/'), meta: `LV ${t.level}` },
   { label: '소개', href: url('about/'), meta: 'PROFILE' },
 ];
+
+// 랜딩 구간(타이틀 화면 아래): 주제 띠 → 문장 → 게임 레일 → 기록 목록
+const KINETIC = [topTags(posts, 10).map((x) => x.name), games.map((g) => g.data.game.title)];
+const STATEMENT = '게임을 만들다 막힌 곳과 그걸 푼 방법을 적습니다. 데이터로 늘리는 무기, 다시 꺼내 쓰는 오브젝트 풀, 타 들어가며 사라지는 카드, 달리는 열차 위에서 거리만큼 작아지는 목소리 같은 것들입니다.';
+const NUMBERS = [
+  { label: '쓴 기록', value: posts.length, unit: '편' },
+  { label: '만든 게임', value: games.length, unit: '개' },
+  { label: '다 읽는 데 드는 시간', value: t.minutes, unit: '분' },
+];
 ---
 <BaseLayout active="home">
   <section class="title-screen" data-hero>
-    <div class="stage" data-stage><HeroScene /></div>
+    <div class="stage" data-stage>
+      <HeroScene />
+      <div class="leak" aria-hidden="true"><i class="flare" data-flare></i><i class="streak" data-streak></i></div>
+    </div>
     <div class="wrap ts-row">
       <div class="ts-text">
         <h1 class="headline" data-title>{SITE.title}</h1>
@@ -48,12 +63,16 @@ const MENU = [
         <span class="ts-cursor" aria-hidden="true" data-ts-cursor>▶</span>
         <ul>
           {MENU.map((m) => (
-            <li><a class="ts-item" href={m.href} data-ts-item><span class="ts-label">{m.label}</span><span class="ts-meta pixel-font">{m.meta}</span></a></li>
+            <li><a class="ts-item" href={m.href} data-ts-item data-iris={m.href.startsWith('#') ? undefined : ''}><span class="ts-label">{m.label}</span><span class="ts-meta pixel-font">{m.meta}</span></a></li>
           ))}
         </ul>
       </nav>
     </div>
   </section>
+
+  <Kinetic rows={KINETIC} />
+  <Statement text={STATEMENT} numbers={NUMBERS} />
+  {games.length > 1 && <StageRail games={games} />}
 
   <section class="feed wrap" id="feed" aria-labelledby="feed-title">
     <div class="feed-head">
@@ -91,7 +110,7 @@ const MENU = [
 </BaseLayout>
 
 <script>
-  import { animate, createTimeline, splitText, stagger, steps } from 'animejs';
+  import { animate, createTimeline, onScroll, splitText, stagger, steps } from 'animejs';
   import { reduced, cardsIn } from '../scripts/fx';
   import { wireBookmarks } from '../scripts/bookmarks';
   import { markReadCards } from '../scripts/read';
@@ -128,20 +147,42 @@ const MENU = [
     document.fonts?.ready.then(() => select(sel, true));
   }
 
-  // ── 첫 화면 등장(한 번만): 장면이 초점을 잡고 → 이름이 글자마다 또렷해지고 → 소개 → 메뉴가 왼쪽으로 흘러 들어오고 → 커서가 마지막에 앉는다.
-  // 다음 요소는 앞 요소가 30~50% 진행됐을 때 시작한다(video-motion-craft). 도착한 뒤에는 아무것도 계속 움직이지 않는다.
+  // ── 첫 화면 등장(한 번만). 타이틀 시퀀스처럼:
+  //   장면이 어둠 속에서 노출을 올리며 살짝 물러서고(카메라 풀백) → 빛샘이 오른쪽에서 왼쪽으로 한 번 훑고 →
+  //   이름이 색수차(장미 · 하늘색)로 갈라졌다 한 글자씩 모이고 → 다 모이면 빛이 글자 위를 한 번 지나간다 →
+  //   소개 · 메뉴 · 커서. 다음 요소는 앞 요소가 30~50% 진행됐을 때 시작한다(video-motion-craft). 도착한 뒤에는 멈춘다.
   const title = document.querySelector<HTMLElement>('[data-title]');
   if (title && !reduced()) {
-    const { chars } = splitText(title, { chars: { class: 'char' } });
+    const split = splitText(title, { chars: { class: 'char' } });
     title.style.opacity = '1';
+    title.classList.add('ca');
     const segs = document.querySelectorAll<HTMLElement>('[data-segs] i.on');
+    const shine = () => {
+      split.revert(); // 글자 조각을 걷어 내야 background-clip: text 가 한 덩어리로 먹는다
+      title.classList.remove('ca');
+      title.classList.add('shine');
+      title.addEventListener('animationend', () => title.classList.remove('shine'), { once: true });
+    };
     createTimeline()
-      .add('[data-stage]', { opacity: [0, 1], filter: ['blur(10px)', 'blur(0px)'], duration: 900, ease: 'outExpo' }, 0)
-      .add(chars, { opacity: [0.2, 1], filter: ['blur(6px)', 'blur(0px)'], duration: 420, delay: stagger(70), ease: 'outExpo' }, 250)
-      .add('[data-hero-in]', { opacity: [0, 1], filter: ['blur(8px)', 'blur(0px)'], duration: 520, delay: stagger(120), ease: 'outExpo' }, 520)
-      .add(items, { opacity: [0, 1], translateX: [28, 0], duration: 560, delay: stagger(60), ease: 'outExpo' }, 640)
-      .add(cursor ?? [], { opacity: [0, 1], translateX: [-10, 0], duration: 360, ease: 'outExpo' }, 1000)
-      .add(segs, { opacity: [0, 1], scaleY: [0.3, 1], duration: 120, delay: stagger(70), ease: steps(2) }, 900);
+      .add('[data-stage]', { opacity: [0, 1], scale: [1.07, 1], filter: ['brightness(0.15) blur(10px)', 'brightness(1) blur(0px)'], duration: 1300, ease: 'outExpo', onComplete: (a) => a.targets.forEach((el) => ((el as HTMLElement).style.filter = '')) }, 0)
+      .add('[data-flare]', { translateX: ['35%', '-75%'], opacity: [0, 0.95, 0], duration: 1700, ease: 'inOutSine' }, 120)
+      .add('[data-streak]', { scaleX: [0, 1], opacity: [0, 1, 0], duration: 1000, ease: 'outExpo' }, 380)
+      .add(split.chars, { opacity: [0, 1], '--ca': [12, 0], translateX: [28, 0], filter: ['blur(8px)', 'blur(0px)'], duration: 760, delay: stagger(55), ease: 'outExpo' }, 300)
+      .call(shine, 300 + 55 * (split.chars.length - 1) + 560)
+      .add('[data-hero-in]', { opacity: [0, 1], filter: ['blur(8px)', 'blur(0px)'], duration: 520, delay: stagger(120), ease: 'outExpo' }, 620)
+      .add(items, { opacity: [0, 1], translateX: [28, 0], duration: 560, delay: stagger(60), ease: 'outExpo' }, 740)
+      .add(cursor ?? [], { opacity: [0, 1], translateX: [-10, 0], duration: 360, ease: 'outExpo' }, 1100)
+      .add(segs, { opacity: [0, 1], scaleY: [0.3, 1], duration: 120, delay: stagger(70), ease: steps(2) }, 1000);
+
+    // 스크롤로 첫 화면을 떠날 때: 카메라가 장면 안으로 밀고 들어가고(줌 인), 글자 줄은 먼저 위로 빠진다
+    const hero = document.querySelector<HTMLElement>('[data-hero]');
+    const room = hero?.querySelector<HTMLElement>('[data-room]');
+    const row = hero?.querySelector<HTMLElement>('.ts-row');
+    if (hero && room && row) {
+      const leaving = () => onScroll({ target: hero, enter: 'start start', leave: 'start end', sync: 0.2 });
+      animate(room, { scale: [1, 1.16], ease: 'linear', autoplay: leaving() });
+      animate(row, { translateY: [0, -90], opacity: [1, 0], ease: 'inQuad', autoplay: leaving() });
+    }
   }
 
   // ── 기록 목록: 분류 · 정렬 · 더 보기
@@ -199,22 +240,58 @@ const MENU = [
 
 <style>
   /* ── 타이틀 화면: 테마와 상관없이 늘 밤. 위는 장면, 아래는 이름과 시작 메뉴 ── */
-  .title-screen { background: var(--night); color: var(--night-text); overflow: hidden; }
+  .title-screen { position: relative; isolation: isolate; background: var(--night); color: var(--night-text); overflow: hidden; }
+  /* 필름 그레인: 화면 전체에 아주 옅게, 초당 10번 위치가 바뀐다(애프터 이펙트 마감 레이어). 모션 줄이기면 멈춘 낟알만 */
+  .title-screen::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    z-index: 5;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 200px;
+    opacity: 0.09;
+    mix-blend-mode: overlay;
+    animation: grain 1s steps(1) infinite;
+  }
+  @keyframes grain {
+    0% { translate: 0 0; } 10% { translate: -4% -7%; } 20% { translate: -11% 3%; } 30% { translate: 6% -12%; } 40% { translate: -3% 14%; }
+    50% { translate: -12% 6%; } 60% { translate: 11% 0; } 70% { translate: 0 10%; } 80% { translate: 2% -14%; } 90% { translate: -7% 9%; }
+  }
+  @media (prefers-reduced-motion: reduce) { .title-screen::after { animation: none; } }
   /* 장면은 원래 비율(1200:520)을 지키고, 첫 화면 안에 메뉴까지 들어오도록 화면 높이에 맞춰 폭을 줄인다 */
   .stage {
     width: min(100%, 1440px, calc((100svh - var(--header-h) - 300px) * 1200 / 520));
     min-width: min(100%, 720px);
     margin: 0 auto;
+    position: relative;
+    overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   }
   :global(.js-fx) .stage { opacity: 0; }
+  /* 비네트: 장면 가장자리를 눌러 시선을 가운데(모니터 · JINY)로 */
+  .stage::after { content: ''; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: radial-gradient(ellipse 75% 85% at 50% 45%, transparent 55%, rgb(11 12 16 / 0.55) 100%); }
+  /* 빛샘 · 아나모픽 줄: 등장할 때 한 번만 지나간다. screen 합성이라 어두운 곳은 그대로, 밝은 곳만 더 밝아진다 */
+  .leak { position: absolute; inset: 0; z-index: 7; pointer-events: none; overflow: hidden; mix-blend-mode: screen; }
+  .flare { position: absolute; top: -40%; left: 45%; width: 70%; height: 180%; background: radial-gradient(closest-side, rgb(242 198 109 / 0.6), rgb(242 156 200 / 0.2) 55%, transparent); filter: blur(24px); opacity: 0; }
+  .streak { position: absolute; left: -10%; right: -10%; top: 38%; height: 2px; background: linear-gradient(90deg, transparent, rgb(247 216 150 / 0.95) 50%, transparent); box-shadow: 0 0 22px 5px rgb(242 198 109 / 0.35); transform-origin: 60% 50%; opacity: 0; }
 
   .ts-row { display: grid; gap: 28px; padding-top: 8px; padding-bottom: 44px; }
   @media (min-width: 900px) { .ts-row { grid-template-columns: minmax(0, 1fr) 340px; align-items: end; gap: 48px; padding-top: 16px; padding-bottom: 56px; } }
 
   .headline { margin: 0 0 22px; font-size: clamp(56px, 7.6vw, 104px); font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
   :global(.js-fx) .headline { opacity: 0; }
+  /* 색수차: 등장하는 동안만 글자 양옆에 장미 · 하늘색 그림자가 갈라져 있다가 --ca 가 0 이 되며 겹친다 */
+  .headline.ca :global(.char) { text-shadow: calc(var(--ca, 0) * -1px) 0 rgb(242 156 200 / 0.85), calc(var(--ca, 0) * 1px) 0 rgb(127 178 240 / 0.85); }
+  /* 빛 지나가기: 오른쪽에서 왼쪽으로 한 번(사이트의 기본 흐름 방향) */
+  .headline.shine {
+    background: linear-gradient(105deg, var(--night-text) 0 44%, var(--night-lamp-hi) 49%, #fff 50%, var(--night-lamp-hi) 51%, var(--night-text) 56% 100%) 0 0 / 300% 100% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 1100ms var(--ease-inout) both;
+  }
+  @keyframes shine { from { background-position: 0% 0; } to { background-position: 100% 0; } }
   .sub { max-width: 30em; margin: 0 0 22px; white-space: pre-line; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.6; color: var(--night-text); }
   :global(.js-fx) [data-hero-in] { opacity: 0; }
 

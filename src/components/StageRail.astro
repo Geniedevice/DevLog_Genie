@@ -1,0 +1,156 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { postUrl, url } from '../lib/posts';
+import type { GamePost } from '../lib/games';
+
+// 게임 프로젝트 레일: 화면에 고정된 채 세로 스크롤이 가로 이동이 된다(카메라 팬).
+// 판이 들어올 때 그림이 트랙 매트처럼 열리고, 판 안의 그림은 판보다 느리게 움직여 깊이가 생긴다.
+// 스테이지가 바뀌는 순간 제목에 RGB 분리 글리치(카트리지를 바꿔 끼우는 느낌). 아래 경로선은 진행만큼 그려진다(트림 패스).
+// JS 가 없거나 모션 줄이기면 그냥 가로로 넘겨 보는 줄이 된다.
+interface Props { games: GamePost[] }
+const { games } = Astro.props;
+const SIZES = '(min-width: 900px) 760px, 80vw';
+---
+<section class="rail" aria-labelledby="rail-title" data-rail>
+  <div class="pin" data-pin>
+    <div class="wrap rail-head">
+      <h2 class="rail-title" id="rail-title">게임 프로젝트 <span class="count">{games.length}</span></h2>
+      <a class="all" href={url('projects/')} data-iris>스테이지 선택<Icon name="chevron-right" size={16} /></a>
+    </div>
+    <ol class="track" data-track>
+      {games.map((g, i) => {
+        const d = g.data.game;
+        return (
+          <li class="panel" data-panel>
+            <a class="panel-link" href={postUrl(g)} data-iris>
+              <div class="shot">
+                {g.data.cover && (
+                  <Image src={g.data.cover} alt={g.data.coverAlt ?? d.title} widths={[480, 760, 1080].filter((w) => w <= g.data.cover!.width)} sizes={SIZES} loading={i < 2 ? 'eager' : 'lazy'} />
+                )}
+              </div>
+              <div class="meta">
+                <span class="no pixel-font">STAGE {String(d.order).padStart(2, '0')}</span>
+                <h3 class="name" data-name>{d.title}</h3>
+                <p class="tagline">{d.tagline}</p>
+                <p class="facts">{d.genre} · {d.period} · {d.team === 1 ? '1인' : `${d.team}인 팀`}</p>
+              </div>
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+    <svg class="route" viewBox="0 0 1000 24" preserveAspectRatio="none" aria-hidden="true">
+      <path class="route-base" d="M0 12H1000" pathLength="1" />
+      <path class="route-line" d="M0 12H1000" pathLength="1" data-route />
+    </svg>
+  </div>
+</section>
+
+<script>
+  import { animate, onScroll } from 'animejs';
+  import { reduced } from '../scripts/fx';
+
+  const rail = document.querySelector<HTMLElement>('[data-rail]');
+  const pin = rail?.querySelector<HTMLElement>('[data-pin]');
+  const track = rail?.querySelector<HTMLElement>('[data-track]');
+  const route = rail?.querySelector<SVGPathElement>('[data-route]');
+  const panels = [...(rail?.querySelectorAll<HTMLElement>('[data-panel]') ?? [])];
+  if (rail && pin && track && panels.length > 1 && !reduced()) {
+    rail.classList.add('pinned');
+    let dist = 0, vw = 0, cur = -1;
+    const state = { p: 0 };
+    const measure = () => {
+      vw = pin.clientWidth;
+      // scrollWidth 는 넘친 줄의 오른쪽 여백을 빼고 세므로, 마지막 판의 오른쪽 끝 + 여백으로 잰다
+      const last = panels[panels.length - 1];
+      dist = Math.max(0, last.offsetLeft + last.offsetWidth + parseFloat(getComputedStyle(track).paddingRight) - vw);
+      rail.style.height = `${pin.offsetHeight + dist}px`;
+      render();
+    };
+    const render = () => {
+      const p = state.p;
+      track.style.transform = `translate3d(${-p * dist}px,0,0)`;
+      if (route) route.style.strokeDashoffset = String(1 - p);
+      panels.forEach((el, i) => {
+        // 판의 왼쪽 끝이 화면 오른쪽에서 들어와 화면 가운데에 닿을 때까지 그림이 열린다
+        const x = el.offsetLeft - p * dist;
+        const r = Math.max(0, Math.min(1, (vw - x) / (vw * 0.55)));
+        el.style.setProperty('--r', r.toFixed(3));
+        el.style.setProperty('--px', ((x / vw) * -8).toFixed(2));
+      });
+      const now = Math.round(p * (panels.length - 1));
+      if (now !== cur) {
+        if (cur !== -1) {
+          const name = panels[now].querySelector<HTMLElement>('[data-name]');
+          name?.classList.remove('glitch');
+          void name?.offsetWidth; // 같은 판으로 되돌아와도 다시 튀게
+          name?.classList.add('glitch');
+        }
+        cur = now;
+      }
+    };
+    // 높이를 먼저 잡아야 스크롤 구간이 맞게 잡힌다. 그 뒤 높이가 바뀌면 anime 가 문서 크기 변화를 보고 다시 잰다
+    measure();
+    new ResizeObserver(measure).observe(pin);
+    animate(state, {
+      p: [0, 1],
+      ease: 'linear',
+      autoplay: onScroll({ target: rail, enter: 'start start', leave: 'end end', sync: 0.2 }),
+      onUpdate: render,
+    });
+  }
+</script>
+
+<style>
+  .rail { position: relative; }
+  .pin { display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 3vh, 36px); padding: clamp(40px, 7vh, 72px) 0 clamp(28px, 5vh, 48px); overflow: hidden; }
+  .rail.pinned .pin { position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h)); }
+
+  .rail-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+  .rail-title { margin: 0; font-size: clamp(30px, 3.4vw, 44px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .count { font-size: 0.5em; font-weight: 400; color: var(--muted-foreground); vertical-align: 0.5em; }
+  .all { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--muted-foreground); transition: color var(--dur); }
+  .all:hover { color: var(--brand); }
+
+  /* 트랙 왼쪽 끝은 다른 섹션의 글자 줄과 맞춘다(.wrap 과 같은 여백) */
+  .track { --edge: max(16px, calc((100% - var(--content-max)) / 2 + 16px)); display: flex; gap: clamp(20px, 3vw, 40px); margin: 0; padding: 0 var(--edge); list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  @media (min-width: 1024px) { .track { --edge: max(32px, calc((100% - var(--content-max)) / 2 + 32px)); } }
+  .track::-webkit-scrollbar { display: none; }
+  .rail.pinned .track { overflow: visible; scroll-snap-type: none; will-change: transform; }
+
+  /* 판 크기: 넓이는 화면 폭, 높이는 고정 화면 안에 그림 + 글이 다 들어오게 */
+  .panel { flex: none; width: max(260px, min(80vw, 760px, calc((100svh - var(--header-h) - 400px) * 16 / 9))); scroll-snap-align: start; }
+  .panel-link { display: block; }
+  .shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: var(--night-surface); }
+  .shot :global(img) { width: 100%; height: 100%; object-fit: cover; transition: scale 600ms var(--ease-out); }
+  .panel-link:hover .shot :global(img) { scale: 1.03; }
+  /* 트랙 매트: 판이 들어오는 만큼 그림이 왼쪽 끝부터 열리고, 그림은 판보다 느리게 따라온다 */
+  .rail.pinned .shot { clip-path: inset(0 calc((1 - var(--r, 1)) * 100%) 0 0 round var(--radius-lg)); }
+  .rail.pinned .shot :global(img) { translate: calc(var(--px, 0) * 1%) 0; scale: calc(1.18 - var(--r, 1) * 0.08); }
+  .rail.pinned .panel-link:hover .shot :global(img) { scale: 1.13; }
+
+  .meta { padding-top: 16px; }
+  .no { font-size: 12px; letter-spacing: 0.05em; color: var(--mint); }
+  .name { margin: 6px 0 6px; font-size: clamp(24px, 2.6vw, 34px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; transition: color var(--dur); }
+  .panel-link:hover .name { color: var(--brand); }
+  .tagline { margin: 0 0 6px; color: var(--foreground); }
+  .facts { margin: 0; font-size: 14px; color: var(--muted-foreground); }
+
+  /* 스테이지가 바뀌는 순간 한 번: 글자가 장미 · 하늘색으로 갈라지며 몇 조각으로 끊겼다 붙는다 */
+  .name.glitch { animation: glitch 380ms steps(1) both; }
+  @keyframes glitch {
+    0% { text-shadow: -5px 0 var(--night-rose), 5px 0 var(--night-sky); clip-path: inset(8% 0 58% 0); translate: -4px 0; }
+    20% { clip-path: inset(62% 0 6% 0); translate: 4px 0; }
+    40% { text-shadow: 4px 0 var(--night-rose), -4px 0 var(--night-sky); clip-path: inset(30% 0 34% 0); translate: -2px 0; }
+    60% { clip-path: inset(0 0 72% 0); translate: 2px 0; }
+    80% { text-shadow: -2px 0 var(--night-rose), 2px 0 var(--night-sky); clip-path: none; translate: 0 0; }
+    100% { text-shadow: none; clip-path: none; translate: 0 0; }
+  }
+
+  .route { display: none; width: calc(100% - 2 * max(16px, calc((100% - var(--content-max)) / 2 + 32px))); height: 24px; margin: 0 auto; overflow: visible; }
+  .rail.pinned .route { display: block; }
+  .route path { fill: none; vector-effect: non-scaling-stroke; }
+  .route-base { stroke: var(--border); stroke-width: 1; }
+  .route-line { stroke: var(--brand); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 1; }
+</style>

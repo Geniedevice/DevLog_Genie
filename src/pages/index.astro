@@ -3,12 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import GalleryCard from '../components/GalleryCard.astro';
 import HeroScene from '../components/HeroScene.astro';
-import Kinetic from '../components/Kinetic.astro';
-import Statement from '../components/Statement.astro';
-import StageRail from '../components/StageRail.astro';
 import { getPosts, url } from '../lib/posts';
 import { getGames } from '../lib/games';
-import { totals, topTags } from '../lib/stats';
+import { totals } from '../lib/stats';
 import { SITE } from '../site.config';
 
 const PAGE = 12;
@@ -29,15 +26,6 @@ const MENU = [
   { label: '게임 프로젝트', href: url('projects/'), meta: `${games.length} STAGES` },
   { label: '통계', href: url('stats/'), meta: `LV ${t.level}` },
   { label: '소개', href: url('about/'), meta: 'PROFILE' },
-];
-
-// 랜딩 구간(타이틀 화면 아래): 주제 띠 → 문장 → 게임 레일 → 기록 목록
-const KINETIC = [topTags(posts, 10).map((x) => x.name), games.map((g) => g.data.game.title)];
-const STATEMENT = '게임을 만들다 막힌 곳과 그걸 푼 방법을 적습니다. 데이터로 늘리는 무기, 다시 꺼내 쓰는 오브젝트 풀, 타 들어가며 사라지는 카드, 달리는 열차 위에서 거리만큼 작아지는 목소리 같은 것들입니다.';
-const NUMBERS = [
-  { label: '쓴 기록', value: posts.length, unit: '편' },
-  { label: '만든 게임', value: games.length, unit: '개' },
-  { label: '다 읽는 데 드는 시간', value: t.minutes, unit: '분' },
 ];
 ---
 <BaseLayout active="home">
@@ -63,16 +51,12 @@ const NUMBERS = [
         <span class="ts-cursor" aria-hidden="true" data-ts-cursor>▶</span>
         <ul>
           {MENU.map((m) => (
-            <li><a class="ts-item" href={m.href} data-ts-item data-iris={m.href.startsWith('#') ? undefined : ''}><span class="ts-label">{m.label}</span><span class="ts-meta pixel-font">{m.meta}</span></a></li>
+            <li><a class="ts-item" href={m.href} data-ts-item><span class="ts-label">{m.label}</span><span class="ts-meta pixel-font">{m.meta}</span></a></li>
           ))}
         </ul>
       </nav>
     </div>
   </section>
-
-  <Kinetic rows={KINETIC} />
-  <Statement text={STATEMENT} numbers={NUMBERS} />
-  {games.length > 1 && <StageRail games={games} />}
 
   <section class="feed wrap" id="feed" aria-labelledby="feed-title">
     <div class="feed-head">
@@ -241,7 +225,7 @@ const NUMBERS = [
 <style>
   /* ── 타이틀 화면: 테마와 상관없이 늘 밤. 위는 장면, 아래는 이름과 시작 메뉴 ── */
   .title-screen { position: relative; isolation: isolate; background: var(--night); color: var(--night-text); overflow: hidden; }
-  /* 필름 그레인: 화면 전체에 아주 옅게, 초당 10번 위치가 바뀐다(애프터 이펙트 마감 레이어). 모션 줄이기면 멈춘 낟알만 */
+  /* 필름 그레인: 화면 전체에 아주 옅게. 처음 열 때 잠깐만 지글거리고 멈춘다(애프터 이펙트 마감 레이어) */
   .title-screen::after {
     content: '';
     position: absolute;
@@ -251,7 +235,7 @@ const NUMBERS = [
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 200px;
     opacity: 0.09;
     mix-blend-mode: overlay;
-    animation: grain 1s steps(1) infinite;
+    animation: grain 1s steps(1) 2;
   }
   @keyframes grain {
     0% { translate: 0 0; } 10% { translate: -4% -7%; } 20% { translate: -11% 3%; } 30% { translate: 6% -12%; } 40% { translate: -3% 14%; }

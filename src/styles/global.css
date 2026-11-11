@@ -292,16 +292,6 @@ input:focus-visible, select:focus-visible { outline: none; box-shadow: 0 0 0 3px
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
-/* 아이리스: 옛 화면은 어두워지며 물러나고, 새 화면이 누른 자리에서 원으로 열린다 */
-@media (prefers-reduced-motion: no-preference) {
-  html:active-view-transition-type(iris)::view-transition-old(root) { animation: iris-dim 640ms var(--ease-in) both; }
-  html:active-view-transition-type(iris)::view-transition-new(root) { animation: iris-open 720ms var(--ease-inout) both; }
-}
-@keyframes iris-dim { to { filter: brightness(0.3); scale: 0.97; } }
-@keyframes iris-open {
-  from { clip-path: circle(0% at var(--iris-x, 50%) var(--iris-y, 50%)); }
-  to { clip-path: circle(150% at var(--iris-x, 50%) var(--iris-y, 50%)); }
-}
 @keyframes vt-out { to { opacity: 0; translate: -40px 0; } }
 @keyframes vt-in { from { opacity: 0; translate: 56px 0; } }
 @keyframes vt-out-back { to { opacity: 0; translate: 40px 0; } }

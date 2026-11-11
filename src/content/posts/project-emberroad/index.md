@@ -3,7 +3,7 @@ title: "EmberRoad — 모닥불에 둘러앉은 마피아 카드 게임"
 description: 보드게임 《뱅!》에 확률 판정을 얹은 4~7인 마피아 카드 게임. 카드 연출 · 시퀀스 · 렌더링을 영상과 그림으로 정리했습니다.
 date: 2026-10-13T21:00:00+09:00
 cover: ./cover.jpg
-coverAlt: EmberRoad 타이틀 화면 — 노을 진 성과 모닥불
+coverAlt: 노을 진 성과 모닥불이 보이는 EmberRoad 타이틀 화면
 category: Project
 tags: [Unreal, 카드 연출, 머티리얼, 시퀀스, Chaos Destruction, 팀 프로젝트]
 series: 게임 프로젝트
@@ -24,7 +24,7 @@ game:
 
 <video class="video" src="/DevLog_Genie/media/emberroad/card-play.mp4" poster="/DevLog_Genie/media/emberroad/card-play.jpg" controls playsinline preload="none"></video>
 
-*한 턴의 카드 플레이 — 손패에서 골라 내고, 판정을 받고, 효과가 나간다*
+*손패에서 카드를 골라 내면 판정을 받고 효과가 나가는 한 턴*
 
 | 장르 | 인원 | 기간 | 담당 | 환경 |
 | --- | --- | --- | --- | --- |
@@ -34,11 +34,11 @@ game:
 
 ![카드 한 장의 생애 흐름도](./flow-card.png)
 
-*카드 한 장의 생애 — 손패에 들어와 사용되고 사라지기까지*
+*카드 한 장이 손패에 들어와 사용되고 사라지기까지*
 
 ![인트로 4단계 흐름도](./flow-intro.png)
 
-*인트로 — 서버 타이머 하나가 4단계를 넘긴다*
+*인트로는 서버 타이머 하나가 4단계를 넘긴다*
 
 </div>
 
@@ -48,11 +48,11 @@ game:
 
 <video class="video" src="/DevLog_Genie/media/emberroad/card-hover.mp4" poster="/DevLog_Genie/media/emberroad/card-hover.jpg" controls playsinline preload="none"></video>
 
-*호버 — 카드가 들리고 이웃이 밀려난다*
+*호버하면 카드가 들리고 이웃이 밀려난다*
 
 <video class="video" src="/DevLog_Genie/media/emberroad/card-fly.mp4" poster="/DevLog_Genie/media/emberroad/card-fly.jpg" controls playsinline loop muted autoplay></video>
 
-*드로우 — 덱에서 손패 자리로 날아든다*
+*드로우한 카드는 덱에서 손패 자리로 날아든다*
 
 </div>
 
@@ -60,13 +60,13 @@ game:
 
 ![카드 사용 분기도](./card-pipeline.png)
 
-*카드 한 장이 거치는 분기 — 드롭 위치와 대상 필요 여부로 갈린다*
+*카드 한 장이 거치는 분기는 드롭 위치와 대상 필요 여부로 갈린다*
 
 <div class="media-2">
 
 ![카드 위젯 모듈 구성](./card-modules.png)
 
-*Input · Motion · FX — 한 클래스를 성격별 모듈로*
+*한 클래스를 성격별 모듈(Input · Motion · FX)로 나눴다*
 
 ![호버 파이프라인](./card-hover.png)
 
@@ -80,11 +80,11 @@ game:
 
 <video class="video" src="/DevLog_Genie/media/emberroad/dissolve-attack.mp4" poster="/DevLog_Genie/media/emberroad/dissolve-attack.jpg" controls playsinline preload="none"></video>
 
-*공격 — 뒤로 갈수록 빠르게 타며 잔불이 흩날린다*
+*공격은 뒤로 갈수록 빠르게 타며 잔불이 흩날린다*
 
 <video class="video" src="/DevLog_Genie/media/emberroad/dissolve-heal.mp4" poster="/DevLog_Genie/media/emberroad/dissolve-heal.jpg" controls playsinline preload="none"></video>
 
-*회복 — 같은 머티리얼, 잔불 없이 고르게*
+*회복은 같은 머티리얼로 잔불 없이 고르게 탄다*
 
 </div>
 
@@ -92,11 +92,11 @@ game:
 
 ![판정 글로우](./card-glow.png)
 
-*판정 글로우 — 터졌다가 잦아든다*
+*판정 글로우는 터졌다가 잦아든다*
 
 ![퇴장 디졸브](./card-dissolve.png)
 
-*퇴장 디졸브 — 진행 곡선만 다르다*
+*퇴장 디졸브는 진행 곡선만 다르다*
 
 </div>
 
@@ -106,17 +106,17 @@ C++ → BP Tick → **위젯 애니메이션** 으로 세 번 옮겼습니다. �
 
 <video class="video" src="/DevLog_Genie/media/emberroad/ending-collapse.mp4" poster="/DevLog_Genie/media/emberroad/ending-collapse.jpg" controls playsinline preload="none"></video>
 
-*무너진 왕국 — 무법자 승리. Chaos Destruction 캐시로 성이 무너진다*
+*무너진 왕국은 무법자 승리 엔딩. Chaos Destruction 캐시로 성이 무너진다*
 
 <div class="media-2">
 
 <video class="video" src="/DevLog_Genie/media/emberroad/ending-dawn.mp4" poster="/DevLog_Genie/media/emberroad/ending-dawn.jpg" controls playsinline preload="none"></video>
 
-*지켜낸 새벽 — 보안관 승리*
+*지켜낸 새벽은 보안관 승리 엔딩*
 
 <video class="video" src="/DevLog_Genie/media/emberroad/ending-throne.mp4" poster="/DevLog_Genie/media/emberroad/ending-throne.jpg" controls playsinline preload="none"></video>
 
-*빼앗긴 왕좌 — 배신자 승리*
+*빼앗긴 왕좌는 배신자 승리 엔딩*
 
 </div>
 
@@ -136,23 +136,23 @@ C++ → BP Tick → **위젯 애니메이션** 으로 세 번 옮겼습니다. �
 
 ![GameState 단계 복제 구조](./sequence-gamestate.png)
 
-*단계만 복제하고 영상은 각자 로컬 재생 — 늦게 들어와도 지금 단계부터*
+*단계만 복제하고 영상은 각자 로컬에서 재생하니 늦게 들어와도 지금 단계부터 본다*
 
 ![F1 · F2 · F3 엔딩 디버그](./ending-debug.png)
 
-*엔딩 셋을 키 하나로 확인 — 서버 · 판 진행 중 · Shipping 제외 조건*
+*서버에서 판이 진행 중일 때만 키 하나로 엔딩 셋을 확인한다(Shipping 제외)*
 
 ## 05 · 라이팅 — 무엇을 끌까부터
 
 <div class="media-2">
 
-![적용 전 — 실사 프리셋](./lighting-before.png)
+![적용 전, 실사 프리셋](./lighting-before.png)
 
-*전 — 실사 프리셋 그대로*
+*적용 전에는 실사 프리셋 그대로*
 
-![적용 후 — 노을 3레이어](./lighting-after.png)
+![적용 후, 노을 3레이어](./lighting-after.png)
 
-*후 — Lumen off + 노을 3레이어*
+*적용 후에는 Lumen off + 노을 3레이어*
 
 </div>
 
@@ -162,11 +162,11 @@ C++ → BP Tick → **위젯 애니메이션** 으로 세 번 옮겼습니다. �
 
 ![Z-Fighting 원인과 해결](./zfighting.png)
 
-*바닥 깜빡임 ① — 겹친 표면을 정리하고 간격 확보*
+*바닥 깜빡임 ①: 겹친 표면을 정리하고 간격을 벌렸다*
 
 ![그림자와 차폐 설정 점검](./shadow-check.png)
 
-*바닥 깜빡임 ② — 작은 식생 · 바닥의 그림자 끄기*
+*바닥 깜빡임 ②: 작은 식생과 바닥의 그림자를 껐다*
 
 </div>
 

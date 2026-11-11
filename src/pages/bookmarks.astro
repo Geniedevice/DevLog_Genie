@@ -24,7 +24,6 @@ const posts = await getPosts();
 
 <script>
   import { getBookmarks, wireBookmarks } from '../scripts/bookmarks';
-  import { cardsIn } from '../scripts/fx';
   import { markReadCards } from '../scripts/read';
 
   const cards = [...document.querySelectorAll<HTMLElement>('[data-card]')];
@@ -40,14 +39,14 @@ const posts = await getPosts();
 
   wireBookmarks();
   markReadCards();
-  cardsIn(render());
+  render();
   // 여기서 북마크를 해제하면 바로 목록에서 빠지게
   document.addEventListener('bookmarks:change', render);
 </script>
 
 <style>
-  .page { max-width: 1440px; margin: 0 auto; padding: 0 16px 72px; }
-  @media (min-width: 1024px) { .page { padding: 0 40px 72px; } }
+  .page { max-width: var(--content-max); margin: 0 auto; padding: 0 16px 72px; }
+  @media (min-width: 1024px) { .page { padding: 0 32px 72px; } }
   .empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 64px 16px; border: 1px dashed var(--border); border-radius: var(--radius-xl); text-align: center; color: var(--muted-foreground); }
   .empty .icon { width: 40px; height: 40px; color: var(--brand); }
   .empty p { margin: 0; line-height: 1.7; }

@@ -1,4 +1,4 @@
-import { animate, set, splitText, stagger } from 'animejs';
+import { animate, set, stagger } from 'animejs';
 import { icon, type IconName } from './icons';
 import { sfx } from './sfx';
 
@@ -20,54 +20,6 @@ function onVisible(els: Iterable<Element>, cb: (el: HTMLElement) => void, rootMa
   for (const el of els) io.observe(el);
 }
 
-/** `data-reveal` 은 혼자, `data-reveal-group` 은 자식들이 차례로 떠오른다 */
-export function revealOnScroll(root: ParentNode = document) {
-  if (reduced()) return;
-  onVisible(root.querySelectorAll('[data-reveal]'), (el) =>
-    animate(el, { opacity: [0, 1], translateY: [16, 0], duration: 700, ease: 'outExpo' }),
-  );
-  onVisible(root.querySelectorAll('[data-reveal-group]'), (g) =>
-    animate(g.children, { opacity: [0, 1], translateY: [16, 0], duration: 700, delay: stagger(70), ease: 'outExpo' }),
-  );
-}
-
-/**
- * 스크롤 트리거: 요소가 화면에 들어올 때 하나씩 떠오른다(본문 제목·이미지·코드·표 등).
- * CSS 로 미리 숨기지 않고 스크립트가 시작 상태를 잡으므로, JS 가 없으면 그냥 다 보인다.
- */
-export function revealEach(els: Iterable<Element>, from: 'up' | 'left' = 'up') {
-  if (reduced()) return;
-  const list = [...els];
-  const hidden = list.filter((el) => el.getBoundingClientRect().top > innerHeight * 0.92);
-  set(hidden, from === 'up' ? { opacity: 0, translateY: 22 } : { opacity: 0, translateX: -18 });
-  onVisible(hidden, (el) =>
-    animate(el, from === 'up' ? { opacity: [0, 1], translateY: [22, 0], duration: 800, ease: 'outExpo' } : { opacity: [0, 1], translateX: [-18, 0], duration: 700, ease: 'outExpo' }),
-  );
-}
-
-/** 제목: 글자가 아래 마스크에서 차례로 솟아오른다 */
-export function headline(el: HTMLElement | null, start = 150) {
-  if (!el || reduced()) return;
-  const { chars } = splitText(el, { chars: { class: 'char', wrap: 'clip' } });
-  el.style.opacity = '1';
-  animate(chars, { translateY: ['110%', '0%'], duration: 900, delay: stagger(28, { start }), ease: 'outExpo' });
-}
-
-/** 경험치 바가 차오르고 숫자가 따라 오른다 */
-export function xpBar(root: HTMLElement | null) {
-  if (!root) return;
-  const fill = root.querySelector<HTMLElement>('[data-xp-fill]');
-  const num = root.querySelector<HTMLElement>('[data-xp-num]');
-  const pct = Number(root.dataset.pct ?? 0);
-  const to = Number(num?.dataset.value ?? 0);
-  if (reduced()) return;
-  if (fill) animate(fill, { width: ['0%', `${pct}%`], duration: 1600, delay: 500, ease: 'outExpo' });
-  if (num) {
-    const o = { v: 0 };
-    animate(o, { v: to, duration: 1600, delay: 500, ease: 'outExpo', onUpdate: () => (num.textContent = Math.round(o.v).toLocaleString('ko-KR')) });
-  }
-}
-
 /** 숫자가 0 에서 목표치까지 */
 export function countUp(root: ParentNode = document) {
   if (reduced()) return;
@@ -78,10 +30,10 @@ export function countUp(root: ParentNode = document) {
   });
 }
 
-/** 썸네일 카드가 차례로 떠오른다 */
+/** 분류 · 정렬을 바꾼 결과가 도착한다(누른 것이 원인인 등장만. 스크롤로는 띄우지 않는다) */
 export function cardsIn(cards: HTMLElement[]) {
   if (reduced() || !cards.length) return;
-  animate(cards, { opacity: [0, 1], translateY: [24, 0], scale: [0.97, 1], duration: 800, delay: stagger(60), ease: 'outExpo' });
+  animate(cards, { opacity: [0, 1], translateY: [12, 0], duration: 520, delay: stagger(50), ease: 'outExpo' });
 }
 
 /** 밑줄 탭 인디케이터가 선택된 탭으로 미끄러진다 */

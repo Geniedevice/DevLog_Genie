@@ -9,3 +9,8 @@ output/jiny-rig/
 # JINY 아바타 빌드 산출물(scripts/rev2d/bundle.mjs 가 public/avatars/jiny 로 굳힌다)
 art/jiny/jiny.r2d.json
 art/jiny/textures/
+shots/
+
+# 용량이 큰 외부 스킬은 skills-lock.json 으로 복원한다(npx skills experimental_install)
+.claude/skills/design-taste-frontend/
+.claude/skills/impeccable/

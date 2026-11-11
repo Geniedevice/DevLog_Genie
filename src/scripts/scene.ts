@@ -33,17 +33,12 @@ export function animateScene(root: HTMLElement) {
       animate(m, { translateX: dx * k * 2, translateY: dy * k, duration: 700, ease: 'outQuad' });
     });
   });
-  root.addEventListener('pointerleave', () => animate(movers, { translateX: 0, translateY: 0, duration: 1200, ease: 'outElastic(1, .6)' }));
+  root.addEventListener('pointerleave', () => animate(movers, { translateX: 0, translateY: 0, duration: 900, ease: 'outExpo' }));
 
-  // ── 창밖
-  animate($('.moon-halo')!, { opacity: [0.7, 1], scale: [0.96, 1.05], duration: 3200, loop: true, alternate: true, ease: 'inOutSine' });
-  animate($('.planet')!, { translateY: [-3, 3], rotate: [-4, 4], duration: 5200, loop: true, alternate: true, ease: 'inOutSine' });
+  // 장면 안에서 계속 움직이는 것은 원래 움직이는 물건만: 기지 경고등 · 본체 LED · 화면 속 코드와 게임 · 머그잔 김.
+  // 달 빛무리 숨쉬기 · 행성 둥실 · 잎 흔들기 · 네온 깜빡임 같은 제자리 루프는 두지 않는다(motion-doctrine: idle wobble 금지)
   animate($$('.base-light'), { opacity: [1, 0.25], duration: 900, delay: stagger(300), loop: true, alternate: true, ease: steps(2) });
-
-  // ── 방
   animate($$('.led'), { opacity: [1, 0.3], duration: 500, delay: stagger(220), loop: true, alternate: true, ease: steps(1) });
-  animate($$('.neon-box, .neon-text'), { opacity: [1, 0.72, 1, 0.9, 1], duration: 2600, loop: true, ease: 'linear', delay: 1200 });
-  animate($$('.leaf'), { rotate: [-2, 2], duration: 3000, loop: true, alternate: true, ease: 'inOutSine' });
   const code = $('.code-scroll');
   if (code) animate(code, { translateY: [0, -110], duration: 9000, loop: true, ease: 'linear' });
 

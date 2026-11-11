@@ -18,7 +18,7 @@ const { post, sizes, eager = false, text = true, duration = false, class: classN
 const { cover, coverAlt, title, category, thumbText, pixelArt } = post.data;
 const style = categoryStyle(category);
 // 커버가 없으면 제목을 문구로 써서 텅 빈 썸네일이 없게 한다.
-// `*강조*` 로 감싼 부분은 라벤더색(레퍼런스의 "타격감의 *비밀*"), 줄바꿈은 \n
+// `*강조*` 로 감싼 부분은 등불색(레퍼런스의 "타격감의 *비밀*"), 줄바꿈은 \n
 const lines = (thumbText ?? (cover ? '' : title))
   .split('\n')
   .filter(Boolean)
@@ -83,7 +83,7 @@ const lines = (thumbText ?? (cover ? '' : title))
     color: #fff;
     text-shadow: 0 0.35cqw 0 var(--night-deep), 0 0 2.4cqw rgb(0 0 0 / 0.55);
   }
-  .caption em { font-style: normal; color: var(--night-lav-hi); text-shadow: 0 0.35cqw 0 var(--night-deep), 0 0 3cqw color-mix(in srgb, var(--night-lav) 55%, transparent); }
+  .caption em { font-style: normal; color: var(--night-lamp-hi); text-shadow: 0 0.35cqw 0 var(--night-deep); }
   .caption.long { font-size: 7.4cqw; }
   .caption.long .line { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 

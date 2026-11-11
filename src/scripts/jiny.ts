@@ -8,7 +8,7 @@ import { achievement, reduced } from './fx';
 const NEON = ['#7b8cff', '#8fd4c1', '#f29cc8', '#f2cf7a', '#e7ebf5'];
 const LINES = ['빌드 성공!', '버그 잡았다 🐛', '커밋 완료 ✨', '한 줄만 더…', 'GAS 최고', '크래시 없음!', '시리얼 맛있다'];
 
-// 모델·텍스처는 페이지에 JINY 가 여럿(히어로·사이드바)이어도 한 번만 받는다
+// 모델·텍스처는 페이지에 JINY 가 여럿이어도 한 번만 받는다
 let assets: Promise<{ model: { meta: { width: number; height: number } }; images: Record<string, ImageBitmap> }> | undefined;
 const load = (base: string) => (assets ??= (async () => {
   const model = await (await fetch(base + 'jiny.rig.json')).json();

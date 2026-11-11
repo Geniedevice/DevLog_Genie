@@ -3,21 +3,21 @@
 Unreal Engine 게임 클라이언트 개발 기록. **https://geniedevice.github.io/DevLog_Genie/**
 
 **GENIE LAB** 콘셉트(달 기지 작업실)의 게임 개발 블로그. 대표 캐릭터 **JINY**(드릴 사이드 포니테일에 선글라스를 올린 은발 소녀)가 주인공인 Astro 정적 사이트입니다.
-글 목록은 유튜브식 **16:9 썸네일 그리드**, 글 페이지는 시청 페이지 구성, **통계** 페이지에는 차트와 데이터 표가 있습니다.
+첫 화면은 게임 타이틀 화면(장면 + 시작 메뉴), 글 목록은 패치노트처럼 한 줄에 글 하나, 글 페이지는 시청 페이지 구성, **통계** 페이지에는 차트와 데이터 표가 있습니다.
 `main` 에 push 하면 GitHub Actions 가 빌드해서 GitHub Pages 로 배포합니다.
 
 | 영역 | 구성 |
 | --- | --- |
-| 팔레트 | 밤 `#111522` · Surface `#1C2335` · Text `#E7EBF5` 위에 강조색 하나당 뜻 하나: Cobalt `#7B8CFF`(브랜드·이동) · Mint `#8FD4C1`(완료·성장) · Amber `#F2CF7A`(보상·게임 신호) · Rose·Sky(차트 전용). 컴포넌트에 hex 를 쓰지 않고 `src/styles/tokens.css` 토큰만 쓴다 |
+| 팔레트 | 달 기지 작업실의 밤: 먹색 `#121318` · Surface `#1A1B21` · Text `#ECEBE5` 위에 강조색 하나당 뜻 하나. Lamp `#F2C66D`(책상 등불 — 브랜드·이동) · Mint `#8FD4C1`(완료·성장) · Moon `#7B8CFF`(그림·차트 전용) · Rose·Sky(차트 전용). 낮은 종이 `#F4F2EC` 위에 진한 등불색. 컴포넌트에 hex 를 쓰지 않고 `src/styles/tokens.css` 토큰만 쓴다 |
 | 히어로 장면 | `src/lib/scene.mjs` 를 깊이 7겹으로: ① 캔버스 밤하늘(`src/scripts/sky.ts`, 커서 별자리·별똥별) ② 달 ③ 먼 산맥 ④ 지면·기지 ⑤ 방 ⑥ JINY ⑦ 책상. 레이어마다 스크롤(anime.js `onScroll` 동기화)·마우스 시차가 다르다 |
-| 배경 | 페이지 전체에 깊이 3단 별 + 성운 캔버스(`src/scripts/backdrop.ts`) — 먼 층일수록 느리게 흐른다 |
+| 레이아웃 | 위쪽 머리말 하나(`src/components/SiteHeader.astro`): 넓으면 메뉴 줄(밑줄이 포인터를 따라 미끄러지고 페이지를 건너갈 때도 이어진다), 좁으면 전체 화면 메뉴. 본문 폭은 `--content-max`(1200px) 한 줄에 맞춘다 |
 | 마이크로 인터랙션 | `src/scripts/micro.ts`: 자석 버튼, 누른 자리 물결. 글 끝의 "다 읽었어요" 체크박스(체크 그리기·+XP) |
-| 카운터·진행률 | 글 읽기 진행률 링(% · 남은 분), 사이드바 탐험률(다 읽은 글 비율) |
+| 카운터·진행률 | 글 읽기 진행률 링(% · 남은 분), 홈 목록의 읽음 표시 |
 | 캐릭터 | 헤르타 컨셉의 데포르메 버튜버 아바타. 로컬 ComfyUI(스타레일 화풍 LoRA)로 그린 일러스트를 **Live2D 식 파츠 16장**(앞머리·옆머리·뒷머리·장식·얼굴·눈·입·몸)으로 나누고 가려진 부분은 파츠별로 따로 그려 [Rev2D](https://github.com/RevStudio/Rev2D) 리그로 구동(`public/avatars/jiny/`, `src/scripts/jiny.ts`): 파츠별 깊이로 고개 돌리기, 숨쉬기, 커서 시선, 깜빡임, 머리카락·장식 물리. 클릭하면 깡충 + 갸웃 + 웃으며 말하기 + 볼터치. 원본·빌드 방법은 [`art/jiny/`](art/jiny/README.md) |
 | 게임 요소 | 픽셀 HUD(레벨·XP 칸·연속 기록), 업적 알림, 8비트 효과음(`src/scripts/sfx.ts`, Web Audio 합성, **기본 꺼짐**) |
 | 컴포넌트 | shadcn 구조(Button, Badge, Card, Chip, Breadcrumb, Kbd, Command 팔레트, Data Table)를 순수 CSS/TS 로. 아이콘은 **lucide**(shadcn 기본 세트) — `<Icon name="…" />` |
 | 차트 | `src/components/charts/` — KPI(스파크라인), 영역·막대·도넛·가로막대, 레벨 게이지, 기록 잔디. 수치는 `src/lib/stats.ts` 가 빌드 때 계산 |
-| 애니메이션 | [anime.js](https://animejs.com) v4. `prefers-reduced-motion` 이면 전부 끔 |
+| 애니메이션 | [anime.js](https://animejs.com) v4 + View Transitions. 기준은 `.claude/skills` 의 video-motion-craft · remotion-motion-graphics · motion-doctrine: 이징은 역할로(도착 ease-out · 퇴장 ease-in, `--ease-*` 토큰), 퇴장은 등장보다 짧게, 페이지 이동은 왼쪽으로 흐르고 뒤로 가기만 반대, 도착한 것은 가만히(숨쉬기 · 깜빡임 · 스크롤 페이드 없음). `prefers-reduced-motion` 이면 전부 끔 |
 | 폰트 | 전부 npm 으로 받아 자체 호스팅(외부 CDN 없음): Pretendard(본문), JetBrains Mono(코드), Galmuri11(픽셀 HUD — 영문만 남겨 2.6KB, `scripts/subset-pixel-font.mjs`) |
 | 북마크 | 방문자 브라우저(localStorage)에만 저장 — `src/scripts/bookmarks.ts` |
 
@@ -56,7 +56,7 @@ src/content/posts/my-post-slug/
 | `date` | ✅ | 작성일 `YYYY-MM-DD` |
 | `cover` | | 썸네일 `./cover.png`. 없으면 분류 색 배경 + 제목. 링크 미리보기(OG)에도 쓰임 |
 | `coverAlt` | | 썸네일 대체 텍스트 |
-| `thumbText` | | 썸네일 위 큰 문구(유튜브식). `"타격감의 *비밀*"` — `*별표*` 부분은 라벤더 강조, 줄바꿈은 `\n` |
+| `thumbText` | | 썸네일 위 큰 문구(유튜브식). `"타격감의 *비밀*"` — `*별표*` 부분은 등불색 강조, 줄바꿈은 `\n` |
 | `pixelArt` | | 픽셀아트 커버면 `true` (확대해도 흐려지지 않게). 사진에는 쓰지 말 것 |
 | `updated` | | 수정일 |
 | `category` | | 기본 `Devlog`. 카테고리별 아이콘·색은 `src/lib/categories.ts` |

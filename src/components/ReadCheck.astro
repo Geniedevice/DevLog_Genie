@@ -8,7 +8,7 @@ const { id, xp } = Astro.props;
   </button>
   <div class="rc-text">
     <p class="rc-title" id="rc-title">다 읽었어요</p>
-    <p class="rc-sub" data-rc-sub>체크하면 <b>+{xp} XP</b> · 사이드바 탐험률에 반영돼요</p>
+    <p class="rc-sub" data-rc-sub>체크하면 <b>+{xp} XP</b> · 홈 목록에 읽음 표시가 붙어요</p>
   </div>
   <span class="rc-float pixel-font" aria-hidden="true">+{xp} XP</span>
 </div>
@@ -30,7 +30,7 @@ const { id, xp } = Astro.props;
     const paint = (on: boolean, instant = false) => {
       box.setAttribute('aria-checked', String(on));
       root.classList.toggle('done', on);
-      sub.innerHTML = on ? '완독! 탐험률이 올랐어요' : subDefault;
+      sub.innerHTML = on ? '완독! 목록에 읽음 표시를 붙였어요' : subDefault;
       if (instant || reduced()) return set(mark, { draw: on ? '0 1' : '0 0' });
       animate(mark, { draw: on ? ['0 0', '0 1'] : ['0 1', '0 0'], duration: on ? 380 : 200, ease: 'outQuad' });
     };

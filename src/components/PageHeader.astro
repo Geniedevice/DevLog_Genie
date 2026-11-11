@@ -7,10 +7,6 @@ const { title, subtitle } = Astro.props;
   {subtitle && <p class="sub" data-reveal>{subtitle}</p>}
 </header>
 
-<script>
-  import { headline } from '../scripts/fx';
-  headline(document.querySelector('.page-header [data-headline]'), 50);
-</script>
 
 <style>
   .page-header { padding: 40px 0 28px; }

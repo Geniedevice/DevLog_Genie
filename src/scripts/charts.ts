@@ -41,25 +41,12 @@ const PREP: Record<string, (el: HTMLElement) => Prep> = {
     const cols = Number(el.dataset.cols);
     set(cells, { scale: 0.2, opacity: 0 });
     // 칸 순서가 행 우선이라 grid:[열, 행]. 오늘(오른쪽 끝)에서 과거로 번져 나간다
-    return { start: () => animate(cells, { scale: [0.2, 1], opacity: [0, 1], duration: 500, delay: stagger(9, { grid: [cols, 7], from: 'last' }), ease: 'outBack(2)' }) };
+    return { start: () => animate(cells, { scale: [0.2, 1], opacity: [0, 1], duration: 500, delay: stagger(9, { grid: [cols, 7], from: 'last' }), ease: 'outExpo' }) };
   },
   radial(el) {
     const g = createDrawable(el.querySelectorAll<SVGPathElement>('.gauge'));
     set(g, { draw: '0 0' });
     return { start: () => animate(g, { draw: ['0 0', '0 1'], duration: 1600, ease: 'outExpo' }) };
-  },
-  kpi(el) {
-    const line = el.querySelectorAll<SVGPathElement>('.spark-line');
-    if (!line.length) return { start: () => {} };
-    const d = createDrawable(line);
-    set(d, { draw: '0 0' });
-    set(el.querySelectorAll('.spark-area'), { opacity: 0 });
-    return {
-      start: () => {
-        animate(d, { draw: ['0 0', '0 1'], duration: 1200, ease: 'inOutCubic' });
-        animate(el.querySelectorAll('.spark-area'), { opacity: [0, 0.14], duration: 800, delay: 600 });
-      },
-    };
   },
 };
 

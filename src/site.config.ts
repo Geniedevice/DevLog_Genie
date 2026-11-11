@@ -1,6 +1,6 @@
 export const SITE = {
   title: 'DevLog',
-  description: 'Unreal Engine 게임 클라이언트 개발 기록 — 구현을 넘어 동작 원리를 파고듭니다.',
+  description: 'Unreal Engine 게임 클라이언트 개발 기록. 만든 기능의 동작 원리까지 파고듭니다.',
   author: 'Jinhui Jang',
   lang: 'ko',
   github: 'https://github.com/Geniedevice',

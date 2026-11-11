@@ -25,7 +25,7 @@ game:
 
 <video class="video" src="/DevLog_Genie/media/destination/demo.mp4" poster="/DevLog_Genie/media/destination/demo.jpg" controls playsinline preload="none"></video>
 
-*플레이 영상 — 웨이브를 버티며 폐허가 된 도시를 이동한다*
+*웨이브를 버티며 폐허가 된 도시를 이동하는 플레이 영상*
 
 | 장르 | 기간 | 팀 | 담당 | 환경 |
 | --- | --- | --- | --- | --- |
@@ -49,7 +49,7 @@ game:
 
 ![폐허 도시](./city.jpg)
 
-*안개 깔린 폐허 도시 — 좌상단은 남은 적 수와 웨이브 타이머*
+*안개 깔린 폐허 도시, 좌상단에 남은 적 수와 웨이브 타이머가 뜬다*
 
 ![전투 화면](./combat.jpg)
 
@@ -61,7 +61,7 @@ game:
 
 ![능력 카드 선택](./ability-cards.jpg)
 
-*웨이브 사이 카드 선택 — 넉백 · 지속 회복 · 신규 무기를 같은 틀에*
+*웨이브 사이에 고르는 카드는 넉백, 지속 회복, 신규 무기를 같은 틀에 담는다*
 
 | 영역 | 접근 | 결과 |
 | --- | --- | --- |

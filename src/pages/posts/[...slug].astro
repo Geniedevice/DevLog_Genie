@@ -161,11 +161,10 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
 </BaseLayout>
 
 <script>
-  import { headline, popIn, toast, revealEach } from '../../scripts/fx';
+  import { popIn, toast } from '../../scripts/fx';
   import { wireBookmarks } from '../../scripts/bookmarks';
   import { icon } from '../../scripts/icons';
 
-  headline(document.querySelector('[data-headline]'), 100);
   wireBookmarks();
 
   // 공유: 모바일은 시스템 공유 시트, 아니면 링크 복사
@@ -204,8 +203,6 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // 스크롤 트리거: 본문 요소가 화면에 들어올 때 하나씩 떠오른다
-  revealEach(prose.querySelectorAll(':scope > h2, :scope > h3, :scope > p > img, :scope > table, :scope > .callout, :scope > blockquote, :scope > details, :scope > pre'));
 
   // 본문 이미지 크게 보기
   const box = document.querySelector<HTMLDialogElement>('[data-lightbox]')!;
@@ -255,12 +252,12 @@ const short = (d: Date) => d.toLocaleDateString('ko-KR', { year: 'numeric', mont
   .ring-pct { position: relative; font-size: 11px; }
   .ring-left { position: absolute; right: 66px; white-space: nowrap; padding: 4px 9px; border-radius: 999px; background: var(--card); box-shadow: 0 0 0 1px var(--border); font-size: 12px; color: var(--muted-foreground); opacity: 0; transition: opacity 200ms; }
   .ring:hover .ring-left, .ring:focus-visible .ring-left { opacity: 1; }
-  @media (max-width: 1023px) { .ring { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); } }
+  @media (max-width: 1023px) { .ring { right: 12px; bottom: calc(16px + env(safe-area-inset-bottom)); } }
   .progress { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 40; pointer-events: none; }
-  .bar { height: 100%; background: var(--brand); box-shadow: 0 0 10px var(--glow); transform: scaleX(0); transform-origin: left; }
+  .bar { height: 100%; background: var(--brand); transform: scaleX(0); transform-origin: left; }
 
-  .watch { display: grid; gap: 32px; max-width: 1440px; margin: 0 auto; padding: 20px 16px 48px; }
-  @media (min-width: 1024px) { .watch { padding: 28px 40px 64px; } }
+  .watch { display: grid; gap: 32px; max-width: var(--content-max); margin: 0 auto; padding: 20px 16px 48px; }
+  @media (min-width: 1024px) { .watch { padding: 28px 32px 64px; } }
   @media (min-width: 1200px) { .watch { grid-template-columns: minmax(0, 1fr) 360px; } }
   .primary { min-width: 0; }
 

@@ -1,5 +1,5 @@
 // 8비트 효과음. 파일 없이 Web Audio 로 즉석 합성한다.
-// 기본은 꺼짐(방문자가 사이드바 스피커 버튼으로 켠다). 켜짐 여부는 이 브라우저에만 저장.
+// 기본은 꺼짐(방문자가 머리말 스피커 버튼으로 켠다). 켜짐 여부는 이 브라우저에만 저장.
 const KEY = 'devlog:sound';
 type Sound = 'hover' | 'click' | 'select' | 'coin' | 'jump' | 'achievement';
 

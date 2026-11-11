@@ -15,10 +15,9 @@ const bars = (g: (typeof games)[number]) => [
   { label: 'LOG', value: Math.min(10, readingMinutes(g.body)), max: 10, text: `${readingMinutes(g.body)}분 분량` },
 ];
 ---
-<BaseLayout title="프로젝트" active="projects" description="만든 게임 네 편 — EmberRoad, Gears of Deceit, Crawlescape, DESTINATION">
+<BaseLayout title="프로젝트" active="projects" description="만든 게임 네 편: EmberRoad, Gears of Deceit, Crawlescape, DESTINATION">
   <div class="page" data-stage-select>
     <header class="head">
-      <p class="eyebrow pixel-font"><span class="blink">▶</span> STAGE SELECT</p>
       <h1>게임 프로젝트</h1>
       <p class="sub">직접 만든 게임 {games.length}편. 골라서 기록을 열어 보세요. <span class="keys"><kbd class="kbd">←</kbd><kbd class="kbd">→</kbd> 선택 <kbd class="kbd">Enter</kbd> 열기</span></p>
     </header>
@@ -84,7 +83,7 @@ const bars = (g: (typeof games)[number]) => [
 </BaseLayout>
 
 <script>
-  import { animate, random, stagger, steps } from 'animejs';
+  import { animate, stagger, steps } from 'animejs';
   import { reduced } from '../scripts/fx';
   import { sfx } from '../scripts/sfx';
 
@@ -102,7 +101,8 @@ const bars = (g: (typeof games)[number]) => [
       );
     };
 
-    function select(i: number, withSound = true) {
+    // dir: +1 = 오른쪽 스테이지로(내용은 왼쪽으로 흐른다), -1 = 왼쪽으로. 화살표 · 카트리지 위치가 방향의 원인이다
+    function select(i: number, withSound = true, dir = i >= current ? 1 : -1) {
       i = (i + stages.length) % stages.length;
       if (i === current) return;
       current = i;
@@ -112,10 +112,9 @@ const bars = (g: (typeof games)[number]) => [
       history.replaceState(null, '', `?stage=${stages[i].dataset.no}`);
       if (reduced()) return;
       const next = stages[i];
-      // 화면 전환: 게임 스테이지가 바뀌듯 가로 줄무늬로 쓸고 들어온다
-      animate(next.querySelector('.screen')!, { clipPath: ['inset(0 0 100% 0)', 'inset(0 0 0% 0)'], duration: 520, ease: 'outExpo' });
-      animate(next.querySelectorAll('.info > *'), { opacity: [0, 1], translateX: [24, 0], duration: 500, delay: stagger(45), ease: 'outExpo' });
-      animate(carts[i], { scale: [1, 1.06, 1], duration: 420, ease: 'outBack(3)' });
+      // 화면 전환: 고른 방향에서 같은 방향으로 밀려 들어오고(벡터 일치), 정보는 위에서부터 차례로 따라온다
+      animate(next.querySelector('.screen')!, { opacity: [0, 1], translateX: [dir * 56, 0], filter: ['blur(6px)', 'blur(0px)'], duration: 560, ease: 'outExpo' });
+      animate(next.querySelectorAll('.info > *'), { opacity: [0, 1], translateX: [dir * 28, 0], duration: 520, delay: stagger(40, { start: 80 }), ease: 'outExpo' });
       fillBars(next);
     }
 
@@ -125,8 +124,8 @@ const bars = (g: (typeof games)[number]) => [
     });
     addEventListener('keydown', (e) => {
       if ((e.target as Element).closest?.('input, textarea, select, dialog[open]')) return;
-      if (e.key === 'ArrowRight') { e.preventDefault(); select(current + 1); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); select(current - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); select(current + 1, true, 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); select(current - 1, true, -1); }
       else if (e.key === 'Enter' && !(e.target as Element).closest?.('a, button')) { sfx('jump'); stages[current].querySelector<HTMLAnchorElement>('.press')?.click(); }
     });
 
@@ -135,21 +134,16 @@ const bars = (g: (typeof games)[number]) => [
     select(Math.max(want, 0), false);
 
     if (!reduced()) {
-      // 입장: 카트리지가 아래에서 차례로 꽂히고, 선택 커서가 통통 튄다
-      carts.forEach((c, k) => animate(c, { opacity: [0, 1], translateY: [60, 0], rotate: [random(-6, 6), 0], duration: 800, delay: 200 + k * 110, ease: 'outBack(1.6)' }));
-      animate(root.querySelectorAll('.cursor'), { translateY: [0, -6], duration: 420, loop: true, alternate: true, ease: steps(2) });
-      animate(root.querySelectorAll('.blink'), { opacity: [1, 0], duration: 500, loop: true, alternate: true, ease: steps(1) });
-      animate(root.querySelectorAll('.press'), { opacity: [1, 0.35], duration: 600, loop: true, alternate: true, ease: steps(1) });
-      animate(root.querySelectorAll('.scan'), { backgroundPositionY: ['0px', '8px'], duration: 600, loop: true, ease: 'linear' });
+      // 입장: 카트리지가 아래에서 차례로 꽂힌다(한 번). 깜빡이는 글자 · 통통 튀는 커서 같은 제자리 루프는 두지 않는다
+      animate(carts, { opacity: [0, 1], translateY: [24, 0], duration: 560, delay: stagger(60, { start: 200 }), ease: 'outExpo' });
     }
   }
 </script>
 
 <style>
-  .page { max-width: 1280px; margin: 0 auto; padding: 32px 16px 72px; }
-  @media (min-width: 1024px) { .page { padding: 40px 40px 80px; } }
+  .page { max-width: var(--content-max); margin: 0 auto; padding: 32px 16px 72px; }
+  @media (min-width: 1024px) { .page { padding: 40px 32px 80px; } }
   .head { margin-bottom: 26px; }
-  .eyebrow { margin: 0 0 12px; font-size: 13px; letter-spacing: 0.04em; color: var(--mint); }
   h1 { margin: 0; font-size: clamp(30px, 4vw, 44px); font-weight: 900; letter-spacing: -0.02em; }
   .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 8px 0 0; color: var(--muted-foreground); }
   .keys { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
@@ -165,14 +159,15 @@ const bars = (g: (typeof games)[number]) => [
     border-radius: var(--radius-xl);
     overflow: hidden;
     border: 2px solid color-mix(in srgb, var(--brand) 55%, var(--border));
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--card) 80%, transparent), 0 0 40px -8px var(--glow), var(--shadow-lg);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--card) 80%, transparent), var(--shadow-lg);
   }
   /* CRT 주사선 + 가장자리 어둡게 */
   .scan { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.16) 0 2px, transparent 2px 4px), radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.45)); mix-blend-mode: multiply; }
   .stage-no { position: absolute; left: 14px; top: 14px; z-index: 3; padding: 5px 9px; border-radius: 5px; background: var(--night-scrim); color: var(--night-mint); font-size: 13px; letter-spacing: 0.04em; }
   .press { position: absolute; left: 50%; bottom: 18px; z-index: 3; translate: -50% 0; padding: 8px 14px; border-radius: 6px; background: var(--night-scrim); color: var(--night-amber); font-size: 13px; letter-spacing: 0.04em; white-space: nowrap; }
 
-  .info > * { margin: 0; }
+  /* :where 로 우선순위를 0 으로: 빌드가 규칙 순서를 바꿔도 아래 margin-top 들이 이긴다 */
+  :where(.info > *) { margin: 0; }
   .genre { font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--brand); }
   .info h2 { margin-top: 8px; font-size: clamp(28px, 3.4vw, 40px); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
   .tagline { margin-top: 10px; font-size: 16px; color: var(--muted-foreground); }
@@ -211,7 +206,7 @@ const bars = (g: (typeof games)[number]) => [
     filter: saturate(0.55) brightness(0.8);
   }
   .cart:hover { filter: saturate(0.9) brightness(0.95); border-color: color-mix(in srgb, var(--brand) 50%, var(--border)); }
-  .cart[aria-selected='true'] { translate: 0 -8px; filter: none; border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft), 0 0 30px -6px var(--glow); }
+  .cart[aria-selected='true'] { translate: 0 -8px; filter: none; border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft); }
   .cart-art { display: block; border-radius: 6px; overflow: hidden; }
   .cart-label { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
   .no { font-size: 13px; letter-spacing: 0.04em; color: var(--mint); }

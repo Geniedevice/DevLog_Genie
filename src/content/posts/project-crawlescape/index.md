@@ -57,11 +57,11 @@ game:
 
 ![소켓 장착](./weapon-sockets.png)
 
-*등 · 허리 · 양손 소켓 — 어디 붙일지도 데이터가 정한다*
+*등, 허리, 양손 소켓 중 어디 붙일지도 데이터가 정한다*
 
 </div>
 
-공통 흐름은 C++, 무기별 동작만 BlueprintImplementableEvent — **C++ 수정 없이 무기 추가**.
+공통 흐름은 C++ 에 두고 무기별 동작만 BlueprintImplementableEvent 로 뺐습니다. 그래서 **C++ 수정 없이 무기를 추가**합니다.
 
 ## 02 · 오브젝트 풀링
 
@@ -75,13 +75,13 @@ game:
 
 <iframe class="video" src="https://www.youtube-nocookie.com/embed/05jIXJ4GJK8" title="UI 시스템" loading="lazy" allowfullscreen></iframe>
 
-*화면을 열고 닫는 흐름 — 레퍼런스 카운트가 0 이 될 때만 내려간다*
+*화면을 열고 닫는 흐름: 레퍼런스 카운트가 0 이 될 때만 내려간다*
 
 ## 04 · UI 효과 — Dynamic Material Instance
 
 <iframe class="video" src="https://www.youtube-nocookie.com/embed/gZ5CZWi2KTQ" title="히트 이펙트" loading="lazy" allowfullscreen></iframe>
 
-*피격 순간의 화면 반응 — 연출은 머티리얼 안에서 끝난다*
+*피격 순간의 화면 반응은 머티리얼 안에서 다 연출한다*
 
 ## 트러블 슈팅
 

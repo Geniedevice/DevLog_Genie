@@ -3,7 +3,7 @@ title: "Gears of Deceit — 달리는 열차 위, 5인 소셜 디덕션"
 description: 달리는 증기기관차 위 5인 소셜 디덕션. 세션 · 근접 보이스 · 열차 · 툰 셰이딩을 영상과 그림으로 정리했습니다.
 date: 2026-09-30T20:20:00+09:00
 cover: ./cover.jpg
-coverAlt: Gears of Deceit 타이틀 아트 — 설원을 달리는 증기기관차
+coverAlt: 설원을 달리는 증기기관차를 그린 Gears of Deceit 타이틀 아트
 category: Project
 tags: [Unreal, 멀티플레이, Steam OSS, VOIP, 팀 프로젝트]
 series: 게임 프로젝트
@@ -26,7 +26,7 @@ game:
 
 <iframe class="video" src="https://www.youtube-nocookie.com/embed/d1UV0k-tygk" title="Gears of Deceit 순찰자 시점 플레이" loading="lazy" allowfullscreen></iframe>
 
-*순찰자 시점 플레이 — 열차 안을 돌며 다른 플레이어와 마주치는 한 판*
+*순찰자 시점으로 열차 안을 돌며 다른 플레이어와 마주치는 한 판*
 
 | 장르 | 인원 · 한 판 | 기간 | 담당 | 환경 |
 | --- | --- | --- | --- | --- |
@@ -54,7 +54,7 @@ game:
 
 ![필터 전 세션 목록](./lobby.png)
 
-*필터 전 — 남의 방이 깨진 이름으로 섞인다*
+*필터를 걸기 전에는 남의 방이 깨진 이름으로 섞인다*
 
 </div>
 
@@ -70,7 +70,7 @@ BUILD_ID 서명 필터로 **우리 빌드의 방만** 통과시켰습니다.
 
 ![보이스 감쇠 설정](./voice-attenuation.png)
 
-*Inner Radius 100 · Falloff 400 — 대화가 성립하는 거리*
+*Inner Radius 100, Falloff 400 이면 대화가 되는 거리*
 
 </div>
 
@@ -81,7 +81,7 @@ BUILD_ID 서명 필터로 **우리 빌드의 방만** 통과시켰습니다.
 
 <iframe class="video" src="https://www.youtube-nocookie.com/embed/NLYeQMLkxEc" title="열차 주행" loading="lazy" allowfullscreen></iframe>
 
-*스플라인을 따라 달리는 열차 — 주행 중 흔들림까지*
+*주행 중 흔들림까지 넣어 스플라인을 따라 달리는 열차*
 
 <div class="media-2">
 
@@ -91,7 +91,7 @@ BUILD_ID 서명 필터로 **우리 빌드의 방만** 통과시켰습니다.
 
 ![주행 중인 지붕](./train-roof.jpg)
 
-*바닥이 계속 움직이는 지붕 위 — `SetBase()` 로 탑승 유지*
+*바닥이 계속 움직이는 지붕 위에서도 `SetBase()` 로 탑승을 유지한다*
 
 </div>
 
@@ -105,11 +105,11 @@ BUILD_ID 서명 필터로 **우리 빌드의 방만** 통과시켰습니다.
 
 ![적용 전](./hud.png)
 
-*전 — 색이 뭉치고 경계가 묻힌다*
+*적용 전에는 색이 뭉치고 경계가 묻힌다*
 
 ![적용 후](./toon-after.png)
 
-*후 — 명암이 단을 이루고 실루엣이 선다*
+*적용 후에는 명암이 단을 이루고 실루엣이 선다*
 
 </div>
 

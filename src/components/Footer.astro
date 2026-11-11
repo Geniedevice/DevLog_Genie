@@ -16,9 +16,9 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  .footer { max-width: 1280px; width: 100%; margin: 0 auto; padding: 64px 24px 28px; }
+  .footer { max-width: var(--content-max); width: 100%; margin: 0 auto; padding: 64px 16px 28px; }
   .inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted-foreground); font-size: 13px; }
   p { margin: 0; }
-  .links { display: flex; flex-wrap: wrap; }
-  @media (min-width: 1024px) { .footer { padding: 80px 40px 28px; } }
+  .links { display: flex; flex-wrap: wrap; margin-right: -12px; }
+  @media (min-width: 1024px) { .footer { padding: 80px 32px 28px; } }
 </style>
